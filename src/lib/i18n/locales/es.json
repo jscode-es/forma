@@ -20,7 +20,8 @@
     "title": "Tu espacio de trabajo",
     "library": "Biblioteca",
     "help": "Ayuda",
-    "settings": "Ajustes"
+    "settings": "Ajustes",
+    "models": "Modelos"
   },
   "nav": {
     "create3d": "Crear 3D",
@@ -201,7 +202,8 @@
       "entry-missing": "Falta el archivo de entrada",
       "python-missing": "No se encuentra Python",
       "cuda-missing": "CUDA no disponible",
-      "vram-insufficient": "VRAM insuficiente"
+      "vram-insufficient": "VRAM insuficiente",
+      "weights-missing": "Faltan pesos obligatorios por descargar"
     }
   },
   "status": {
@@ -297,6 +299,43 @@
       "interrupted": "Interrumpido: la aplicación se cerró mientras se ejecutaba",
       "timeout": "Se superó el tiempo límite",
       "no-result": "El motor terminó sin resultado"
+    }
+  },
+  "models": {
+    "title": "Gestor de modelos",
+    "description": "Pesos que usan los motores. Solo se descargan cuando lo pides, se verifican con SHA-256 y se guardan en este equipo.",
+    "manage": "Gestionar modelos",
+    "installed": "Instalado: {{size}}",
+    "free": "Libre: {{size}}",
+    "checkUpdates": "Buscar actualizaciones",
+    "checking": "Comprobando...",
+    "empty": "Ningún motor instalado declara pesos descargables.",
+    "optional": "Opcional",
+    "vram": "{{value}} GB de VRAM",
+    "updateAvailable": "Actualización disponible",
+    "updateHint": "Existe una revisión más reciente ({{revision}}). Forma mantiene la fijada; no se instala nada automáticamente.",
+    "download": "Descargar",
+    "resume": "Reanudar",
+    "repair": "Reparar",
+    "pause": "Pausar",
+    "verify": "Verificar",
+    "remove": "Eliminar",
+    "confirmRemove": "Eliminar archivos",
+    "status": {
+      "missing": "No instalado",
+      "partial": "Incompleto",
+      "downloading": "Descargando",
+      "verifying": "Verificando",
+      "installed": "Instalado",
+      "corrupt": "Dañado"
+    },
+    "license": {
+      "title": "Licencia de {{name}}",
+      "description": "Revisa la licencia antes de descargar. Forma guarda tu aceptación para esta revisión.",
+      "read": "Leer la licencia completa",
+      "responsibility": "Eres responsable de cumplir los términos de la licencia en tu país y para tu uso.",
+      "accept": "He leído y acepto la licencia",
+      "acceptAndDownload": "Aceptar y descargar"
     }
   }
 }

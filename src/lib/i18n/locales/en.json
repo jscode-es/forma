@@ -20,7 +20,8 @@
     "title": "Your workspace",
     "library": "Library",
     "help": "Help",
-    "settings": "Settings"
+    "settings": "Settings",
+    "models": "Models"
   },
   "nav": {
     "create3d": "Create 3D",
@@ -201,7 +202,8 @@
       "entry-missing": "Entry file missing",
       "python-missing": "Python not found",
       "cuda-missing": "CUDA not available",
-      "vram-insufficient": "Not enough VRAM"
+      "vram-insufficient": "Not enough VRAM",
+      "weights-missing": "Required weights not downloaded"
     }
   },
   "status": {
@@ -297,6 +299,43 @@
       "interrupted": "Interrupted: the app was closed while it ran",
       "timeout": "Time limit exceeded",
       "no-result": "The engine finished without a result"
+    }
+  },
+  "models": {
+    "title": "Model manager",
+    "description": "Weights used by the engines. They are downloaded only when you ask, verified with SHA-256 and kept on this computer.",
+    "manage": "Manage models",
+    "installed": "Installed: {{size}}",
+    "free": "Free: {{size}}",
+    "checkUpdates": "Check for updates",
+    "checking": "Checking...",
+    "empty": "No installed engine declares downloadable weights.",
+    "optional": "Optional",
+    "vram": "{{value}} GB VRAM",
+    "updateAvailable": "Update available",
+    "updateHint": "A newer revision ({{revision}}) exists upstream. Forma keeps the pinned one; nothing is installed automatically.",
+    "download": "Download",
+    "resume": "Resume",
+    "repair": "Repair",
+    "pause": "Pause",
+    "verify": "Verify",
+    "remove": "Remove",
+    "confirmRemove": "Remove files",
+    "status": {
+      "missing": "Not installed",
+      "partial": "Incomplete",
+      "downloading": "Downloading",
+      "verifying": "Verifying",
+      "installed": "Installed",
+      "corrupt": "Damaged"
+    },
+    "license": {
+      "title": "License of {{name}}",
+      "description": "Review the license before downloading. Forma records your acceptance for this revision.",
+      "read": "Read the full license",
+      "responsibility": "You are responsible for complying with the license terms in your country and use case.",
+      "accept": "I have read and accept the license",
+      "acceptAndDownload": "Accept and download"
     }
   }
 }

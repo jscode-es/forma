@@ -20,6 +20,7 @@ import {
 import { Search, SlidersHorizontal, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ACTIVE, EngineControl, generateModel, useJobsStore } from "@/feature/jobs";
+import { useModelsStore } from "@/feature/models";
 import { useProjectStore, type Quality } from "@/stores/project-store";
 import { useWorkspaceStore, type InspectorTab } from "@/stores/workspace-store";
 import styles from "../shell.module.css";
@@ -87,6 +88,15 @@ function ScaleControl() {
   );
 }
 
+function ManageModelsButton() {
+  const { t } = useTranslation();
+  return (
+    <Button variant="link" size="sm" style={{ justifySelf: "start", padding: 0 }} onClick={() => useModelsStore.getState().setOpen(true)}>
+      {t("models.manage")}
+    </Button>
+  );
+}
+
 function GenerateFooter() {
   const { t } = useTranslation();
   const engineId = useProjectStore((s) => s.engine.id);
@@ -109,7 +119,16 @@ function GenerateFooter() {
 }
 
 const SECTIONS: SectionDef[] = [
-  { tab: "create", id: "engine", content: <EngineControl /> },
+  {
+    tab: "create",
+    id: "engine",
+    content: (
+      <>
+        <EngineControl />
+        <ManageModelsButton />
+      </>
+    ),
+  },
   { tab: "create", id: "quality", content: <QualityControl /> },
   { tab: "create", id: "scale", content: <ScaleControl /> },
   ...INSPECTOR_TABS.flatMap((tab) => PLANNED_SECTIONS[tab].map((s) => ({ tab, ...s }))),

@@ -8,21 +8,129 @@
     "en": "Test engine without AI: simulates the stages of a generation and produces a simple shape.",
     "es": "Motor de prueba sin IA: simula las etapas de una generación y produce una forma simple."
   },
-  "tasks": ["image-to-3d", "text-to-3d"],
-  "runtime": { "type": "node", "entry": "main.mjs" },
+  "tasks": [
+    "image-to-3d",
+    "text-to-3d"
+  ],
+  "runtime": {
+    "type": "node",
+    "entry": "main.mjs"
+  },
   "timeoutSeconds": 120,
   "parameters": [
-    { "id": "steps", "type": "integer", "label": { "en": "Steps", "es": "Pasos" }, "min": 1, "max": 60, "step": 1, "default": 20 },
+    {
+      "id": "steps",
+      "type": "integer",
+      "label": {
+        "en": "Steps",
+        "es": "Pasos"
+      },
+      "min": 1,
+      "max": 60,
+      "step": 1,
+      "default": 20
+    },
     {
       "id": "shape",
       "type": "enum",
-      "label": { "en": "Shape", "es": "Forma" },
+      "label": {
+        "en": "Shape",
+        "es": "Forma"
+      },
       "default": "crystal",
       "options": [
-        { "value": "crystal", "label": { "en": "Crystal", "es": "Cristal" } },
-        { "value": "pyramid", "label": { "en": "Pyramid", "es": "Pirámide" } }
+        {
+          "value": "crystal",
+          "label": {
+            "en": "Crystal",
+            "es": "Cristal"
+          }
+        },
+        {
+          "value": "pyramid",
+          "label": {
+            "en": "Pyramid",
+            "es": "Pirámide"
+          }
+        },
+        {
+          "value": "avocado",
+          "label": {
+            "en": "Avocado (downloaded)",
+            "es": "Aguacate (descargado)"
+          }
+        },
+        {
+          "value": "fox",
+          "label": {
+            "en": "Fox (downloaded)",
+            "es": "Zorro (descargado)"
+          }
+        }
       ]
     },
-    { "id": "fail", "type": "boolean", "label": { "en": "Simulate a failure", "es": "Simular un fallo" }, "default": false }
+    {
+      "id": "fail",
+      "type": "boolean",
+      "label": {
+        "en": "Simulate a failure",
+        "es": "Simular un fallo"
+      },
+      "default": false
+    }
+  ],
+  "weights": [
+    {
+      "id": "demo-avocado",
+      "name": "Avocado sample",
+      "optional": true,
+      "license": {
+        "id": "CC0-1.0",
+        "name": "Creative Commons Zero v1.0 Universal",
+        "url": "https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+        "summary": {
+          "en": "Public domain dedication by Microsoft. No conditions.",
+          "es": "Dedicado al dominio público por Microsoft. Sin condiciones."
+        }
+      },
+      "source": {
+        "type": "github",
+        "repo": "KhronosGroup/glTF-Sample-Assets",
+        "revision": "8f492390ddc7a2ae221a1369ef560589cf8c70fb"
+      },
+      "files": [
+        {
+          "path": "Models/Avocado/glTF-Binary/Avocado.glb",
+          "size": 8110040,
+          "sha256": "ccc9c3ce56423720b09399c2351537207cd5a65f859f9e6e2f30922762f3abd4"
+        }
+      ]
+    },
+    {
+      "id": "demo-fox",
+      "name": "Fox sample",
+      "optional": true,
+      "license": {
+        "id": "CC-BY-4.0",
+        "name": "Creative Commons Attribution 4.0 (rig and animation by tomkranis; model CC0 by PixelMannen)",
+        "url": "https://creativecommons.org/licenses/by/4.0/legalcode",
+        "summary": {
+          "en": "Free use, including commercial, if you credit the authors.",
+          "es": "Uso libre, también comercial, siempre que cites a los autores."
+        }
+      },
+      "source": {
+        "type": "github",
+        "repo": "KhronosGroup/glTF-Sample-Assets",
+        "revision": "8f492390ddc7a2ae221a1369ef560589cf8c70fb"
+      },
+      "files": [
+        {
+          "path": "Models/Fox/glTF-Binary/Fox.glb",
+          "size": 162852,
+          "sha256": "d97044e701822bac5a62696459b27d7b375aada5de8574ed4362edbba94771f7"
+        }
+      ]
+    }
   ]
 }

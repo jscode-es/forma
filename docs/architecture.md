@@ -41,3 +41,8 @@ Main process (ipcMain, SQLite, inference runner - planned)
 - `electron/jobs.ts` runs one job at a time, persists the queue in `jobs`, kills the process tree on cancel, timeout or quit, and marks interrupted jobs on start.
 - `electron/hardware.ts` detects GPU, VRAM, driver and CUDA (`nvidia-smi`), free disk and Python.
 - The renderer receives job updates through the `jobs:update` event. When a job started from the current session succeeds, its model is staged and placed in the scene.
+
+## Model weights
+
+- `electron/weights.ts` builds the catalog from engine manifests, downloads with resume and a host allowlist, verifies SHA-256, writes a `receipt.json` per revision and records license acceptance in `settings`.
+- Status per weights: missing, partial, downloading, verifying, installed, corrupt. Verify re-hashes every file; repair downloads only what fails.

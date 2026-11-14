@@ -1,8 +1,9 @@
 "use client";
 
 import { Badge, Button, Icon } from "@kivora/nextjs";
-import { Box, CircleHelp, ImagePlus, LibraryBig, Settings, Upload } from "lucide-react";
+import { Box, Boxes, CircleHelp, ImagePlus, LibraryBig, Settings, Upload } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useModelsStore } from "@/feature/models";
 import { useViewerStore } from "@/feature/viewport";
 import { useProjectStore } from "@/stores/project-store";
 import { useWorkspaceStore } from "@/stores/workspace-store";
@@ -31,6 +32,7 @@ export function SideMenu({ onOpenDialog }: { onOpenDialog: (dialog: ShellDialog)
 
   const footer = [
     { id: "library" as const, icon: LibraryBig },
+    { id: "models" as const, icon: Boxes },
     { id: "help" as const, icon: CircleHelp },
     { id: "settings" as const, icon: Settings },
   ];
@@ -103,7 +105,7 @@ export function SideMenu({ onOpenDialog }: { onOpenDialog: (dialog: ShellDialog)
 
       <div className={styles.menuFooter}>
         {footer.map(({ id, icon }) => (
-          <button key={id} type="button" className={styles.footerButton} onClick={() => onOpenDialog(id)}>
+          <button key={id} type="button" className={styles.footerButton} onClick={() => (id === "models" ? useModelsStore.getState().setOpen(true) : onOpenDialog(id))}>
             <Icon icon={icon} size={18} />
             {t(`menu.${id}`)}
           </button>

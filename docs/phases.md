@@ -68,13 +68,13 @@ Target: the interface structure of the design reference, without engines.
 - [x] Offline guarantee: engines run without network access
 - [x] Python environment discovery and diagnostics
 
-## Phase 5 · Model manager
+## Phase 5 · Model manager (done)
 
-- [ ] Model catalog with engine, size, license, VRAM and pinned revision
-- [ ] Download with resume, SHA-256 verification and receipts
-- [ ] Explicit license acknowledgement before the first download
-- [ ] Status, verify, repair and remove; disk usage view
-- [ ] Update check that only reports, never installs by itself
+- [x] Model catalog with engine, size, license, VRAM and pinned revision
+- [x] Download with resume, SHA-256 verification and receipts
+- [x] Explicit license acknowledgement before the first download
+- [x] Status, verify, repair and remove; disk usage view
+- [x] Update check that only reports, never installs by itself
 
 ## Phase 6 · Image to 3D (first engine)
 

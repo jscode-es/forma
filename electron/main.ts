@@ -18,8 +18,9 @@ import {
   updateProject,
 } from "./projects";
 import { clearStaging, importModel, readModel } from "./models";
-import { jobRequest, modelSource, projectId, projectInput, projectName } from "./schemas";
+import { engineId, jobRequest, modelSource, projectId, projectInput, projectName } from "./schemas";
 import { getSystemInfo, openDataDir } from "./system";
+import { acceptLicense, cancelDownload, checkUpdates, downloadWeights, listWeights, removeWeights, verifyWeights } from "./weights";
 
 const isDev = process.env.FORMA_DEV === "1";
 const outDir = path.join(__dirname, "..", "out");
@@ -79,6 +80,13 @@ function registerIpc() {
   handle("models:import", none, importModel);
   handle("models:read", z.tuple([modelSource]), readModel);
   handle("engines:list", none, async () => (await listEngines()).map((e) => e.info));
+  handle("weights:list", none, listWeights);
+  handle("weights:accept-license", z.tuple([engineId]), acceptLicense);
+  handle("weights:download", z.tuple([engineId]), downloadWeights);
+  handle("weights:cancel", z.tuple([engineId]), cancelDownload);
+  handle("weights:verify", z.tuple([engineId]), verifyWeights);
+  handle("weights:remove", z.tuple([engineId]), removeWeights);
+  handle("weights:check-updates", none, checkUpdates);
   handle("jobs:list", none, () => jobs.list());
   handle("jobs:enqueue", z.tuple([jobRequest]), (request) => jobs.enqueue(request));
   handle("jobs:cancel", z.tuple([z.uuid()]), (id) => jobs.cancel(id));

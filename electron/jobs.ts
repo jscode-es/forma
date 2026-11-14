@@ -10,6 +10,7 @@ import { getDb } from "./db";
 import { enginePython, listEngines, resolveParameters, type InstalledEngine } from "./engines";
 import { findPython } from "./hardware";
 import { stagingRoot } from "./models";
+import { installedWeights } from "./weights";
 
 type Row = {
   id: string;
@@ -238,7 +239,13 @@ class JobRunner {
     if (!engine) throw new Error("Engine not installed");
 
     const dir = jobDir(id);
-    const spec = { jobId: id, task: row.kind, parameters: JSON.parse(row.params), outputDir: path.join(dir, "out") };
+    const spec = {
+      jobId: id,
+      task: row.kind,
+      parameters: JSON.parse(row.params),
+      weights: installedWeights(engine.manifest),
+      outputDir: path.join(dir, "out"),
+    };
     fs.writeFileSync(path.join(dir, "job.json"), JSON.stringify(spec, null, 2));
     const log = fs.createWriteStream(path.join(dir, "job.log"), { flags: "a" });
     const write = (line: string) => log.write(`${new Date().toISOString()} ${line}\n`);
