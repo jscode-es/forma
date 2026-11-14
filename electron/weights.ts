@@ -29,6 +29,7 @@ function weightsDir(entry: Pick<Entry, "id" | "source">) {
 
 function fileUrl(entry: Entry, file: string) {
   const { type, repo, revision } = entry.source;
+  if (type === "mediapipe") return `https://storage.googleapis.com/mediapipe-models/${repo}/float16/${revision}/${file}`;
   return type === "huggingface"
     ? `https://huggingface.co/${repo}/resolve/${revision}/${file}`
     : `https://raw.githubusercontent.com/${repo}/${revision}/${file}`;
@@ -160,11 +161,14 @@ async function downloadFile(entry: Entry, file: WeightsFile, live: { downloadedB
   const offset = fileSize(part);
   const response = await fetch(fileUrl(entry, file.path), {
     headers: offset > 0 ? { Range: `bytes=${offset}-` } : {},
-    redirect: "follow",
+    redirect: entry.source.type === "mediapipe" ? "error" : "follow",
     signal,
   });
   const host = new URL(response.url).hostname;
-  if (!ALLOWED_HOSTS.some((pattern) => pattern.test(host))) throw new Error(`Download host not allowed: ${host}`);
+  const allowed = entry.source.type === "mediapipe"
+    ? response.url === fileUrl(entry, file.path)
+    : ALLOWED_HOSTS.some((pattern) => pattern.test(host));
+  if (!allowed) throw new Error(`Download host not allowed: ${host}`);
   if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`);
   const append = response.status === 206 && offset > 0;
   let written = append ? offset : 0;
@@ -259,6 +263,7 @@ export async function removeWeights(id: string) {
 
 async function latestRevision(entry: Entry): Promise<string | null> {
   const { type, repo } = entry.source;
+  if (type === "mediapipe") return null;
   const url = type === "huggingface" ? `https://huggingface.co/api/models/${repo}` : `https://api.github.com/repos/${repo}/commits/HEAD`;
   const response = await fetch(url, { headers: { Accept: "application/json", "User-Agent": "forma-desktop" } });
   if (!response.ok) return null;

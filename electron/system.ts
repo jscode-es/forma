@@ -16,16 +16,16 @@ async function detectGpu(): Promise<string | null> {
   }
 }
 
-let cached: Promise<SystemInfo> | undefined;
+let cached: Promise<Omit<SystemInfo, "languages">> | undefined;
 
-export function getSystemInfo(): Promise<SystemInfo> {
+export async function getSystemInfo(): Promise<SystemInfo> {
   cached ??= detectGpu().then((gpu) => ({
     version: app.getVersion(),
     platform: process.platform,
     gpu,
     dataDir: app.getPath("userData"),
   }));
-  return cached;
+  return { ...await cached, languages: app.getPreferredSystemLanguages() };
 }
 
 export async function openDataDir() {

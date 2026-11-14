@@ -8,6 +8,8 @@ export const DEFAULT_SETTINGS: ProjectSettings = {
   heightMeters: 1.8,
   engine: { id: null, parameters: {} },
   imageEngine: { id: null, parameters: {} },
+  textureEngine: { id: null, parameters: {} },
+  textureReferenceId: null,
 };
 export const DEFAULT_VARIANT_ID = "00000000-0000-4000-8000-000000000000";
 
@@ -55,6 +57,8 @@ export const projectSettings = z.object({
   heightMeters: z.number().min(0.01).max(100),
   engine: z.object({ id: engineId.nullable(), parameters: parameterValues }),
   imageEngine: z.object({ id: engineId.nullable(), parameters: parameterValues }),
+  textureEngine: z.object({ id: engineId.nullable(), parameters: parameterValues }).default({ id: null, parameters: {} }),
+  textureReferenceId: z.uuid().nullable().default(null),
 });
 
 const modelName = z.string().max(120);
@@ -70,8 +74,13 @@ export const imageSource = z.discriminatedUnion("type", [
   z.object({ type: z.literal("asset"), assetId: z.uuid() }),
 ]);
 
+export const REFERENCE_VIEWS = ["front", "back", "left", "right", "top"] as const;
+
+export const referenceView = z.enum(REFERENCE_VIEWS);
+
 export const referenceImage = z.object({
   id: z.uuid(),
+  view: referenceView.default("front"),
   name: z.string().max(120),
   width: z.number().int().positive(),
   height: z.number().int().positive(),
@@ -97,7 +106,7 @@ export const promptEntry = z.object({
 export const variant = z.object({
   id: z.uuid(),
   label: z.string().max(120),
-  origin: z.enum(["default", "import", "generation", "optimize"]),
+  origin: z.enum(["default", "import", "generation", "optimize", "texture", "material", "retopology", "uv", "normals", "paint", "rig", "animation"]),
   parentId: z.uuid().nullable(),
   engineId: engineId.nullable(),
   model: sceneModel,
@@ -126,9 +135,10 @@ export const modelSource = z.discriminatedUnion("type", [
   z.object({ type: z.literal("asset"), projectId: z.uuid(), assetId: z.uuid() }),
 ]);
 
-export const engineTask = z.enum(["image-to-3d", "text-to-3d", "text-to-image", "remove-background", "optimize", "texture", "rig", "animation"]);
+export const engineTask = z.enum(["image-to-3d", "text-to-3d", "text-to-image", "remove-background", "optimize", "texture", "rig", "animation", "mesh-inspect", "retopology", "uv-unwrap", "normals", "video-to-motion"]);
 
 export const jobRequest = z.object({
+  videos: z.array(z.object({ stagingId: z.uuid(), name: z.string().min(1).max(120) })).max(1).default([]),
   engineId,
   task: engineTask,
   projectId: z.uuid().nullable(),
@@ -136,6 +146,7 @@ export const jobRequest = z.object({
   images: z.array(imageSource).max(8),
   models: z.array(sceneModel).max(4),
   prompt: promptText.nullable().default(null),
+  views: z.array(referenceView).max(REFERENCE_VIEWS.length).default([]),
 });
 
 const localizedText = z.object({ en: z.string().min(1).max(600), es: z.string().max(600).optional() });
@@ -150,7 +161,7 @@ export const engineManifest = z.object({
   description: localizedText,
   tasks: z.array(engineTask).min(1),
   runtime: z.object({
-    type: z.enum(["node", "python"]),
+    type: z.enum(["node", "python", "blender"]),
     entry: z.string().regex(/^[\w./-]+$/).refine((p) => !p.includes(".."), "entry must stay inside the engine folder"),
   }),
   timeoutSeconds: z.number().int().min(10).max(24 * 3600).default(1800),
@@ -162,8 +173,10 @@ export const engineManifest = z.object({
     .object({
       images: z.object({ min: z.number().int().min(0).max(8), max: z.number().int().min(0).max(8) }).default({ min: 0, max: 0 }),
       models: z.object({ min: z.number().int().min(0).max(4), max: z.number().int().min(0).max(4) }).default({ min: 0, max: 0 }),
+      views: z.array(referenceView).max(REFERENCE_VIEWS.length).default([]),
+      videos: z.object({ min: z.number().int().min(0).max(1), max: z.number().int().min(0).max(1) }).default({ min: 0, max: 0 }),
     })
-    .default({ images: { min: 0, max: 0 }, models: { min: 0, max: 0 } }),
+    .default({ images: { min: 0, max: 0 }, models: { min: 0, max: 0 }, views: [], videos: { min: 0, max: 0 } }),
   weights: z
     .array(
       z.object({
@@ -176,11 +189,11 @@ export const engineManifest = z.object({
           url: z.url({ protocol: /^https$/ }),
           summary: localizedText,
         }),
-        source: z.object({
+        source: z.union([z.object({
           type: z.enum(["huggingface", "github"]),
           repo: z.string().regex(/^[\w.-]+\/[\w.-]+$/),
           revision: z.string().regex(/^[0-9a-f]{40}$/),
-        }),
+        }), z.object({ type: z.literal("mediapipe"), repo: z.literal("pose_landmarker/pose_landmarker_lite"), revision: z.literal("1") })]),
         files: z
           .array(
             z.object({

@@ -1,0 +1,16 @@
+.stack { display: grid; gap: .65rem; min-width: 0; }
+.hint { color: var(--color-muted-foreground); font-size: .75rem; line-height: 1.5; overflow-wrap: anywhere; }
+.error { color: var(--color-destructive); font-size: .75rem; overflow-wrap: anywhere; }
+.actions, .keys { display: flex; flex-wrap: wrap; gap: .4rem; }
+.keys { max-height: 10rem; overflow-y: auto; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+.vector { min-width: 0; margin: 0; padding: 0; border: 0; }
+.vector legend { margin-bottom: .65rem; font-size: .875rem; }
+.axes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+.axes input, .pair input { min-width: 0; padding-inline: .5rem; }
+.toggle { display: flex; align-items: center; gap: .5rem; }
+.timeline { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; padding: .65rem 1rem; }
+.scrub { display: grid; flex: 1; gap: .5rem; min-width: 8rem; }
+.scrub label { font-size: .75rem; font-variant-numeric: tabular-nums; }
+.speed { min-width: 6rem; }
+.speed label { font-size: .75rem; }

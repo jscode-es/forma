@@ -135,7 +135,8 @@ if (job.task === "text-to-image") {
   send({ type: "result", files });
   process.exit(0);
 }
-if (images.length > 0) send({ type: "log", level: "info", message: `reference: ${images[0]}` });
+const views = job.inputs?.views ?? [];
+images.forEach((image, index) => send({ type: "log", level: "info", message: `reference: ${image}${views[index] ? ` (view: ${views[index]})` : ""}` }));
 
 send({ type: "log", level: "info", message: `demo job ${job.jobId}: ${steps} steps, ${shape}` });
 send({ type: "progress", value: 0, stage: "preparing" });

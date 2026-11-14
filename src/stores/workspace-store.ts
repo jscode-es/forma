@@ -1,10 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type SectionId = "createReference" | "create3d" | "createAnimation" | "export";
+export type SectionId = "create3d" | "createAnimation" | "export";
 export type InspectorTab =
-  | "text"
-  | "views"
   | "create"
   | "model"
   | "finish"
@@ -19,13 +17,16 @@ export type DockTab = "session" | "jobs" | "process" | "timeline";
 export type ViewMode = "material" | "solid" | "wireframe";
 
 const DEFAULT_TABS: Record<SectionId, InspectorTab> = {
-  createReference: "text",
   create3d: "create",
   createAnimation: "capture",
   export: "files",
 };
 
+export type ReferenceTab = "text" | "single" | "multi";
+
 type WorkspaceState = {
+  referenceTab: ReferenceTab;
+  setReferenceTab: (tab: ReferenceTab) => void;
   section: SectionId;
   tabs: Record<SectionId, InspectorTab>;
   dockTab: DockTab;
@@ -41,6 +42,8 @@ type WorkspaceState = {
 export const useWorkspaceStore = create<WorkspaceState>()(
   persist(
     (set) => ({
+      referenceTab: "single",
+      setReferenceTab: (referenceTab) => set({ referenceTab }),
       section: "create3d",
       tabs: DEFAULT_TABS,
       dockTab: "session",
@@ -54,13 +57,23 @@ export const useWorkspaceStore = create<WorkspaceState>()(
     }),
     {
       name: "forma-workspace",
-      version: 1,
+      version: 2,
       skipHydration: true,
       migrate: (persisted) => {
-        const { inspectorTab: _old, ...rest } = (persisted ?? {}) as Record<string, unknown>;
-        return { ...rest, tabs: DEFAULT_TABS } as unknown as WorkspaceState;
+        const state = (persisted ?? {}) as Record<string, unknown>;
+        const tabs = (state.tabs ?? {}) as Record<string, InspectorTab>;
+        return {
+          ...state,
+          section: state.section === "createReference" ? "create3d" : state.section ?? "create3d",
+          referenceTab: "single",
+          tabs: {
+            create3d: tabs.create3d ?? DEFAULT_TABS.create3d,
+            createAnimation: tabs.createAnimation ?? DEFAULT_TABS.createAnimation,
+            export: tabs.export ?? DEFAULT_TABS.export,
+          },
+        } as unknown as WorkspaceState;
       },
-      partialize: ({ section, tabs, dockTab, viewMode, showGrid }) => ({ section, tabs, dockTab, viewMode, showGrid }),
+      partialize: ({ section, tabs, referenceTab, dockTab, viewMode, showGrid }) => ({ section, tabs, referenceTab, dockTab, viewMode, showGrid }),
     },
   ),
 );

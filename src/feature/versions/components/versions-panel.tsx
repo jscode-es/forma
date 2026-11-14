@@ -11,6 +11,7 @@ export function VersionsPanel() {
   const variants = useProjectStore((s) => s.variants);
   const activeId = useProjectStore((s) => s.activeVariantId);
   const previewId = useProjectStore((s) => s.previewVariantId);
+  const retained = useProjectStore((s) => s.retainedVariantIds);
   const { applyVariant, discardVariant, previewVariant } = useProjectStore.getState();
   const time = new Intl.DateTimeFormat(i18n.language, { dateStyle: "short", timeStyle: "short" });
   const number = new Intl.NumberFormat(i18n.language);
@@ -58,7 +59,8 @@ export function VersionsPanel() {
                   size="icon"
                   variant="ghost"
                   aria-label={t("versions.delete")}
-                  title={t("versions.delete")}
+                  title={t(retained.includes(v.id) ? "texture.pendingSource" : "versions.delete")}
+                  disabled={retained.includes(v.id)}
                   onClick={() => discardVariant(v.id)}
                 >
                   <Icon icon={Trash2} size={14} />

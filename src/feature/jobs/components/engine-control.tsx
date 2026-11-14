@@ -70,19 +70,21 @@ function ParameterControl({ parameter, value, idPrefix, setParameter }: Paramete
   );
 }
 
-export type EngineControlTask = Extract<EngineTask, "image-to-3d" | "text-to-image">;
+export type EngineControlTask = Extract<EngineTask, "image-to-3d" | "text-to-image" | "texture">;
 
 export function EngineControl({ task = "image-to-3d" }: { task?: EngineControlTask }) {
   const { t, i18n } = useTranslation();
   const allEngines = useJobsStore((s) => s.engines);
   const engines = useMemo(() => allEngines.filter((e) => e.tasks.includes(task)), [allEngines, task]);
   const forImages = task === "text-to-image";
-  const selection = useProjectStore((s) => (forImages ? s.imageEngine : s.engine));
+  const forTextures = task === "texture";
+  const selection = useProjectStore((s) => (forTextures ? s.textureEngine : forImages ? s.imageEngine : s.engine));
   const setModelEngine = useProjectStore((s) => s.setEngine);
   const setImageEngine = useProjectStore((s) => s.setImageEngine);
-  const setParameter = useProjectStore((s) => (forImages ? s.setImageEngineParameter : s.setEngineParameter));
-  const setEngine = (id: string | null) => (forImages ? setImageEngine({ id, parameters: {} }) : setModelEngine(id));
-  const qualitySteps = useProjectStore((s) => (forImages ? undefined : s.qualitySteps[s.quality]));
+  const setTextureEngine = useProjectStore((s) => s.setTextureEngine);
+  const setParameter = useProjectStore((s) => (forTextures ? s.setTextureEngineParameter : forImages ? s.setImageEngineParameter : s.setEngineParameter));
+  const setEngine = (id: string | null) => (forTextures ? setTextureEngine({ id, parameters: {} }) : forImages ? setImageEngine({ id, parameters: {} }) : setModelEngine(id));
+  const qualitySteps = useProjectStore((s) => (task === "image-to-3d" ? s.qualitySteps[s.quality] : undefined));
   const engine = engines.find((e) => e.id === selection.id) ?? null;
 
   if (engines.length === 0) {
@@ -103,7 +105,7 @@ export function EngineControl({ task = "image-to-3d" }: { task?: EngineControlTa
   return (
     <div className={styles.paramStack} style={{ gap: "0.75rem" }}>
       <Select
-        aria-label={forImages ? t("prompt.engine") : t("inspector.sections.engine.title")}
+        aria-label={forTextures ? t("texture.engine") : forImages ? t("prompt.engine") : t("inspector.sections.engine.title")}
         options={options}
         value={options.find((o) => o.value === selection.id) ?? null}
         placeholder={t("engine.choose")}
@@ -118,6 +120,9 @@ export function EngineControl({ task = "image-to-3d" }: { task?: EngineControlTa
           <span className={styles.hint}>
             {localized(engine.description, i18n.language)} · {engine.license} · v{engine.version}
           </span>
+          {!forImages && engine.inputs.views.length > 0 && <span className={styles.hint}>
+            {t("engine.views", { views: engine.inputs.views.map((view) => t(`viewport.presets.${view}`)).join(", ") })}
+          </span>}
           {!engine.available && <Badge variant="destructive">{t(`engine.problem.${engine.problem}`, { defaultValue: engine.problem ?? "" })}</Badge>}
           {engine.parameters
             .filter((parameter) => !parameter.tasks || parameter.tasks.includes(task))

@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { useProjectStore } from "@/stores/project-store";
+import { hasPaintChanges, resetPaintSession, usePaintStore } from "@/feature/paint";
+import { hasAnimationChanges, resetAnimationSession, useAnimationStore } from "@/feature/animation";
 import { requestClose, saveProject } from "../project-flow";
 
 export function useProjectSession() {
@@ -7,10 +9,20 @@ export function useProjectSession() {
     const api = window.forma;
     if (!api) return;
 
-    api.app.setDirty(useProjectStore.getState().dirty);
+    let lastDirty: boolean | undefined;
+    const updateDirty = () => {
+      const dirty = useProjectStore.getState().dirty || hasPaintChanges() || hasAnimationChanges();
+      if (dirty === lastDirty) return;
+      lastDirty = dirty;
+      api.app.setDirty(dirty);
+    };
+    updateDirty();
     const unsubscribeDirty = useProjectStore.subscribe((state, prev) => {
-      if (state.dirty !== prev.dirty) api.app.setDirty(state.dirty);
+      if (state.sessionId !== prev.sessionId) { resetPaintSession(); resetAnimationSession(); }
+      if (state.dirty !== prev.dirty || state.sessionId !== prev.sessionId) updateDirty();
     });
+    const unsubscribePaint = usePaintStore.subscribe(updateDirty);
+    const unsubscribeAnimation = useAnimationStore.subscribe(updateDirty);
     const unsubscribeClose = api.app.onCloseRequested(() => requestClose());
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -23,6 +35,8 @@ export function useProjectSession() {
 
     return () => {
       unsubscribeDirty();
+      unsubscribePaint();
+      unsubscribeAnimation();
       unsubscribeClose();
       window.removeEventListener("keydown", onKeyDown);
     };

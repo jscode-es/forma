@@ -14,6 +14,15 @@ function subscribe<K extends keyof IpcEvents>(channel: K, callback: (...args: Ip
 }
 
 const api: FormaApi = {
+  animations: {
+    list: () => invoke("animations:list"),
+    read: (id) => invoke("animations:read", id),
+    save: (id, clip) => invoke("animations:save", id, clip),
+    delete: (id) => invoke("animations:delete", id),
+    import: () => invoke("animations:import"),
+    export: (id) => invoke("animations:export", id),
+  },
+  videos: { import: () => invoke("videos:import") },
   projects: {
     list: () => invoke("projects:list"),
     create: (input) => invoke("projects:create", input),
@@ -31,6 +40,8 @@ const api: FormaApi = {
     export: (source, bytes, name) => invoke("models:export", source, bytes, name),
   },
   references: {
+    importBytes: (bytes, name) => invoke("references:import-bytes", bytes, name),
+    stageBytes: (bytes) => invoke("references:stage-bytes", bytes),
     import: () => invoke("references:import"),
     read: (source, projectId) => invoke("references:read", source, projectId),
   },
@@ -66,11 +77,14 @@ const api: FormaApi = {
     stageReference: (id, file) => invoke("jobs:stage-reference", id, file),
     stageFile: (id, file) => invoke("jobs:stage-file", id, file),
     readFile: (id, file) => invoke("jobs:read-file", id, file),
+    exportFile: (id, file) => invoke("jobs:export-file", id, file),
     onUpdate: (callback) => subscribe("jobs:update", callback),
   },
   system: {
     info: () => invoke("system:info"),
     hardware: (refresh) => invoke("system:hardware", refresh),
+    blender: (refresh) => invoke("system:blender", refresh),
+    chooseBlender: () => invoke("system:choose-blender"),
     openDataDir: () => invoke("system:open-data-dir"),
   },
   app: {

@@ -26,7 +26,9 @@ test("turns a prompt into candidate images and uses one as the reference", async
   await expect(candidates).toHaveCount(4);
   await page.getByRole("button", { name: "Use the image with seed 43", exact: true }).click();
   await expect(page.getByRole("button", { name: "Use the image with seed 43", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("tab", { name: "Single view", exact: true }).click();
   await expect(page.getByText("Generated from a prompt · seed 43")).toBeVisible();
+  await page.getByRole("tab", { name: "From text", exact: true }).click();
   await expect(page.getByRole("button", { name: 'Reuse the prompt "a red wooden chair"', exact: true })).toBeVisible();
 });
 
@@ -55,7 +57,7 @@ test("saves the prompt history and seed with the project", async () => {
   expect(project!.scene.references[0].prompt).toEqual({ text: "a red wooden chair", seed: 43, engineId: "forma-demo" });
   expect(project!.settings.imageEngine.id).toBe("forma-demo");
 
-  await page.getByRole("button", { name: "Create reference", exact: true }).click();
+  await page.getByRole("tab", { name: "From text", exact: true }).click();
   await page.getByRole("button", { name: 'Reuse the prompt "a red wooden chair"', exact: true }).click();
   await expect(page.getByRole("textbox", { name: "Prompt", exact: true })).toHaveValue("a red wooden chair");
 });

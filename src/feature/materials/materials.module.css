@@ -1,0 +1,38 @@
+.stack {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.field, .actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.actions {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.input {
+  width: 6rem;
+}
+
+.map {
+  display: grid;
+  gap: 0.375rem;
+  padding: 0.625rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
+}
+
+.error {
+  font-size: 0.75rem;
+  color: var(--color-destructive);
+}

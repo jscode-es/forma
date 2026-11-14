@@ -3,6 +3,10 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { z } from "zod";
 import { openDb } from "./db";
+import { animationClip } from "./animation-schema";
+import { listAnimations, readAnimation, saveAnimation, deleteAnimation, importAnimation, exportAnimation } from "./animations";
+import { importVideo } from "./videos";
+import { chooseBlender, getBlender } from "./blender";
 import { listEngines } from "./engines";
 import { getHardware } from "./hardware";
 import { handle } from "./ipc";
@@ -17,7 +21,7 @@ import {
   renameProject,
   updateProject,
 } from "./projects";
-import { importReference, readReference } from "./images";
+import { importReference, importReferenceBytes, readReference, stageReferenceBytes } from "./images";
 import { clearStaging, exportModel, importModel, readModel, stageModelBytes } from "./models";
 import { engineId, imageSource, jobRequest, modelSource, projectId, projectInput, projectName } from "./schemas";
 import { cancelInstall, choosePython, listPlugins, startInstall, uninstallPlugin } from "./plugins";
@@ -73,6 +77,13 @@ function createWindow() {
 function registerIpc() {
   const none = z.tuple([]);
   const id = z.tuple([projectId]);
+  handle("animations:list", none, listAnimations);
+  handle("animations:read", id, readAnimation);
+  handle("animations:save", z.tuple([projectId.nullable(), animationClip]), saveAnimation);
+  handle("animations:delete", id, deleteAnimation);
+  handle("animations:import", none, importAnimation);
+  handle("animations:export", id, exportAnimation);
+  handle("videos:import", none, importVideo);
 
   handle("projects:list", none, listProjects);
   handle("projects:create", z.tuple([projectInput]), createProject);
@@ -87,7 +98,9 @@ function registerIpc() {
   handle("models:stage-bytes", z.tuple([z.instanceof(Uint8Array), z.string().max(120)]), stageModelBytes);
   handle("models:export", z.tuple([modelSource.nullable(), z.instanceof(Uint8Array).nullable(), z.string().max(120)]), exportModel);
   handle("references:import", none, importReference);
+  handle("references:import-bytes", z.tuple([z.instanceof(Uint8Array).refine((bytes) => bytes.byteLength > 0 && bytes.byteLength <= 20 * 1024 * 1024), z.string().min(1).max(120)]), importReferenceBytes);
   handle("references:read", z.tuple([imageSource, projectId.nullable()]), readReference);
+  handle("references:stage-bytes", z.tuple([z.instanceof(Uint8Array).refine((bytes) => bytes.byteLength > 0 && bytes.byteLength <= 20 * 1024 * 1024)]), stageReferenceBytes);
   handle("engines:list", none, async () => (await listEngines()).map((e) => e.info));
   handle("plugins:list", none, listPlugins);
   handle("plugins:install", z.tuple([engineId, z.string().max(1024).nullable()]), startInstall);
@@ -111,8 +124,11 @@ function registerIpc() {
   handle("jobs:stage-reference", z.tuple([z.uuid(), z.string().max(260)]), (id, file) => jobs.stageReference(id, file));
   handle("jobs:stage-file", z.tuple([z.uuid(), z.string().max(260)]), (id, file) => jobs.stageFile(id, file));
   handle("jobs:read-file", z.tuple([z.uuid(), z.string().max(260)]), (id, file) => jobs.readFile(id, file));
+  handle("jobs:export-file", z.tuple([z.uuid(), z.string().min(1).max(260)]), (id, file) => jobs.exportFile(id, file));
   handle("system:info", none, getSystemInfo);
   handle("system:hardware", z.tuple([z.boolean()]), getHardware);
+  handle("system:blender", z.tuple([z.boolean()]), getBlender);
+  handle("system:choose-blender", none, chooseBlender);
   handle("system:open-data-dir", none, openDataDir);
   handle("app:set-dirty", z.tuple([z.boolean()]), (value) => {
     dirty = value;

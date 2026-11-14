@@ -1,4 +1,4 @@
-import { Box3, BoxGeometry, Mesh, MeshStandardMaterial, Object3D, Texture, Vector3, type Material } from "three";
+import { Bone, Box3, BoxGeometry, Mesh, MeshStandardMaterial, Object3D, SkinnedMesh, Texture, Vector3, type Material } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 
@@ -24,6 +24,21 @@ export async function parseGlb(bytes: Uint8Array): Promise<Object3D> {
   const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
   const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
   const gltf = await loader.parseAsync(buffer, "");
+  const joints: number[] = gltf.parser.json.skins?.[0]?.joints ?? [];
+  gltf.scene.userData.formaClipNames = gltf.animations.map((clip) => clip.name);
+  gltf.scene.userData.formaHasSkin = false;
+  gltf.scene.traverse((node) => {
+    if (node instanceof Bone) {
+      const sourceIndex = gltf.parser.associations.get(node)?.nodes;
+      const jointIndex = sourceIndex === undefined ? -1 : joints.indexOf(sourceIndex);
+      if (jointIndex !== -1) node.userData.formaJointIndex = jointIndex;
+    }
+    if (node instanceof SkinnedMesh) gltf.scene.userData.formaHasSkin = true;
+    if (!(node instanceof Mesh)) return;
+    for (const material of Array.isArray(node.material) ? node.material : [node.material]) {
+      material.userData.formaMaterialIndex = gltf.parser.associations.get(material)?.materials ?? -1;
+    }
+  });
   return gltf.scene;
 }
 

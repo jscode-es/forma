@@ -21,9 +21,11 @@ export default function AppProviders({ children }: { children: ReactNode }) {
       await Promise.all([
         (async () => {
           await Promise.all([useSettingsStore.persist.rehydrate(), useWorkspaceStore.persist.rehydrate()]);
-          await restoreLastProject().catch(() => undefined);
-          await i18n.changeLanguage(resolveLocale(useSettingsStore.getState().locale));
+          const languages = (await window.forma?.system.info())?.languages;
+          if (!active) return;
+          await i18n.changeLanguage(resolveLocale(useSettingsStore.getState().locale, languages));
           document.documentElement.lang = i18n.language;
+          await restoreLastProject().catch(() => undefined);
         })(),
         new Promise((r) => setTimeout(r, MIN_SPLASH_MS)),
       ]);
@@ -36,15 +38,22 @@ export default function AppProviders({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!ready) return;
-    const apply = () => {
-      const lng = resolveLocale(locale);
-      i18n.changeLanguage(lng);
+    let active = true;
+    const apply = async () => {
+      const languages = locale === "system" ? (await window.forma?.system.info())?.languages : undefined;
+      if (!active) return;
+      const lng = resolveLocale(locale, languages);
+      await i18n.changeLanguage(lng);
+      if (!active) return;
       document.documentElement.lang = lng;
     };
-    apply();
-    if (locale !== "system") return;
-    window.addEventListener("languagechange", apply);
-    return () => window.removeEventListener("languagechange", apply);
+    void apply();
+    const onLanguageChange = () => { void apply(); };
+    if (locale === "system") window.addEventListener("languagechange", onLanguageChange);
+    return () => {
+      active = false;
+      window.removeEventListener("languagechange", onLanguageChange);
+    };
   }, [ready, locale]);
 
   return <KivoraProvider colorMode={theme}>{ready ? children : <Splash />}</KivoraProvider>;

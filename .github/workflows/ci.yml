@@ -18,6 +18,8 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run build
+      - run: npm run test:unit
+      - run: python3 -m unittest discover -s tests -p "test_*.py"
 
   e2e:
     runs-on: ubuntu-latest
