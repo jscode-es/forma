@@ -16,7 +16,7 @@ Download the installer for your system from the [releases page](https://github.c
 | Left menu | Create 3D, Create animation, Export; the scene object; the reference image; Library, Models, Help and Settings |
 | Viewport | The 3D view. Drag to orbit, wheel to zoom, right button to pan. Material, Solid and Wireframe views, camera presets, frame and grid |
 | Bottom dock | Versions, Job queue, Process (inputs, parameters, files and log of each job) and Timeline |
-| Inspector | Create, Model, Finish, Edit, Animation and Export tabs with search. Use the arrow keys to move between tabs |
+| Inspector | Changes with the left menu section. Create 3D: Create, Model, Finish, Edit. Create animation: Capture, Skeleton, Clips, Character. Export: Files, Interchange. Search looks inside the current section; arrow keys move between tabs |
 | Status bar | GPU and VRAM, available engines, version |
 
 Every new project starts with a 1 m cube. Projects, settings and the panel layout are remembered; the last project opens on start.
@@ -40,7 +40,7 @@ Hunyuan3D 2.0 is licensed by Tencent and the license does not apply in the Europ
 
 1. In **References**, click the drop zone and choose a PNG, JPG or WebP (up to 20 MB and 16 megapixels).
 2. Optional: **Remove background** creates a version without background; the switch chooses which one is used.
-3. In **Create → Generation engine**, choose the engine. Quality (Fast, Balanced, High) sets 15, 30 or 50 steps; the engine settings (seed, guidance, resolution) are saved with the project.
+3. In **Create 3D → Create → Generation engine**, choose the engine (the gear opens the model manager). Quality (Fast, Balanced, High) sets 15, 30 or 50 steps; its gear customizes the steps of each profile. Engine settings (seed, guidance, resolution) are saved with the project.
 4. Optional: **Physical scale** resizes the result to a height in meters.
 5. Click **Generate model**. The job appears in **Job queue**; **Process** shows its progress, prepared images and log.
 
@@ -58,11 +58,11 @@ The **Versions** tab lists all versions with origin, triangles, parameters and S
 
 ## Optimize and LOD
 
-**Model → Optimize and LOD** reduces the active version to a triangle budget and can create up to three levels of detail. UVs, materials and textures are preserved and every file is verified. If a budget cannot be reached without damaging the mesh, nothing is published. Models with skeletons are not supported yet.
+**Create 3D → Model → Optimize and LOD** reduces the active version to a triangle budget and can create up to three levels of detail. UVs, materials and textures are preserved and every file is verified. If a budget cannot be reached without damaging the mesh, nothing is published. Models with skeletons are not supported yet.
 
 ## Export
 
-**Export → Export GLB** always writes the active version (a version in preview is not exported until you apply it). The file is read back and its SHA-256 checked. LODs are exported as separate files.
+**Export** (left menu) **→ Files → Export GLB** always writes the active version (a version in preview is not exported until you apply it). The file is read back and its SHA-256 checked. LODs are exported as separate files.
 
 ## Projects
 

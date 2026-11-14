@@ -16,7 +16,7 @@ Descarga el instalador de tu sistema desde la [página de versiones](https://git
 | Menú izquierdo | Crear 3D, Crear animación, Exportar; el objeto de la escena; la imagen de referencia; Biblioteca, Modelos, Ayuda y Ajustes |
 | Visor | La vista 3D. Arrastra para orbitar, rueda para acercar, botón derecho para desplazar. Vistas Material, Sólido y Malla, cámaras predefinidas, encuadre y cuadrícula |
 | Panel inferior | Versiones, Cola de trabajos, Proceso (entradas, parámetros, archivos y registro de cada trabajo) y Línea de tiempo |
-| Inspector | Pestañas Crear, Modelo, Acabado, Edición, Animación y Exportar, con buscador. Las flechas del teclado cambian de pestaña |
+| Inspector | Cambia según la sección del menú izquierdo. Crear 3D: Crear, Modelo, Acabado, Edición. Crear animación: Captura, Esqueleto, Clips, Personaje. Exportar: Archivos, Intercambio. El buscador busca dentro de la sección actual; las flechas del teclado cambian de pestaña |
 | Barra de estado | GPU y VRAM, motores disponibles, versión |
 
 Cada proyecto nuevo empieza con un cubo de 1 m. Se recuerdan los proyectos, los ajustes y la disposición de los paneles; al arrancar se abre el último proyecto.
@@ -40,7 +40,7 @@ Hunyuan3D 2.0 tiene licencia de Tencent y no se aplica en la Unión Europea, el 
 
 1. En **Referencias**, pulsa la zona de arrastre y elige un PNG, JPG o WebP (hasta 20 MB y 16 megapíxeles).
 2. Opcional: **Quitar fondo** crea una versión sin fondo; el interruptor elige cuál se usa.
-3. En **Crear → Motor de generación**, elige el motor. La calidad (Rápida, Equilibrada, Alta) fija 15, 30 o 50 pasos; los ajustes del motor (semilla, guía, resolución) se guardan con el proyecto.
+3. En **Crear 3D → Crear → Motor de generación**, elige el motor (el engranaje abre el gestor de modelos). La calidad (Rápida, Equilibrada, Alta) fija 15, 30 o 50 pasos; su engranaje personaliza los pasos de cada perfil. Los ajustes del motor (semilla, guía, resolución) se guardan con el proyecto.
 4. Opcional: **Escala física** ajusta el resultado a una altura en metros.
 5. Pulsa **Generar modelo**. El trabajo aparece en **Cola de trabajos**; **Proceso** muestra el progreso, las imágenes preparadas y el registro.
 
@@ -58,11 +58,11 @@ La pestaña **Versiones** lista todas las versiones con origen, triángulos, par
 
 ## Optimizar y LOD
 
-**Modelo → Optimizar y LOD** reduce la versión activa a un presupuesto de triángulos y puede crear hasta tres niveles de detalle. Se conservan las UV, los materiales y las texturas, y cada archivo se verifica. Si un presupuesto no se puede alcanzar sin dañar la malla, no se publica nada. Los modelos con esqueleto aún no se admiten.
+**Crear 3D → Modelo → Optimizar y LOD** reduce la versión activa a un presupuesto de triángulos y puede crear hasta tres niveles de detalle. Se conservan las UV, los materiales y las texturas, y cada archivo se verifica. Si un presupuesto no se puede alcanzar sin dañar la malla, no se publica nada. Los modelos con esqueleto aún no se admiten.
 
 ## Exportar
 
-**Exportar → Exportar GLB** siempre guarda la versión activa (una versión en vista previa no se exporta hasta que la apliques). El archivo se vuelve a leer y se comprueba su SHA-256. Los LOD se exportan como archivos separados.
+**Exportar** (menú izquierdo) **→ Archivos → Exportar GLB** siempre guarda la versión activa (una versión en vista previa no se exporta hasta que la apliques). El archivo se vuelve a leer y se comprueba su SHA-256. Los LOD se exportan como archivos separados.
 
 ## Proyectos
 

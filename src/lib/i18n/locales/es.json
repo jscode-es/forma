@@ -110,8 +110,12 @@
       "model": "Modelo",
       "finish": "Acabado",
       "edit": "Edición",
-      "animation": "Animación",
-      "export": "Exportar"
+      "capture": "Captura",
+      "rig": "Esqueleto",
+      "clips": "Clips",
+      "retarget": "Personaje",
+      "files": "Archivos",
+      "interchange": "Intercambio"
     },
     "sections": {
       "engine": {
@@ -189,10 +193,31 @@
       "interchange": {
         "title": "Blender, Unity y Godot",
         "help": "Paquetes validados para otras herramientas."
+      },
+      "textMotion": {
+        "title": "Movimiento desde texto",
+        "help": "Describe un movimiento y crea un clip borrador con un proveedor opcional."
+      },
+      "weights": {
+        "title": "Pesos de piel",
+        "help": "Revisa y ajusta cómo deforma cada hueso la malla."
+      },
+      "presets": {
+        "title": "Animaciones predefinidas",
+        "help": "Clips de reposo, caminar y correr listos para aplicar."
+      },
+      "timeline": {
+        "title": "Editor de claves",
+        "help": "Edita las rotaciones de los huesos fotograma a fotograma en la línea de tiempo."
+      },
+      "retarget": {
+        "title": "Aplicar a un personaje",
+        "help": "Asigna los huesos de un personaje con esqueleto y le aplica el clip."
       }
     },
     "generateReady": "El trabajo se ejecuta en local y aparece en la cola.",
-    "generateQueued": "Ya hay un trabajo de este motor en la cola."
+    "generateQueued": "Ya hay un trabajo de este motor en la cola.",
+    "createAnimation": "Crear animación"
   },
   "quality": {
     "fast": "Rápida",
