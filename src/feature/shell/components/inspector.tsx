@@ -27,7 +27,7 @@ import { MaterialControl } from "@/feature/materials";
 import { PaintControl, usePaintStore } from "@/feature/paint";
 import { RigControl, RigEditorControl, RigWeightsControl } from "@/feature/rigging";
 import { AnimationLibraryControl, AnimationEditorControl, AnimationRetargetControl, AnimationVideoControl, useAnimationStore } from "@/feature/animation";
-import { MeshInspectControl, RetopologyControl, UvControl, NormalsControl } from "@/feature/mesh-tools";
+import { MeshInspectControl, RetopologyControl, UvControl, NormalsControl, OcclusionControl } from "@/feature/mesh-tools";
 import { useModelsStore } from "@/feature/models";
 import { ReferenceProjection, ReferenceReview } from "@/feature/references";
 import { ExportControl, LodExportControl, OptimizeControl } from "@/feature/versions";
@@ -201,6 +201,7 @@ const SECTIONS: SectionDef[] = [
   { tab: "finish", id: "materials", content: <MaterialControl /> },
   { tab: "finish", id: "uv", content: <UvControl /> },
   { tab: "finish", id: "normals", content: <NormalsControl /> },
+  { tab: "finish", id: "occlusion", content: <OcclusionControl /> },
   { tab: "finish", id: "paint", content: <PaintControl /> },
   { tab: "rig", id: "rig", content: <><RigControl /><RigEditorControl /></> },
   { tab: "rig", id: "weights", content: <RigWeightsControl /> },

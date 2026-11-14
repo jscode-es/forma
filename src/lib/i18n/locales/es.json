@@ -267,6 +267,10 @@
       "referenceReview": {
         "title": "Revisión de referencias",
         "help": "Comprueba la escala y la silueta de las referencias y ajusta sus alturas sin estirarlas."
+      },
+      "occlusion": {
+        "title": "Oclusión ambiental",
+        "help": "Hornea la oclusión ambiental de la geometría en el mapa de oclusión, sin tocar la malla ni sus otros mapas."
       }
     },
     "generateReady": "El trabajo se ejecuta en local y aparece en la cola.",
@@ -423,7 +427,13 @@
       "verification-failed": "El archivo escrito no coincide",
       "prompt-required": "Escribe un prompt primero",
       "views-mismatch": "Cada referencia necesita una vista",
-      "view-unsupported": "El motor no acepta una de las vistas"
+      "view-unsupported": "El motor no acepta una de las vistas",
+      "occlusion-uv-required": "La oclusión ambiental necesita una malla con UV; despliégalas primero",
+      "occlusion-single-mesh-required": "La oclusión ambiental admite una sola malla",
+      "occlusion-bake-empty": "El horneado de oclusión no produjo píxeles",
+      "occlusion-bake-failed": "Blender no pudo hornear la oclusión",
+      "embedded-buffer-required": "El modelo debe llevar sus buffers incrustados",
+      "invalid-occlusion-samples": "Las muestras deben estar entre 8 y 512"
     }
   },
   "models": {
@@ -474,7 +484,13 @@
     "export-verification-failed": "El archivo exportado no coincide con la versión",
     "prompt-required": "Escribe un prompt primero",
     "views-mismatch": "Cada referencia necesita una vista",
-    "view-unsupported": "El motor no acepta una de las vistas"
+    "view-unsupported": "El motor no acepta una de las vistas",
+    "occlusion-uv-required": "La oclusión ambiental necesita una malla con UV; despliégalas primero",
+    "occlusion-single-mesh-required": "La oclusión ambiental admite una sola malla",
+    "occlusion-bake-empty": "El horneado de oclusión no produjo píxeles",
+    "occlusion-bake-failed": "Blender no pudo hornear la oclusión",
+    "embedded-buffer-required": "El modelo debe llevar sus buffers incrustados",
+    "invalid-occlusion-samples": "Las muestras deben estar entre 8 y 512"
   },
   "versions": {
     "title": "Versiones",
@@ -505,7 +521,8 @@
       "normals": "Normales",
       "paint": "Pintura",
       "rig": "Esqueleto",
-      "animation": "Animación"
+      "animation": "Animación",
+      "occlusion": "Oclusión ambiental"
     }
   },
   "optimize": {
@@ -722,7 +739,8 @@
       "uv-regenerated": "Se han regenerado las coordenadas UV en la previsualización.",
       "topology-rebuilt": "Se ha reconstruido la topología en la previsualización.",
       "normal-map-replaced": "Se ha sustituido el mapa de normales en la previsualización.",
-      "custom-normals-recalculated": "Se han recalculado las normales personalizadas en la previsualización."
+      "custom-normals-recalculated": "Se han recalculado las normales personalizadas en la previsualización.",
+      "occlusion-map-replaced": "Se sustituyó el mapa de oclusión anterior"
     },
     "faceBudget": "Presupuesto de cuadriláteros",
     "retopologyPolicy": "QuadriFlow utiliza un presupuesto de cuadriláteros y regenera las UV. El GLB se exporta triangulado, con un máximo del doble de triángulos. Se rechazan modelos con varios materiales, materiales complejos o texturas y modelos con rig para evitar pérdidas de datos.",
@@ -746,7 +764,8 @@
     "variant": {
       "retopology": "{{name}} · retopología",
       "uv": "{{name}} · UV",
-      "normals": "{{name}} · normales"
+      "normals": "{{name}} · normales",
+      "occlusion": "{{name}} · AO"
     },
     "topology": {
       "vertices": "Vértices",
@@ -757,7 +776,10 @@
       "boundaryEdges": "Aristas de borde abierto",
       "nonManifoldEdges": "Aristas no manifold",
       "components": "Componentes conectados"
-    }
+    },
+    "occlusion": "Previsualizar oclusión ambiental",
+    "occlusionSamples": "Muestras",
+    "occlusionHint": "Necesita una sola malla con UV. La malla, las UV y los mapas existentes se conservan byte a byte; solo se añade o sustituye el mapa de oclusión. Más muestras reducen el ruido y tardan más."
   },
   "rigging": {
     "axes": {

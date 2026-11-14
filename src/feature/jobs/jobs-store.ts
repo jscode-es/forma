@@ -8,8 +8,8 @@ import { useWorkspaceStore } from "@/stores/workspace-store";
 import { scaleGlbToHeight } from "./scale";
 import { parseMeshReport } from "./mesh-report";
 
-export type MeshTask = Extract<EngineTask, "mesh-inspect" | "retopology" | "uv-unwrap" | "normals">;
-const MESH_ORIGINS = { retopology: "retopology", "uv-unwrap": "uv", normals: "normals" } as const;
+export type MeshTask = Extract<EngineTask, "mesh-inspect" | "retopology" | "uv-unwrap" | "normals" | "ambient-occlusion">;
+const MESH_ORIGINS = { retopology: "retopology", "uv-unwrap": "uv", normals: "normals", "ambient-occlusion": "occlusion" } as const;
 
 type Target =
   | { kind: "model"; engineName: string }

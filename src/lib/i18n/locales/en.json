@@ -267,6 +267,10 @@
       "referenceReview": {
         "title": "Reference review",
         "help": "Checks scale and silhouette of the references and matches their heights without stretching."
+      },
+      "occlusion": {
+        "title": "Ambient occlusion",
+        "help": "Bakes ambient occlusion from the geometry into the occlusion map, keeping the mesh and its other maps intact."
       }
     },
     "generateReady": "The job runs locally and appears in the job queue.",
@@ -423,7 +427,13 @@
       "verification-failed": "The written file does not match",
       "prompt-required": "Write a prompt first",
       "views-mismatch": "Each reference needs one view",
-      "view-unsupported": "The engine does not accept one of the views"
+      "view-unsupported": "The engine does not accept one of the views",
+      "occlusion-uv-required": "Ambient occlusion needs a mesh with UVs; unwrap them first",
+      "occlusion-single-mesh-required": "Ambient occlusion supports a single mesh",
+      "occlusion-bake-empty": "The occlusion bake produced no pixels",
+      "occlusion-bake-failed": "Blender could not bake the occlusion",
+      "embedded-buffer-required": "The model must embed its buffers",
+      "invalid-occlusion-samples": "Samples must be between 8 and 512"
     }
   },
   "models": {
@@ -474,7 +484,13 @@
     "export-verification-failed": "The exported file does not match the version",
     "prompt-required": "Write a prompt first",
     "views-mismatch": "Each reference needs one view",
-    "view-unsupported": "The engine does not accept one of the views"
+    "view-unsupported": "The engine does not accept one of the views",
+    "occlusion-uv-required": "Ambient occlusion needs a mesh with UVs; unwrap them first",
+    "occlusion-single-mesh-required": "Ambient occlusion supports a single mesh",
+    "occlusion-bake-empty": "The occlusion bake produced no pixels",
+    "occlusion-bake-failed": "Blender could not bake the occlusion",
+    "embedded-buffer-required": "The model must embed its buffers",
+    "invalid-occlusion-samples": "Samples must be between 8 and 512"
   },
   "versions": {
     "title": "Versions",
@@ -505,7 +521,8 @@
       "normals": "Normals",
       "paint": "Paint",
       "rig": "Rig",
-      "animation": "Animation"
+      "animation": "Animation",
+      "occlusion": "Ambient occlusion"
     }
   },
   "optimize": {
@@ -722,7 +739,8 @@
       "uv-regenerated": "UV coordinates were regenerated in the preview.",
       "topology-rebuilt": "Topology was rebuilt in the preview.",
       "normal-map-replaced": "The normal map was replaced in the preview.",
-      "custom-normals-recalculated": "Custom normals were recalculated in the preview."
+      "custom-normals-recalculated": "Custom normals were recalculated in the preview.",
+      "occlusion-map-replaced": "The previous occlusion map was replaced"
     },
     "faceBudget": "Quad face budget",
     "retopologyPolicy": "QuadriFlow targets a quad-face budget and regenerates UVs. The exported GLB is triangulated, up to twice that triangle count. Multiple materials, textured or complex materials and rigged models are rejected to prevent data loss.",
@@ -746,7 +764,8 @@
     "variant": {
       "retopology": "{{name}} · retopology",
       "uv": "{{name}} · UVs",
-      "normals": "{{name}} · normals"
+      "normals": "{{name}} · normals",
+      "occlusion": "{{name}} · AO"
     },
     "topology": {
       "vertices": "Vertices",
@@ -757,7 +776,10 @@
       "boundaryEdges": "Open border edges",
       "nonManifoldEdges": "Non-manifold edges",
       "components": "Connected components"
-    }
+    },
+    "occlusion": "Preview ambient occlusion",
+    "occlusionSamples": "Samples",
+    "occlusionHint": "Needs one mesh with UVs. The mesh, UVs and existing maps are kept byte for byte; only the occlusion map is added or replaced. More samples reduce noise and take longer."
   },
   "rigging": {
     "axes": {

@@ -4,24 +4,134 @@
   "version": "1.0.0",
   "license": "MIT",
   "description": {
-    "en": "Local Blender mesh inspection, QuadriFlow retopology, UV atlases and tangent normal baking. UV regeneration rejects textured materials to preserve appearance.",
-    "es": "Inspección local, retopología QuadriFlow, atlas UV y horneado de normales tangentes con Blender. La regeneración UV rechaza materiales texturados para conservar su apariencia."
+    "en": "Local Blender mesh inspection, QuadriFlow retopology, UV atlases, tangent normal baking and ambient occlusion baking. UV regeneration rejects textured materials to preserve appearance.",
+    "es": "Inspección local, retopología QuadriFlow, atlas UV, horneado de normales tangentes y de oclusión ambiental con Blender. La regeneración UV rechaza materiales texturados para conservar su apariencia."
   },
-  "tasks": ["mesh-inspect", "retopology", "uv-unwrap", "normals"],
-  "runtime": { "type": "blender", "entry": "main.py" },
+  "tasks": [
+    "mesh-inspect",
+    "retopology",
+    "uv-unwrap",
+    "normals",
+    "ambient-occlusion"
+  ],
+  "runtime": {
+    "type": "blender",
+    "entry": "main.py"
+  },
   "timeoutSeconds": 1800,
-  "inputs": { "models": { "min": 1, "max": 2 }, "images": { "min": 0, "max": 0 } },
+  "inputs": {
+    "models": {
+      "min": 1,
+      "max": 2
+    },
+    "images": {
+      "min": 0,
+      "max": 0
+    }
+  },
   "parameters": [
-    { "id": "faceBudget", "type": "integer", "tasks": ["retopology"], "label": { "en": "Quad face budget", "es": "Presupuesto de caras cuadrangulares" }, "min": 128, "max": 2000000, "step": 1, "default": 10000 },
-    { "id": "resolution", "type": "enum", "tasks": ["retopology", "uv-unwrap", "normals"], "label": { "en": "Atlas resolution", "es": "Resolución del atlas" }, "options": [
-      { "value": "512", "label": { "en": "512", "es": "512" } },
-      { "value": "1024", "label": { "en": "1024", "es": "1024" } },
-      { "value": "2048", "label": { "en": "2048", "es": "2048" } },
-      { "value": "4096", "label": { "en": "4096", "es": "4096" } }
-    ], "default": "1024" },
-    { "id": "mode", "type": "enum", "tasks": ["normals"], "label": { "en": "Normal operation", "es": "Operación de normales" }, "options": [
-      { "value": "recalculate", "label": { "en": "Recalculate outside", "es": "Recalcular hacia fuera" } },
-      { "value": "bake", "label": { "en": "Bake detailed source", "es": "Hornear desde fuente detallada" } }
-    ], "default": "recalculate" }
+    {
+      "id": "faceBudget",
+      "type": "integer",
+      "tasks": [
+        "retopology"
+      ],
+      "label": {
+        "en": "Quad face budget",
+        "es": "Presupuesto de caras cuadrangulares"
+      },
+      "min": 128,
+      "max": 2000000,
+      "step": 1,
+      "default": 10000
+    },
+    {
+      "id": "resolution",
+      "type": "enum",
+      "tasks": [
+        "retopology",
+        "uv-unwrap",
+        "normals",
+        "ambient-occlusion"
+      ],
+      "label": {
+        "en": "Atlas resolution",
+        "es": "Resolución del atlas"
+      },
+      "options": [
+        {
+          "value": "512",
+          "label": {
+            "en": "512",
+            "es": "512"
+          }
+        },
+        {
+          "value": "1024",
+          "label": {
+            "en": "1024",
+            "es": "1024"
+          }
+        },
+        {
+          "value": "2048",
+          "label": {
+            "en": "2048",
+            "es": "2048"
+          }
+        },
+        {
+          "value": "4096",
+          "label": {
+            "en": "4096",
+            "es": "4096"
+          }
+        }
+      ],
+      "default": "1024"
+    },
+    {
+      "id": "mode",
+      "type": "enum",
+      "tasks": [
+        "normals"
+      ],
+      "label": {
+        "en": "Normal operation",
+        "es": "Operación de normales"
+      },
+      "options": [
+        {
+          "value": "recalculate",
+          "label": {
+            "en": "Recalculate outside",
+            "es": "Recalcular hacia fuera"
+          }
+        },
+        {
+          "value": "bake",
+          "label": {
+            "en": "Bake detailed source",
+            "es": "Hornear desde fuente detallada"
+          }
+        }
+      ],
+      "default": "recalculate"
+    },
+    {
+      "id": "samples",
+      "type": "integer",
+      "tasks": [
+        "ambient-occlusion"
+      ],
+      "label": {
+        "en": "Occlusion samples",
+        "es": "Muestras de oclusión"
+      },
+      "min": 8,
+      "max": 512,
+      "step": 8,
+      "default": 64
+    }
   ]
 }
