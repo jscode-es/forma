@@ -1,0 +1,21 @@
+{
+  "app": {
+    "tagline": "Local-first AI studio: 3D models, rigging, animation and painting."
+  },
+  "projects": {
+    "newTitle": "New project",
+    "newDescription": "Projects are stored locally in SQLite.",
+    "namePlaceholder": "Project name",
+    "nameLabel": "Project name",
+    "create": "Create",
+    "emptyTitle": "No projects yet",
+    "emptyDescription": "Create your first project to start generating."
+  },
+  "settings": {
+    "language": "Language",
+    "theme": "Theme",
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark"
+  }
+}

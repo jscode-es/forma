@@ -21,9 +21,18 @@ import {
   TypographyH1,
   TypographyMuted,
 } from "@kivora/nextjs";
+import { useTranslation } from "react-i18next";
+import { SettingsToggles } from "@/feature/settings";
 import type { Project } from "@/lib/forma";
 
+function formatDate(createdAt: string, locale: string) {
+  return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(
+    new Date(createdAt.replace(" ", "T") + "Z"),
+  );
+}
+
 export default function Home() {
+  const { t, i18n } = useTranslation();
   const [projects, setProjects] = useState<Project[]>([]);
   const [name, setName] = useState("");
   const api = typeof window === "undefined" ? undefined : window.forma;
@@ -42,27 +51,28 @@ export default function Home() {
 
   return (
     <main style={{ maxWidth: 720, margin: "0 auto", padding: "3rem 1.5rem", display: "grid", gap: "1.5rem" }}>
-      <header>
+      <header style={{ display: "grid", gap: "0.75rem" }}>
         <TypographyH1>Forma</TypographyH1>
-        <TypographyMuted>Local-first AI studio: 3D models, rigging, animation and painting.</TypographyMuted>
+        <TypographyMuted>{t("app.tagline")}</TypographyMuted>
+        <SettingsToggles />
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle>New project</CardTitle>
-          <CardDescription>Projects are stored locally in SQLite.</CardDescription>
+          <CardTitle>{t("projects.newTitle")}</CardTitle>
+          <CardDescription>{t("projects.newDescription")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={create} style={{ display: "flex", gap: "0.5rem" }}>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Project name"
+              placeholder={t("projects.namePlaceholder")}
               maxLength={120}
-              aria-label="Project name"
+              aria-label={t("projects.nameLabel")}
             />
             <Button type="submit" disabled={!api}>
-              Create
+              {t("projects.create")}
             </Button>
           </form>
         </CardContent>
@@ -71,8 +81,8 @@ export default function Home() {
       {projects.length === 0 ? (
         <Empty>
           <EmptyHeader>
-            <EmptyTitle>No projects yet</EmptyTitle>
-            <EmptyDescription>Create your first project to start generating.</EmptyDescription>
+            <EmptyTitle>{t("projects.emptyTitle")}</EmptyTitle>
+            <EmptyDescription>{t("projects.emptyDescription")}</EmptyDescription>
           </EmptyHeader>
         </Empty>
       ) : (
@@ -81,7 +91,7 @@ export default function Home() {
             <Item key={p.id}>
               <ItemContent>
                 <ItemTitle>{p.name}</ItemTitle>
-                <ItemDescription>{p.createdAt}</ItemDescription>
+                <ItemDescription>{formatDate(p.createdAt, i18n.language)}</ItemDescription>
               </ItemContent>
             </Item>
           ))}
