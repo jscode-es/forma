@@ -13,10 +13,7 @@
     "untitled": "Sin título",
     "unsaved": "Cambios sin guardar",
     "new": "Nuevo",
-    "save": "Guardar proyecto",
-    "discardTitle": "¿Descartar los cambios?",
-    "discardDescription": "La sesión actual tiene cambios sin guardar. Si empiezas un proyecto nuevo, se perderán.",
-    "discard": "Descartar y empezar"
+    "save": "Guardar proyecto"
   },
   "menu": {
     "eyebrow": "Estudio 3D local",
@@ -90,25 +87,82 @@
       "export": "Exportar"
     },
     "sections": {
-      "engine": { "title": "Motor de generación", "help": "Modelo local que convierte las referencias en un objeto 3D." },
-      "quality": { "title": "Calidad", "help": "Rápida, equilibrada y alta usan 15, 30 y 50 pasos." },
-      "scale": { "title": "Escala física", "help": "Escala el resultado de forma uniforme a una altura real en metros." },
-      "retopology": { "title": "Retopología automática", "help": "Reconstruye una malla limpia con UV nuevas y transfiere el color." },
-      "optimize": { "title": "Optimizar y LOD", "help": "Reduce los triángulos a un presupuesto y crea hasta tres niveles de detalle." },
-      "inspect": { "title": "Inspeccionar malla", "help": "Detecta bordes abiertos, aristas no manifold y piezas separadas." },
-      "texture": { "title": "Textura con IA", "help": "Genera el color y los mapas PBR del modelo." },
-      "materials": { "title": "Materiales", "help": "Edita color base, rugosidad, metalicidad, normales y AO." },
-      "paint": { "title": "Pintar 3D", "help": "Pinta, clona y restaura el color directamente sobre la superficie." },
-      "uv": { "title": "UV", "help": "Despliega y empaqueta las UV y exporta una plantilla." },
-      "normals": { "title": "Normales", "help": "Recalcula normales y las hornea desde una fuente detallada." },
-      "proportions": { "title": "Ajustar proporciones", "help": "Compara la silueta con las referencias y la corrige." },
-      "projection": { "title": "Proyección de referencias", "help": "Proyecta referencias con cámaras explícitas para corregir detalles." },
-      "rig": { "title": "Esqueleto", "help": "Crea y edita un esqueleto humanoide con pesos." },
-      "clips": { "title": "Clips", "help": "Biblioteca de animaciones para reproducir, editar y exportar." },
-      "video": { "title": "Movimiento desde vídeo", "help": "Captura el movimiento corporal desde un vídeo local." },
-      "glb": { "title": "Exportar GLB", "help": "Guarda la versión activa como un GLB autocontenido." },
-      "lod": { "title": "Niveles de detalle", "help": "Exporta cada LOD como un archivo separado." },
-      "interchange": { "title": "Blender, Unity y Godot", "help": "Paquetes validados para otras herramientas." }
+      "engine": {
+        "title": "Motor de generación",
+        "help": "Modelo local que convierte las referencias en un objeto 3D."
+      },
+      "quality": {
+        "title": "Calidad",
+        "help": "Rápida, equilibrada y alta usan 15, 30 y 50 pasos."
+      },
+      "scale": {
+        "title": "Escala física",
+        "help": "Escala el resultado de forma uniforme a una altura real en metros."
+      },
+      "retopology": {
+        "title": "Retopología automática",
+        "help": "Reconstruye una malla limpia con UV nuevas y transfiere el color."
+      },
+      "optimize": {
+        "title": "Optimizar y LOD",
+        "help": "Reduce los triángulos a un presupuesto y crea hasta tres niveles de detalle."
+      },
+      "inspect": {
+        "title": "Inspeccionar malla",
+        "help": "Detecta bordes abiertos, aristas no manifold y piezas separadas."
+      },
+      "texture": {
+        "title": "Textura con IA",
+        "help": "Genera el color y los mapas PBR del modelo."
+      },
+      "materials": {
+        "title": "Materiales",
+        "help": "Edita color base, rugosidad, metalicidad, normales y AO."
+      },
+      "paint": {
+        "title": "Pintar 3D",
+        "help": "Pinta, clona y restaura el color directamente sobre la superficie."
+      },
+      "uv": {
+        "title": "UV",
+        "help": "Despliega y empaqueta las UV y exporta una plantilla."
+      },
+      "normals": {
+        "title": "Normales",
+        "help": "Recalcula normales y las hornea desde una fuente detallada."
+      },
+      "proportions": {
+        "title": "Ajustar proporciones",
+        "help": "Compara la silueta con las referencias y la corrige."
+      },
+      "projection": {
+        "title": "Proyección de referencias",
+        "help": "Proyecta referencias con cámaras explícitas para corregir detalles."
+      },
+      "rig": {
+        "title": "Esqueleto",
+        "help": "Crea y edita un esqueleto humanoide con pesos."
+      },
+      "clips": {
+        "title": "Clips",
+        "help": "Biblioteca de animaciones para reproducir, editar y exportar."
+      },
+      "video": {
+        "title": "Movimiento desde vídeo",
+        "help": "Captura el movimiento corporal desde un vídeo local."
+      },
+      "glb": {
+        "title": "Exportar GLB",
+        "help": "Guarda la versión activa como un GLB autocontenido."
+      },
+      "lod": {
+        "title": "Niveles de detalle",
+        "help": "Exporta cada LOD como un archivo separado."
+      },
+      "interchange": {
+        "title": "Blender, Unity y Godot",
+        "help": "Paquetes validados para otras herramientas."
+      }
     }
   },
   "quality": {
@@ -131,8 +185,17 @@
   },
   "library": {
     "title": "Biblioteca",
-    "description": "Proyectos y animaciones guardados.",
-    "emptyTitle": "No hay proyectos guardados"
+    "description": "Proyectos guardados en este equipo.",
+    "emptyTitle": "No hay proyectos guardados",
+    "emptyDescription": "Guarda la sesión actual para verla aquí.",
+    "current": "Abierto",
+    "updated": "Actualizado {{date}}",
+    "open": "Abrir",
+    "rename": "Renombrar",
+    "duplicate": "Duplicar",
+    "delete": "Eliminar",
+    "confirmDelete": "Eliminar proyecto",
+    "copyName": "{{name}} (copia)"
   },
   "help": {
     "title": "Ayuda",
@@ -152,5 +215,15 @@
     "dataDir": "Carpeta de datos",
     "dataDirHint": "Aquí se guardan los proyectos, los modelos y la base de datos.",
     "openDataDir": "Abrir carpeta"
+  },
+  "project": {
+    "name": "Nombre del proyecto",
+    "saveTitle": "Guardar proyecto",
+    "saveDescription": "Ponle nombre al proyecto. Se guardará en este equipo.",
+    "guardTitle": "¿Guardar los cambios?",
+    "guardDescription": "El proyecto actual tiene cambios sin guardar. ¿Quieres guardarlos antes de continuar?",
+    "discard": "Descartar",
+    "saveAndContinue": "Guardar y continuar",
+    "errorTitle": "Algo ha fallado"
   }
 }

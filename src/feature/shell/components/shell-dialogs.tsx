@@ -8,15 +8,12 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyTitle,
   Icon,
   Label,
 } from "@kivora/nextjs";
 import { ExternalLink, FolderOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { LibraryDialogContent } from "@/feature/projects";
 import { LanguageToggle, ThemeToggle } from "@/feature/settings";
 import type { SystemInfo } from "@/lib/forma";
 import styles from "../shell.module.css";
@@ -35,7 +32,7 @@ export function ShellDialogs({ open, onClose }: Props) {
         <SettingsContent />
       </Dialog>
       <Dialog open={open === "library"} onOpenChange={onOpenChange}>
-        <LibraryContent />
+        {open === "library" && <LibraryDialogContent onClose={onClose} />}
       </Dialog>
       <Dialog open={open === "help"} onOpenChange={onOpenChange}>
         <HelpContent />
@@ -83,24 +80,6 @@ function SettingsContent() {
           </Button>
         </div>
       </div>
-    </DialogContent>
-  );
-}
-
-function LibraryContent() {
-  const { t } = useTranslation();
-  return (
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>{t("library.title")}</DialogTitle>
-        <DialogDescription>{t("library.description")}</DialogDescription>
-      </DialogHeader>
-      <Empty>
-        <EmptyHeader>
-          <EmptyTitle>{t("library.emptyTitle")}</EmptyTitle>
-          <EmptyDescription>{t("common.availableIn", { phase: 2 })}</EmptyDescription>
-        </EmptyHeader>
-      </Empty>
     </DialogContent>
   );
 }

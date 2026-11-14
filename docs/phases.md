@@ -39,15 +39,15 @@ Target: the interface structure of the design reference, without engines.
 - [x] Persist panel sizes and active tabs; responsive behavior for narrow windows
 - [x] Settings dialog (language, theme, paths)
 
-## Phase 2 · Projects and persistence
+## Phase 2 · Projects and persistence (done)
 
-- [ ] SQLite schema with migrations: projects, assets, variants, jobs, settings
-- [ ] Projects stored on disk (`projects/<id>/`) with files referenced from the database
-- [ ] Library: list, open, rename, duplicate, delete
-- [ ] Unsaved-changes tracking and guard when closing or switching
-- [ ] Protected drafts per tool when switching tools
-- [ ] Reopen last project on start
-- [ ] Typed IPC layer with input validation for every channel
+- [x] SQLite schema with migrations: projects, assets, variants, jobs, settings
+- [x] Projects stored on disk (`projects/<id>/`) with files referenced from the database
+- [x] Library: list, open, rename, duplicate, delete
+- [x] Unsaved-changes tracking and guard when closing or switching
+- [x] Protected drafts per tool when switching tools
+- [x] Reopen last project on start
+- [x] Typed IPC layer with input validation for every channel
 
 ## Phase 3 · 3D viewport
 

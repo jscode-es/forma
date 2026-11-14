@@ -1,27 +1,17 @@
-export type Project = { id: number; name: string; createdAt: string };
+import type { FormaApi } from "../../electron/contract";
 
-export type SystemInfo = {
-  version: string;
-  platform: string;
-  gpu: string | null;
-  dataDir: string;
-};
-
-type FormaApi = {
-  projects: {
-    list: () => Promise<Project[]>;
-    create: (name: string) => Promise<Project>;
-  };
-  system: {
-    info: () => Promise<SystemInfo>;
-    openDataDir: () => Promise<void>;
-  };
-};
+export type {
+  FormaApi,
+  Project,
+  ProjectInput,
+  ProjectSettings,
+  ProjectSummary,
+  Quality,
+  SystemInfo,
+} from "../../electron/contract";
 
 declare global {
   interface Window {
     forma?: FormaApi;
   }
 }
-
-export {};

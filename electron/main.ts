@@ -1,11 +1,27 @@
-import { app, BrowserWindow, ipcMain, net, protocol, shell } from "electron";
+import { app, BrowserWindow, net, protocol, shell } from "electron";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { createProject, listProjects, openDb } from "./db";
+import { z } from "zod";
+import { openDb } from "./db";
+import { handle } from "./ipc";
+import {
+  createProject,
+  deleteProject,
+  duplicateProject,
+  lastProject,
+  listProjects,
+  openProject,
+  renameProject,
+  updateProject,
+} from "./projects";
+import { projectId, projectInput, projectName } from "./schemas";
 import { getSystemInfo, openDataDir } from "./system";
 
 const isDev = process.env.FORMA_DEV === "1";
 const outDir = path.join(__dirname, "..", "out");
+
+let dirty = false;
+let closeConfirmed = false;
 
 protocol.registerSchemesAsPrivileged([
   { scheme: "app", privileges: { standard: true, secure: true, supportFetchAPI: true } },
@@ -30,6 +46,12 @@ function createWindow() {
     win.show();
   });
 
+  win.on("close", (event) => {
+    if (!dirty || closeConfirmed) return;
+    event.preventDefault();
+    win.webContents.send("app:close-requested");
+  });
+
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith("https://")) shell.openExternal(url);
     return { action: "deny" };
@@ -38,16 +60,32 @@ function createWindow() {
   win.loadURL(isDev ? "http://localhost:3000" : "app://forma/");
 }
 
-app.whenReady().then(() => {
-  openDb();
+function registerIpc() {
+  const none = z.tuple([]);
+  const id = z.tuple([projectId]);
 
-  ipcMain.handle("projects:list", () => listProjects());
-  ipcMain.handle("projects:create", (_e, name: unknown) => {
-    if (typeof name !== "string") throw new Error("Invalid name");
-    return createProject(name);
+  handle("projects:list", none, listProjects);
+  handle("projects:create", z.tuple([projectInput]), createProject);
+  handle("projects:update", z.tuple([projectId, projectInput]), updateProject);
+  handle("projects:open", id, openProject);
+  handle("projects:last", none, lastProject);
+  handle("projects:rename", z.tuple([projectId, projectName]), renameProject);
+  handle("projects:duplicate", z.tuple([projectId, projectName]), duplicateProject);
+  handle("projects:delete", id, deleteProject);
+  handle("system:info", none, getSystemInfo);
+  handle("system:open-data-dir", none, openDataDir);
+  handle("app:set-dirty", z.tuple([z.boolean()]), (value) => {
+    dirty = value;
   });
-  ipcMain.handle("system:info", () => getSystemInfo());
-  ipcMain.handle("system:open-data-dir", () => openDataDir());
+  handle("app:confirm-close", none, () => {
+    closeConfirmed = true;
+    BrowserWindow.getAllWindows()[0]?.close();
+  });
+}
+
+app.whenReady().then(() => {
+  openDb(path.join(app.getPath("userData"), "forma.db"));
+  registerIpc();
 
   protocol.handle("app", (req) => {
     const { pathname } = new URL(req.url);
