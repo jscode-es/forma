@@ -358,7 +358,8 @@
       "responsibility": "You are responsible for complying with the license terms in your country and use case.",
       "accept": "I have read and accept the license",
       "acceptAndDownload": "Accept and download"
-    }
+    },
+    "weightsTab": "Weights"
   },
   "errors": {
     "image-too-large": "The image is larger than 20 MB",
@@ -458,6 +459,7 @@
     "warn": {
       "cuda": "CUDA was not detected on this computer.",
       "vram": "This GPU has less than {{required}} GB of VRAM."
-    }
+    },
+    "empty": "No engines available in this version."
   }
 }

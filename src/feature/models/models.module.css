@@ -23,8 +23,11 @@
 .groups {
   display: grid;
   gap: 1rem;
-  max-height: 60vh;
+  min-height: 18rem;
+  max-height: 55vh;
+  align-content: start;
   overflow-y: auto;
+  padding-top: 1rem;
 }
 
 .group {

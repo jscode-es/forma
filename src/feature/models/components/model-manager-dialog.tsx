@@ -14,6 +14,10 @@ import {
   Icon,
   Label,
   Progress,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
 } from "@kivora/nextjs";
 import { Download, ExternalLink, RefreshCw, ShieldCheck, Square, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -53,6 +57,8 @@ export function ModelManagerDialog() {
 function ManagerContent() {
   const { t, i18n } = useTranslation();
   const weights = useModelsStore((s) => s.weights);
+  const plugins = useModelsStore((s) => s.plugins);
+  const [tab, setTab] = useState("engines");
   const checking = useModelsStore((s) => s.checking);
   const diskFree = useJobsStore((s) => s.hardware?.diskFreeBytes ?? null);
   const [licenseFor, setLicenseFor] = useState<WeightsState | null>(null);
@@ -82,8 +88,28 @@ function ManagerContent() {
         </Button>
       </div>
 
-      <div className={styles.groups}>
-        <PluginsSection />
+      <Tabs value={tab} onValueChange={setTab}>
+        <TabsList variant="underline" size="sm" style={{ justifyContent: "flex-start" }}>
+          <TabsTrigger value="engines" variant="underline" size="sm">
+            {t("plugins.title")}
+            <Badge variant="secondary" style={{ marginLeft: "0.375rem" }}>
+              {plugins.filter((p) => p.status === "installed").length}/{plugins.length}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="weights" variant="underline" size="sm">
+            {t("models.weightsTab")}
+            <Badge variant="secondary" style={{ marginLeft: "0.375rem" }}>
+              {weights.filter((w) => w.status === "installed").length}/{weights.length}
+            </Badge>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="engines" className={styles.groups}>
+          <PluginsSection />
+          {plugins.length === 0 && <p className={styles.hint}>{t("plugins.empty")}</p>}
+        </TabsContent>
+
+        <TabsContent value="weights" className={styles.groups}>
         {weights.length === 0 && <p className={styles.hint}>{t("models.empty")}</p>}
         {engines.map((engineName) => (
           <section key={engineName} className={styles.group}>
@@ -159,7 +185,8 @@ function ManagerContent() {
               })}
           </section>
         ))}
-      </div>
+        </TabsContent>
+      </Tabs>
 
       <Dialog open={licenseFor !== null} onOpenChange={(value) => !value && setLicenseFor(null)}>
         {licenseFor && (
