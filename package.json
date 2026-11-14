@@ -1,6 +1,6 @@
 {
   "name": "forma",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Local-first AI studio to generate 3D models, rigs, animations and textures from text or reference images.",
   "private": true,
   "license": "MIT",
