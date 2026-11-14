@@ -17,7 +17,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@kivora/nextjs";
-import { Search, SlidersHorizontal, Sparkles } from "lucide-react";
+import { Search, Settings, SlidersHorizontal, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ACTIVE, EngineControl, generateModel, useJobsStore } from "@/feature/jobs";
 import { useModelsStore } from "@/feature/models";
@@ -28,7 +28,7 @@ import styles from "../shell.module.css";
 import { INSPECTOR_TABS, PLANNED_SECTIONS, type SectionKey } from "../sections";
 import { HelpHint } from "./help-hint";
 
-type SectionDef = { tab: InspectorTab; id: SectionKey; phase?: number; content?: ReactNode };
+type SectionDef = { tab: InspectorTab; id: SectionKey; phase?: number; content?: ReactNode; action?: ReactNode };
 
 const QUALITIES: Quality[] = ["fast", "balanced", "high"];
 
@@ -92,9 +92,15 @@ function ScaleControl() {
 function ManageModelsButton() {
   const { t } = useTranslation();
   return (
-    <Button variant="link" size="sm" style={{ justifySelf: "start", padding: 0 }} onClick={() => useModelsStore.getState().setOpen(true)}>
-      {t("models.manage")}
-    </Button>
+    <button
+      type="button"
+      className={styles.iconAction}
+      aria-label={t("models.manage")}
+      title={t("models.manage")}
+      onClick={() => useModelsStore.getState().setOpen(true)}
+    >
+      <Icon icon={Settings} size={15} />
+    </button>
   );
 }
 
@@ -123,12 +129,8 @@ const SECTIONS: SectionDef[] = [
   {
     tab: "create",
     id: "engine",
-    content: (
-      <>
-        <EngineControl />
-        <ManageModelsButton />
-      </>
-    ),
+    action: <ManageModelsButton />,
+    content: <EngineControl />,
   },
   { tab: "create", id: "quality", content: <QualityControl /> },
   { tab: "model", id: "optimize", content: <OptimizeControl /> },
@@ -230,7 +232,10 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
                     <div className={styles.sectionBody}>
                       <div className={styles.row}>
                         <span className={styles.hint}>{t(`inspector.sections.${s.id}.help`)}</span>
-                        <HelpHint text={t(`inspector.sections.${s.id}.help`)} />
+                        <span className={styles.sectionActions}>
+                          {s.action}
+                          <HelpHint text={t(`inspector.sections.${s.id}.help`)} />
+                        </span>
                       </div>
                       {s.content}
                       {s.phase && !s.content && (

@@ -405,3 +405,30 @@
   margin: 0;
   word-break: break-all;
 }
+
+.sectionActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: none;
+}
+
+.iconAction {
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.iconAction:hover {
+  color: var(--forma-accent);
+}
+
+.iconAction:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
