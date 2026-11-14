@@ -13,3 +13,5 @@ next-env.d.ts
 /models/
 .claude/settings.local.json
 fixtures/models/
+test-results/
+playwright-report/

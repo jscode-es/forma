@@ -93,7 +93,8 @@
       "label": "Línea de tiempo",
       "title": "Sin animación",
       "description": "Claves y pistas del clip activo."
-    }
+    },
+    "label": "Actividad"
   },
   "inspector": {
     "title": "Configuración",

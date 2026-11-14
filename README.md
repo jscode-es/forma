@@ -45,6 +45,11 @@ Forma ships a demo engine that needs no GPU and the AI engines it supports as pl
 
 Contributors can also install a plugin from the command line with `npm run plugin:install -- <name> --accept-license`. To write a plugin, see [docs/engine-plugins.md](docs/engine-plugins.md).
 
+## Documentation
+
+- [User manual](docs/manual.md) · [Manual de usuario](docs/manual.es.md)
+- [Architecture](docs/architecture.md), [engine plugins](docs/engine-plugins.md), [releasing](docs/releasing.md), [development phases](docs/phases.md)
+
 ## Contributing
 
 Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Look for issues labeled `good first issue`.

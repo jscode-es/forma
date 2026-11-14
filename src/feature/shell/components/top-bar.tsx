@@ -16,12 +16,12 @@ export function TopBar({ onOpenInspector }: { onOpenInspector?: () => void }) {
 
   return (
     <header className={styles.topBar}>
-      <div className={styles.brand}>
+      <h1 className={styles.brand}>
         <BrandMark size={22} />
         <span>
           forma<span className={styles.brandDot}>.</span>
         </span>
-      </div>
+      </h1>
       <span className={styles.eyebrow}>{t("topBar.studio")}</span>
       <span className={styles.divider} />
       <nav className={styles.breadcrumb} aria-label={t("topBar.project")}>

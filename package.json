@@ -20,16 +20,19 @@
     "typecheck": "tsc --noEmit && tsc -p electron --noEmit",
     "prepare": "husky",
     "fixtures": "node scripts/fetch-fixtures.mjs",
-    "plugin:install": "node scripts/install-plugin.mjs"
+    "plugin:install": "node scripts/install-plugin.mjs",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
     "@kivora/nextjs": "^0.3.0",
+    "@playwright/test": "^1.65.1",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@types/three": "^0.187.0",
+    "axe-core": "^4.14.0",
     "concurrently": "^10.0.7",
     "cross-env": "^10.1.0",
     "electron": "^45.3.2",

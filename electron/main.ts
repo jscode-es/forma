@@ -25,6 +25,9 @@ import { getSystemInfo, openDataDir } from "./system";
 import { acceptLicense, cancelDownload, checkUpdates, downloadWeights, listWeights, removeWeights, verifyWeights } from "./weights";
 
 const isDev = process.env.FORMA_DEV === "1";
+
+// Lets tests and portable setups use an isolated data folder.
+if (process.env.FORMA_USER_DATA) app.setPath("userData", path.resolve(process.env.FORMA_USER_DATA));
 const outDir = path.join(__dirname, "..", "out");
 
 let dirty = false;

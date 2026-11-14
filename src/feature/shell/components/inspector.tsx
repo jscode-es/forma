@@ -152,10 +152,10 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
     : SECTIONS.filter((s) => s.tab === tab);
 
   return (
-    <div className={styles.panel}>
+    <aside className={styles.panel} aria-label={t("inspector.title")}>
       <div className={styles.inspectorHeader} style={inSheet ? { paddingRight: "3rem" } : undefined}>
         <Icon icon={SlidersHorizontal} size={16} />
-        <strong>{t("inspector.title")}</strong>
+        <h2 className={styles.panelTitle}>{t("inspector.title")}</h2>
         <span className={styles.spacer} />
         <Badge variant="secondary">{dirty ? t("inspector.unsaved") : t("inspector.draft")}</Badge>
       </div>
@@ -181,11 +181,24 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
 
           {!needle && (
             <div className={styles.inspectorTabs} role="tablist" aria-label={t("inspector.title")}>
-              {INSPECTOR_TABS.map((id) => (
+              {INSPECTOR_TABS.map((id, index) => (
                 <button
                   key={id}
                   type="button"
                   role="tab"
+                  id={`inspector-tab-${id}`}
+                  aria-controls="inspector-panel"
+                  tabIndex={tab === id ? 0 : -1}
+                  onKeyDown={(e) => {
+                    const keys: Record<string, number> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+                    let next = keys[e.key] !== undefined ? (index + keys[e.key] + INSPECTOR_TABS.length) % INSPECTOR_TABS.length : -1;
+                    if (e.key === "Home") next = 0;
+                    if (e.key === "End") next = INSPECTOR_TABS.length - 1;
+                    if (next < 0) return;
+                    e.preventDefault();
+                    setTab(INSPECTOR_TABS[next]);
+                    document.getElementById(`inspector-tab-${INSPECTOR_TABS[next]}`)?.focus();
+                  }}
                   aria-selected={tab === id}
                   className={`${styles.inspectorTab} ${tab === id ? styles.inspectorTabActive : ""}`}
                   onClick={() => setTab(id)}
@@ -199,6 +212,7 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
           {visible.length === 0 ? (
             <p className={styles.hint}>{t("inspector.noResults")}</p>
           ) : (
+            <div id="inspector-panel" role="tabpanel" aria-labelledby={needle ? undefined : `inspector-tab-${tab}`}>
             <Accordion
               key={needle ? "search" : tab}
               type="multiple"
@@ -229,11 +243,12 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
                 </AccordionItem>
               ))}
             </Accordion>
+            </div>
           )}
         </div>
       </div>
 
       {tab === "create" && !needle && <GenerateFooter />}
-    </div>
+    </aside>
   );
 }

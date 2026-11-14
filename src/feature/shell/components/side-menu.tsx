@@ -43,12 +43,12 @@ export function SideMenu({ onOpenDialog }: { onOpenDialog: (dialog: ShellDialog)
   ];
 
   return (
-    <div className={styles.panel}>
+    <aside className={styles.panel} aria-label={t("menu.title")}>
       <div className={styles.scroll}>
         <div className={styles.menu}>
           <div>
             <div className={styles.eyebrow}>{t("menu.eyebrow")}</div>
-            <div className={styles.menuTitle}>{t("menu.title")}</div>
+            <h2 className={styles.menuTitle}>{t("menu.title")}</h2>
           </div>
 
           <nav className={styles.navList} aria-label={t("menu.title")}>
@@ -109,6 +109,6 @@ export function SideMenu({ onOpenDialog }: { onOpenDialog: (dialog: ShellDialog)
           </button>
         ))}
       </div>
-    </div>
+    </aside>
   );
 }
