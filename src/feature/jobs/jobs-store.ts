@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { EngineInfo, EngineTask, HardwareInfo, JobInfo, LocalizedText, SceneModel } from "@/lib/forma";
-import { activeImage, activeVariant, QUALITY_STEPS, useProjectStore } from "@/stores/project-store";
+import { activeImage, activeVariant, useProjectStore } from "@/stores/project-store";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { scaleGlbToHeight } from "./scale";
 
@@ -82,7 +82,7 @@ export async function generateModel() {
   if (!window.forma || !engine) return;
   const parameters = { ...project.engine.parameters };
   if (engine.parameters.some((p) => p.id === "steps") && parameters.steps === undefined) {
-    parameters.steps = QUALITY_STEPS[project.quality];
+    parameters.steps = project.qualitySteps[project.quality];
   }
   try {
     await enqueue("image-to-3d", engine, parameters, { kind: "model", engineName: engine.name });

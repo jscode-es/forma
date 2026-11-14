@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { Badge, Input, Label, Select, Switch, ToggleGroup, ToggleGroupItem } from "@kivora/nextjs";
 import { useTranslation } from "react-i18next";
 import type { EngineParameter, ParameterValue } from "@/lib/forma";
-import { QUALITY_STEPS, useProjectStore } from "@/stores/project-store";
+import { useProjectStore } from "@/stores/project-store";
 import { localized, useJobsStore } from "../jobs-store";
 import styles from "../jobs.module.css";
 
@@ -70,7 +70,7 @@ export function EngineControl() {
   const engines = useMemo(() => allEngines.filter((e) => e.tasks.includes("image-to-3d")), [allEngines]);
   const selection = useProjectStore((s) => s.engine);
   const setEngine = useProjectStore((s) => s.setEngine);
-  const quality = useProjectStore((s) => s.quality);
+  const qualitySteps = useProjectStore((s) => s.qualitySteps[s.quality]);
   const engine = engines.find((e) => e.id === selection.id) ?? null;
 
   if (engines.length === 0) {
@@ -96,6 +96,9 @@ export function EngineControl() {
         value={options.find((o) => o.value === selection.id) ?? null}
         placeholder={t("engine.choose")}
         isSearchable={false}
+        menuPortalTarget={typeof document === "undefined" ? null : document.body}
+        menuPosition="fixed"
+        styles={{ menuPortal: (base) => ({ ...base, zIndex: 60 }) }}
         onChange={(option) => setEngine(option?.value ?? null)}
       />
       {engine && (
@@ -108,7 +111,7 @@ export function EngineControl() {
             <ParameterControl
               key={parameter.id}
               parameter={parameter}
-              value={selection.parameters[parameter.id] ?? (parameter.id === "steps" ? QUALITY_STEPS[quality] : undefined)}
+              value={selection.parameters[parameter.id] ?? (parameter.id === "steps" ? qualitySteps : undefined)}
             />
           ))}
         </>

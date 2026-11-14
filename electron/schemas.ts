@@ -3,6 +3,7 @@ import type { ProjectScene, ProjectSettings } from "./contract";
 
 export const DEFAULT_SETTINGS: ProjectSettings = {
   quality: "balanced",
+  qualitySteps: { fast: 15, balanced: 30, high: 50 },
   physicalScale: false,
   heightMeters: 1.8,
   engine: { id: null, parameters: {} },
@@ -43,6 +44,11 @@ export const parameterValues = z.record(z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]{
 
 export const projectSettings = z.object({
   quality: z.enum(["fast", "balanced", "high"]),
+  qualitySteps: z.object({
+    fast: z.number().int().min(1).max(200),
+    balanced: z.number().int().min(1).max(200),
+    high: z.number().int().min(1).max(200),
+  }),
   physicalScale: z.boolean(),
   heightMeters: z.number().min(0.01).max(100),
   engine: z.object({ id: engineId.nullable(), parameters: parameterValues }),

@@ -22,6 +22,7 @@ export type {
   ProjectSettings,
   ProjectSummary,
   Quality,
+  QualitySteps,
   ReferenceImage,
   SceneModel,
   SystemInfo,

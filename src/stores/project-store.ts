@@ -7,6 +7,7 @@ import type {
   ProjectScene,
   ProjectSettings,
   Quality,
+  QualitySteps,
   ReferenceImage,
   SceneModel,
   Variant,
@@ -14,7 +15,7 @@ import type {
 
 export type { Quality };
 
-export const QUALITY_STEPS: Record<Quality, number> = { fast: 15, balanced: 30, high: 50 };
+export const DEFAULT_QUALITY_STEPS: QualitySteps = { fast: 15, balanced: 30, high: 50 };
 const MAX_VARIANTS = 24;
 
 type ProjectState = ProjectSettings & {
@@ -28,6 +29,7 @@ type ProjectState = ProjectSettings & {
   comparing: boolean;
   dirty: boolean;
   setQuality: (quality: Quality) => void;
+  setQualitySteps: (steps: QualitySteps) => void;
   setPhysicalScale: (enabled: boolean) => void;
   setHeightMeters: (height: number) => void;
   setEngine: (id: string | null) => void;
@@ -49,6 +51,7 @@ type ProjectState = ProjectSettings & {
 const DEFAULT_ENGINE: EngineSelection = { id: null, parameters: {} };
 export const DEFAULT_SETTINGS: ProjectSettings = {
   quality: "balanced",
+  qualitySteps: DEFAULT_QUALITY_STEPS,
   physicalScale: false,
   heightMeters: 1.8,
   engine: DEFAULT_ENGINE,
@@ -98,6 +101,12 @@ export const useProjectStore = create<ProjectState>()((set) => ({
       const parameters = { ...s.engine.parameters };
       delete parameters.steps;
       return { quality, engine: { ...s.engine, parameters }, dirty: true };
+    }),
+  setQualitySteps: (qualitySteps) =>
+    set((s) => {
+      const parameters = { ...s.engine.parameters };
+      delete parameters.steps;
+      return { qualitySteps, engine: { ...s.engine, parameters }, dirty: true };
     }),
   setPhysicalScale: (physicalScale) => set({ physicalScale, dirty: true }),
   setHeightMeters: (heightMeters) => set({ heightMeters, dirty: true }),
@@ -188,8 +197,8 @@ export function sceneModelOf(variant: Variant): SceneModel {
 }
 
 export function currentSettings(): ProjectSettings {
-  const { quality, physicalScale, heightMeters, engine } = useProjectStore.getState();
-  return { quality, physicalScale, heightMeters, engine };
+  const { quality, qualitySteps, physicalScale, heightMeters, engine } = useProjectStore.getState();
+  return { quality, qualitySteps, physicalScale, heightMeters, engine };
 }
 
 export function currentScene(): ProjectScene {
