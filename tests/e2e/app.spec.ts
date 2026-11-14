@@ -66,8 +66,9 @@ test("optimizes an imported model into a new version with a LOD", async () => {
   await waitForJob(page, "optimize");
 
   await expect(page.getByText("Preview: Avocado · 300")).toBeVisible();
-  const triangles = Number((await page.getByLabel("Model statistics").innerText()).match(/([\d,]+) triangles/)![1].replace(/,/g, ""));
-  expect(triangles).toBeLessThanOrEqual(300);
+  const triangles = async () =>
+    Number((await page.getByLabel("Model statistics").innerText()).match(/([\d,]+) triangles/)![1].replace(/,/g, ""));
+  await expect.poll(triangles).toBeLessThanOrEqual(300);
   await page.getByRole("button", { name: "Apply", exact: true }).first().click();
   await expect(page.getByText("Active: Avocado · 300")).toBeVisible();
 });
