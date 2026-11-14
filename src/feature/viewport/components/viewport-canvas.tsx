@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { useKivoraTheme } from "@kivora/nextjs";
 import { useTranslation } from "react-i18next";
 import type { ModelSource, SceneModel } from "@/lib/forma";
-import { useProjectStore } from "@/stores/project-store";
+import { displayedVariant, useProjectStore } from "@/stores/project-store";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { computeStats, createDefaultCube, parseGlb } from "../engine/models";
 import { disposeObject, Viewer } from "../engine/viewer";
@@ -21,7 +21,8 @@ export function ViewportCanvas({ className }: { className?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Viewer | null>(null);
   const lastGood = useRef<SceneModel | null>(null);
-  const model = useProjectStore((s) => s.model);
+  const variant = useProjectStore(displayedVariant);
+  const model = variant.model;
   const projectId = useProjectStore((s) => s.id);
   const viewMode = useWorkspaceStore((s) => s.viewMode);
   const showGrid = useWorkspaceStore((s) => s.showGrid);
@@ -65,21 +66,25 @@ export function ViewportCanvas({ className }: { className?: string }) {
         }
         viewer.setModel(object);
         lastGood.current = model;
-        useViewerStore.setState({ status: "ready", stats: computeStats(object), error: null });
+        const stats = computeStats(object);
+        useViewerStore.setState({ status: "ready", stats, error: null });
+        useProjectStore.getState().recordTriangles(variant.id, stats.triangles);
       } catch (error) {
         if (cancelled) return;
         useViewerStore.setState({
           status: lastGood.current ? "ready" : "error",
           error: error instanceof Error ? error.message : String(error),
         });
-        if (lastGood.current && lastGood.current !== model) useProjectStore.setState({ model: lastGood.current });
+        const store = useProjectStore.getState();
+        if (variant.id === store.activeVariantId && variant.parentId) store.applyVariant(variant.parentId);
+        store.discardVariant(variant.id);
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [model, projectId, cubeName]);
+  }, [model, projectId, cubeName]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return <div ref={containerRef} className={className} />;
 }

@@ -35,6 +35,13 @@ Main process (ipcMain, SQLite, inference runner - planned)
 - Every new project starts with a 1 m default cube. Importing a GLB copies it to a staging folder; saving moves it into `projects/<id>/assets/` and records it in `assets` with its SHA-256. The renderer receives model bytes through `models:read`, never file paths.
 - A model that fails to load keeps the previous one on screen and reverts the scene to it.
 
+## Versions
+
+- A project keeps up to 24 variants (`scene.variants`) and one active variant. Imports become active immediately; generation and optimization results are candidates shown in preview until applied or discarded.
+- The viewport shows the preview, or the active variant while comparing. Export always writes the active variant and re-reads the file to verify its SHA-256.
+- On save every staged model (and LOD) becomes a project asset; the variant records the asset SHA-256. Projects saved before variants existed are migrated to a single variant.
+- `forma-mesh-tools` is a built-in Node engine (glTF Transform + meshoptimizer) that reduces to a triangle budget and creates LODs, refusing to publish if the budget cannot be met or UVs, materials or textures would be lost. Skinned and morph-target models are rejected for now.
+
 ## Engines and jobs
 
 - Engines are plugins described in [engine-plugins.md](engine-plugins.md): manifest, process protocol (JSON lines on stdout) and guarantees.

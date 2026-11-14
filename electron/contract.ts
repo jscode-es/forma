@@ -28,7 +28,23 @@ export type ReferenceImage = {
   usePrepared: boolean;
 };
 
-export type ProjectScene = { model: SceneModel; references: ReferenceImage[] };
+export type VariantOrigin = "default" | "import" | "generation" | "optimize";
+
+export type Variant = {
+  id: string;
+  label: string;
+  origin: VariantOrigin;
+  parentId: string | null;
+  engineId: string | null;
+  model: SceneModel;
+  lods: SceneModel[];
+  params: Record<string, ParameterValue>;
+  createdAt: string;
+  sha256: string | null;
+  triangles: number | null;
+};
+
+export type ProjectScene = { references: ReferenceImage[]; variants: Variant[]; activeVariantId: string };
 
 export type ModelSource = { type: "staged"; stagingId: string } | { type: "asset"; projectId: string; assetId: string };
 
@@ -42,6 +58,8 @@ export type ProjectSummary = {
 export type Project = ProjectSummary & { settings: ProjectSettings; scene: ProjectScene };
 
 export type ProjectInput = { name: string; settings: ProjectSettings; scene: ProjectScene };
+
+export type ExportResult = { path: string; sha256: string; size: number };
 
 export type SystemInfo = {
   version: string;
@@ -61,7 +79,7 @@ export type HardwareInfo = {
 
 export type LocalizedText = { en: string; es?: string };
 
-export type EngineTask = "image-to-3d" | "text-to-3d" | "remove-background" | "texture" | "rig" | "animation";
+export type EngineTask = "image-to-3d" | "text-to-3d" | "remove-background" | "optimize" | "texture" | "rig" | "animation";
 
 export type EngineParameter =
   | { id: string; type: "integer" | "number"; label: LocalizedText; min: number; max: number; step?: number; default: number }
@@ -77,7 +95,7 @@ export type EngineInfo = {
   tasks: EngineTask[];
   parameters: EngineParameter[];
   requirements: { vramGb: number; cuda: boolean; python: boolean };
-  inputs: { images: { min: number; max: number } };
+  inputs: { images: { min: number; max: number }; models: { min: number; max: number } };
   builtin: boolean;
   demo: boolean;
   available: boolean;
@@ -137,6 +155,7 @@ export type JobRequest = {
   projectId: string | null;
   parameters: Record<string, ParameterValue>;
   images: ImageSource[];
+  models: SceneModel[];
 };
 
 export type IpcChannels = {
@@ -151,6 +170,7 @@ export type IpcChannels = {
   "models:import": { args: []; result: SceneModel | null };
   "models:read": { args: [ModelSource]; result: Uint8Array };
   "models:stage-bytes": { args: [Uint8Array, string]; result: SceneModel };
+  "models:export": { args: [ModelSource | null, Uint8Array | null, string]; result: ExportResult | null };
   "references:import": { args: []; result: ReferenceImage | null };
   "references:read": { args: [ImageSource, string | null]; result: Uint8Array };
   "engines:list": { args: []; result: EngineInfo[] };
@@ -168,6 +188,7 @@ export type IpcChannels = {
   "jobs:logs": { args: [string]; result: string };
   "jobs:stage-result": { args: [string]; result: SceneModel };
   "jobs:stage-image": { args: [string]; result: ImageSource };
+  "jobs:stage-file": { args: [string, string]; result: SceneModel };
   "jobs:read-file": { args: [string, string]; result: Uint8Array };
   "system:info": { args: []; result: SystemInfo };
   "system:hardware": { args: [boolean]; result: HardwareInfo };
@@ -199,6 +220,7 @@ export type FormaApi = {
     import: () => Promise<SceneModel | null>;
     read: (source: ModelSource) => Promise<Uint8Array>;
     stageBytes: (bytes: Uint8Array, name: string) => Promise<SceneModel>;
+    export: (source: ModelSource | null, bytes: Uint8Array | null, name: string) => Promise<ExportResult | null>;
   };
   references: {
     import: () => Promise<ReferenceImage | null>;
@@ -225,6 +247,7 @@ export type FormaApi = {
     logs: (id: string) => Promise<string>;
     stageResult: (id: string) => Promise<SceneModel>;
     stageImage: (id: string) => Promise<ImageSource>;
+    stageFile: (id: string, path: string) => Promise<SceneModel>;
     readFile: (id: string, path: string) => Promise<Uint8Array>;
     onUpdate: (callback: (job: JobInfo) => void) => () => void;
   };

@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { app } from "electron";
-import type { ImageSource, Project, ProjectInput, ProjectScene, ProjectSummary } from "./contract";
+import type { ImageSource, Project, ProjectInput, ProjectScene, ProjectSummary, SceneModel } from "./contract";
 import { getDb, getSetting, setSetting, transaction } from "./db";
 import { commitImage } from "./images";
 import { assertProjectAsset, commitStagedModel } from "./models";
@@ -30,16 +30,29 @@ function toProject(row: Row): Project {
   return { ...toSummary(row), settings: parseStoredSettings(row.settings), scene: parseStoredScene(row.scene) };
 }
 
+function commitModel(projectId: string, model: SceneModel): SceneModel {
+  if (model.type === "staged") return commitStagedModel(projectId, model);
+  if (model.type === "asset") assertProjectAsset(projectId, model.assetId);
+  return model;
+}
+
+function assetSha(model: SceneModel): string | null {
+  if (model.type !== "asset") return null;
+  const row = getDb().prepare("SELECT sha256 FROM assets WHERE id = ?").get(model.assetId) as { sha256: string } | undefined;
+  return row?.sha256 ?? null;
+}
+
 function resolveScene(projectId: string, scene: ProjectScene): ProjectScene {
-  let { model } = scene;
-  if (model.type === "staged") model = commitStagedModel(projectId, model);
-  else if (model.type === "asset") assertProjectAsset(projectId, model.assetId);
+  const variants = scene.variants.map((v) => {
+    const model = commitModel(projectId, v.model);
+    return { ...v, model, lods: v.lods.map((lod) => commitModel(projectId, lod)), sha256: assetSha(model) };
+  });
   const references = scene.references.map((r) => ({
     ...r,
     original: commitImage(projectId, r.original, r.name),
     prepared: r.prepared ? commitImage(projectId, r.prepared, `${r.name} (prepared)`) : null,
   }));
-  return { model, references };
+  return { references, variants, activeVariantId: scene.activeVariantId };
 }
 
 function getRow(id: string): Row {
@@ -133,9 +146,9 @@ export function duplicateProject(id: string, name: string): ProjectSummary {
     }
 
     const scene = parseStoredScene(source.scene);
-    if (scene.model.type === "asset") {
-      scene.model = { ...scene.model, assetId: assetIds.get(scene.model.assetId) ?? scene.model.assetId };
-    }
+    const remapModel = (model: SceneModel): SceneModel =>
+      model.type === "asset" ? { ...model, assetId: assetIds.get(model.assetId) ?? model.assetId } : model;
+    scene.variants = scene.variants.map((v) => ({ ...v, model: remapModel(v.model), lods: v.lods.map(remapModel) }));
     const remap = (source: ImageSource): ImageSource =>
       source.type === "asset" ? { type: "asset", assetId: assetIds.get(source.assetId) ?? source.assetId } : source;
     scene.references = scene.references.map((r) => ({

@@ -75,7 +75,7 @@
   },
   "dock": {
     "session": {
-      "label": "Sesión",
+      "label": "Versiones",
       "title": "Una nueva sesión, todas las posibilidades",
       "description": "Las referencias de tu trabajo se reunirán aquí."
     },
@@ -305,13 +305,21 @@
       "exporting": "Exportando",
       "loading": "Cargando el modelo",
       "cleaning": "Limpiando la malla",
-      "removing-background": "Quitando el fondo"
+      "removing-background": "Quitando el fondo",
+      "optimizing": "Optimizando",
+      "lod": "Creando LOD"
     },
     "error": {
       "interrupted": "Interrumpido: la aplicación se cerró mientras se ejecutaba",
       "timeout": "Se superó el tiempo límite",
       "no-result": "El motor terminó sin resultado",
-      "reference-required": "Este motor necesita una imagen de referencia"
+      "reference-required": "Este motor necesita una imagen de referencia",
+      "budget-not-met": "No se puede alcanzar el presupuesto sin dañar la malla",
+      "uv-lost": "Se perderían las UV",
+      "materials-lost": "Se perderían materiales o texturas",
+      "unsupported-rigged": "Aún no se admiten modelos con esqueleto o morph targets",
+      "model-required": "Esta tarea necesita un modelo",
+      "verification-failed": "El archivo escrito no coincide"
     }
   },
   "models": {
@@ -356,6 +364,51 @@
     "image-unsupported": "Formato no admitido: usa PNG, JPG o WebP",
     "image-too-small": "La imagen mide menos de 64 px",
     "image-too-many-pixels": "La imagen supera los 16 megapíxeles",
-    "reference-required": "Este motor necesita una imagen de referencia"
+    "reference-required": "Este motor necesita una imagen de referencia",
+    "export-verification-failed": "El archivo exportado no coincide con la versión"
+  },
+  "versions": {
+    "title": "Versiones",
+    "activeLabel": "Activa: {{name}}",
+    "previewLabel": "Vista previa: {{name}}",
+    "compare": "Comparar",
+    "compareHint": "Mostrar la versión activa en la misma vista",
+    "discard": "Descartar",
+    "close": "Cerrar vista previa",
+    "apply": "Aplicar",
+    "preview": "Previsualizar",
+    "delete": "Eliminar versión",
+    "active": "Activa",
+    "previewing": "En vista previa",
+    "builtin": "Incluido",
+    "unsaved": "Aún sin guardar",
+    "lods_one": "{{count}} LOD",
+    "lods_other": "{{count}} LOD",
+    "origin": {
+      "default": "Por defecto",
+      "import": "Importado",
+      "generation": "Generado",
+      "optimize": "Optimizado"
+    }
+  },
+  "optimize": {
+    "source": "Origen: versión activa {{name}} · {{triangles}} triángulos",
+    "budget": "Presupuesto de triángulos",
+    "lod1": "LOD 1 (0 = ninguno)",
+    "lod2": "LOD 2 (0 = ninguno)",
+    "lod3": "LOD 3 (0 = ninguno)",
+    "invalid": "Los presupuestos empiezan en 128 y cada LOD debe ser menor que el nivel anterior.",
+    "needsModel": "Importa o genera un modelo para optimizarlo.",
+    "run": "Optimizar en una versión nueva",
+    "running": "Optimizando...",
+    "hint": "El original se conserva. Se mantienen UV y materiales y se verifica cada archivo; si un presupuesto no se puede alcanzar sin dañar la malla, no se publica nada."
+  },
+  "export": {
+    "activeVersion": "Exporta la versión activa: {{name}}",
+    "previewNotExported": "La versión en vista previa no se exporta hasta que la apliques.",
+    "glb": "Exportar GLB",
+    "lod": "Exportar LOD {{index}} {{name}}",
+    "noLods": "La versión activa no tiene LOD. Créalos desde Modelo → Optimizar y LOD.",
+    "done": "Guardado en {{path}} · SHA-256 {{sha}} verificado"
   }
 }

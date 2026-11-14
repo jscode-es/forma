@@ -2,7 +2,7 @@ import { randomUUID, createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { app, BrowserWindow, dialog } from "electron";
-import type { ModelSource, SceneModel } from "./contract";
+import type { ExportResult, ModelSource, SceneModel } from "./contract";
 import { getDb } from "./db";
 
 const MAX_MODEL_BYTES = 512 * 1024 * 1024;
@@ -54,6 +54,14 @@ export async function importModel(): Promise<SceneModel | null> {
   return { type: "staged", stagingId, name };
 }
 
+export function stageModelFile(file: string, name: string): SceneModel {
+  assertGlb(file);
+  const stagingId = randomUUID();
+  fs.mkdirSync(stagingRoot(), { recursive: true });
+  fs.copyFileSync(file, stagedFile(stagingId));
+  return { type: "staged", stagingId, name: name.slice(0, 120) || "Model" };
+}
+
 export function stageModelBytes(bytes: Uint8Array, name: string): SceneModel {
   const buffer = Buffer.from(bytes);
   if (buffer.length > MAX_MODEL_BYTES) throw new Error("The model is larger than 512 MB");
@@ -62,6 +70,38 @@ export function stageModelBytes(bytes: Uint8Array, name: string): SceneModel {
   fs.mkdirSync(stagingRoot(), { recursive: true });
   fs.writeFileSync(stagedFile(stagingId), buffer);
   return { type: "staged", stagingId, name: name.slice(0, 120) || "Model" };
+}
+
+export function modelPath(source: ModelSource): string {
+  if (source.type === "staged") return stagedFile(source.stagingId);
+  const row = getDb()
+    .prepare("SELECT path FROM assets WHERE id = ? AND project_id = ? AND kind = 'model'")
+    .get(source.assetId, source.projectId) as { path: string } | undefined;
+  if (!row) throw new Error("Model not found");
+  const root = projectRoot(source.projectId);
+  const file = path.resolve(root, row.path);
+  if (!file.startsWith(root + path.sep)) throw new Error("Invalid asset path");
+  return file;
+}
+
+const sha = (data: Buffer | Uint8Array) => createHash("sha256").update(data).digest("hex");
+
+export async function exportModel(source: ModelSource | null, bytes: Uint8Array | null, name: string): Promise<ExportResult | null> {
+  const data = source ? fs.readFileSync(modelPath(source)) : bytes ? Buffer.from(bytes) : null;
+  if (!data) throw new Error("Nothing to export");
+  if (data.toString("ascii", 0, 4) !== "glTF" || data.readUInt32LE(4) !== 2) throw new Error("The data is not a glTF 2.0 binary");
+
+  const window = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
+  const safeName = name.replace(/[\\/:*?"<>|]+/g, "-").slice(0, 100) || "model";
+  const options = { defaultPath: `${safeName}.glb`, filters: [{ name: "glTF binary", extensions: ["glb"] }] };
+  const result = window ? await dialog.showSaveDialog(window, options) : await dialog.showSaveDialog(options);
+  if (result.canceled || !result.filePath) return null;
+
+  fs.writeFileSync(result.filePath, data);
+  const written = fs.readFileSync(result.filePath);
+  const expected = sha(data);
+  if (sha(written) !== expected) throw new Error("export-verification-failed");
+  return { path: result.filePath, sha256: expected, size: written.length };
 }
 
 export function readModel(source: ModelSource): Uint8Array {

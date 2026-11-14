@@ -86,13 +86,13 @@ Target: the interface structure of the design reference, without engines.
 - [x] Physical scale (height in meters)
 - [x] Generation trace: inputs, intermediates and parameters per job
 
-## Phase 7 · Variants and export
+## Phase 7 · Variants and export (done)
 
-- [ ] Preview, apply and save flow with a clear active version
-- [ ] Variant history with source, parameters and checksums
-- [ ] Compare original and variant in the same viewport
-- [ ] Export GLB of the active version through a native save dialog
-- [ ] Optimize mesh: triangle budget, up to 3 LODs, UV and material preserved, verified output
+- [x] Preview, apply and save flow with a clear active version
+- [x] Variant history with source, parameters and checksums
+- [x] Compare original and variant in the same viewport
+- [x] Export GLB of the active version through a native save dialog
+- [x] Optimize mesh: triangle budget, up to 3 LODs, UV and material preserved, verified output
 
 ## Phase 8 · Stable 1.0
 

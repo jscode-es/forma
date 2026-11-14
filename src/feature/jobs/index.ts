@@ -5,8 +5,11 @@ export { useJobsSync } from "./hooks/use-jobs-sync";
 export {
   ACTIVE,
   backgroundEngine,
+  engineFor,
+  errorMessage,
   generateModel,
   localized,
+  optimizeModel,
   refreshEngines,
   removeBackground,
   useJobsStore,

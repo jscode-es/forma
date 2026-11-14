@@ -15,11 +15,12 @@ import {
 } from "@kivora/nextjs";
 import { Box, Camera, Grid3x3, MousePointer2, Scan, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useProjectStore } from "@/stores/project-store";
+import { displayedVariant, useProjectStore, variantName } from "@/stores/project-store";
 import { useWorkspaceStore, type ViewMode } from "@/stores/workspace-store";
 import type { CameraPreset } from "../engine/viewer";
 import { useViewerStore } from "../viewer-store";
 import styles from "../viewport.module.css";
+import { VersionControls } from "./version-controls";
 import { ViewportCanvas } from "./viewport-canvas";
 
 const MODES: ViewMode[] = ["material", "solid", "wireframe"];
@@ -27,7 +28,7 @@ const PRESETS: CameraPreset[] = ["perspective", "front", "back", "left", "right"
 
 export function Viewport() {
   const { t, i18n } = useTranslation();
-  const model = useProjectStore((s) => s.model);
+  const variant = useProjectStore(displayedVariant);
   const viewMode = useWorkspaceStore((s) => s.viewMode);
   const setViewMode = useWorkspaceStore((s) => s.setViewMode);
   const showGrid = useWorkspaceStore((s) => s.showGrid);
@@ -36,7 +37,7 @@ export function Viewport() {
 
   const number = new Intl.NumberFormat(i18n.language);
   const meters = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
-  const modelName = model.type === "default-cube" ? t("scene.cube") : model.name;
+  const modelName = variantName(variant, t("scene.cube"));
 
   return (
     <div className={styles.viewport}>
@@ -48,6 +49,8 @@ export function Viewport() {
         <span className={styles.divider} />
         <span className={styles.muted}>{modelName}</span>
         <span className={styles.spacer} />
+        <VersionControls />
+        <span className={styles.divider} />
         <ToggleGroup
           type="single"
           value={viewMode}

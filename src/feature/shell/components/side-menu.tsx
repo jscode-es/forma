@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useModelsStore } from "@/feature/models";
 import { ReferencePanel } from "@/feature/references";
 import { useViewerStore } from "@/feature/viewport";
-import { useProjectStore } from "@/stores/project-store";
+import { displayedVariant, useProjectStore, variantName } from "@/stores/project-store";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import styles from "../shell.module.css";
 import { SECTIONS } from "../sections";
@@ -18,14 +18,18 @@ export function SideMenu({ onOpenDialog }: { onOpenDialog: (dialog: ShellDialog)
   const { t, i18n } = useTranslation();
   const section = useWorkspaceStore((s) => s.section);
   const setSection = useWorkspaceStore((s) => s.setSection);
-  const model = useProjectStore((s) => s.model);
+  const variant = useProjectStore(displayedVariant);
   const stats = useViewerStore((s) => s.stats);
   const number = new Intl.NumberFormat(i18n.language);
 
   async function importModel() {
     try {
       const imported = await window.forma?.models.import();
-      if (imported) useProjectStore.getState().setModel(imported);
+      if (imported && imported.type === "staged") {
+        useProjectStore
+          .getState()
+          .addVariant({ label: imported.name, origin: "import", engineId: null, model: imported, lods: [], params: {} }, true);
+      }
     } catch (error) {
       useViewerStore.setState({ error: error instanceof Error ? error.message : String(error) });
     }
@@ -70,7 +74,7 @@ export function SideMenu({ onOpenDialog }: { onOpenDialog: (dialog: ShellDialog)
             <div className={`${styles.navItem} ${styles.navItemActive}`} style={{ cursor: "default" }}>
               <Icon icon={Box} size={16} />
               <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {model.type === "default-cube" ? t("scene.cube") : model.name}
+                {variantName(variant, t("scene.cube"))}
               </span>
               {stats && (
                 <span className={styles.hint}>{t("stats.trianglesShort", { value: number.format(stats.triangles) })}</span>
