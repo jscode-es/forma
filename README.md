@@ -2,7 +2,7 @@
 
 Local-first AI studio to generate **3D models, rigs, animations and textures** from text prompts or reference images. Everything runs on your machine: no cloud, no accounts.
 
-> Status: early scaffold. The app shell (Electron + Next.js + SQLite) works; the generation pipelines are being built. See the [roadmap](docs/roadmap.md).
+> Status: early scaffold. The app shell (Electron + Next.js + SQLite) works; the generation pipelines are being built. See the [development phases](docs/phases.md).
 
 ## Features (planned)
 
