@@ -11,8 +11,9 @@ import {
   Icon,
   Label,
 } from "@kivora/nextjs";
-import { ExternalLink, FolderOpen } from "lucide-react";
+import { ExternalLink, FolderOpen, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { refreshEngines, useJobsStore } from "@/feature/jobs";
 import { LibraryDialogContent } from "@/feature/projects";
 import { LanguageToggle, ThemeToggle } from "@/feature/settings";
 import type { SystemInfo } from "@/lib/forma";
@@ -79,8 +80,59 @@ function SettingsContent() {
             {t("settings.openDataDir")}
           </Button>
         </div>
+        <HardwareSection />
       </div>
     </DialogContent>
+  );
+}
+
+function HardwareSection() {
+  const { t, i18n } = useTranslation();
+  const hardware = useJobsStore((s) => s.hardware);
+  const engines = useJobsStore((s) => s.engines);
+  const [checking, setChecking] = useState(false);
+  const number = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 });
+  const missing = t("settings.hardware.notFound");
+
+  const rows: [string, string][] = [
+    [t("settings.hardware.gpu"), hardware?.gpu ?? missing],
+    [t("settings.hardware.vram"), hardware?.vramMb ? `${number.format(hardware.vramMb / 1024)} GB` : missing],
+    [t("settings.hardware.driver"), hardware?.driver ?? missing],
+    [t("settings.hardware.cuda"), hardware?.cuda ?? missing],
+    [t("settings.hardware.disk"), hardware?.diskFreeBytes ? `${number.format(hardware.diskFreeBytes / 1024 ** 3)} GB` : missing],
+    [t("settings.hardware.python"), hardware?.python ? `${hardware.python.version} · ${hardware.python.path}` : missing],
+  ];
+
+  return (
+    <div style={{ display: "grid", gap: "0.5rem" }}>
+      <Label>{t("settings.hardware.title")}</Label>
+      <dl className={styles.facts}>
+        {rows.map(([label, value]) => (
+          <div key={label}>
+            <dt>{label}</dt>
+            <dd>{value}</dd>
+          </div>
+        ))}
+        <div>
+          <dt>{t("settings.hardware.engines")}</dt>
+          <dd>{engines.map((e) => `${e.name}${e.available ? "" : ` (${t(`engine.problem.${e.problem}`, { defaultValue: e.problem ?? "" })})`}`).join(", ") || missing}</dd>
+        </div>
+      </dl>
+      <span className={styles.hint}>{t("settings.hardware.enginesHint")}</span>
+      <Button
+        variant="outline"
+        size="sm"
+        style={{ justifySelf: "start" }}
+        disabled={checking || !window.forma}
+        onClick={async () => {
+          setChecking(true);
+          await refreshEngines(true).finally(() => setChecking(false));
+        }}
+      >
+        <Icon icon={RefreshCw} size={15} />
+        {t("settings.hardware.refresh")}
+      </Button>
+    </div>
   );
 }
 

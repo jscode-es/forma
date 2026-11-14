@@ -19,6 +19,7 @@ import {
 } from "@kivora/nextjs";
 import { Search, SlidersHorizontal, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { ACTIVE, EngineControl, generateModel, useJobsStore } from "@/feature/jobs";
 import { useProjectStore, type Quality } from "@/stores/project-store";
 import { useWorkspaceStore, type InspectorTab } from "@/stores/workspace-store";
 import styles from "../shell.module.css";
@@ -86,20 +87,29 @@ function ScaleControl() {
   );
 }
 
-function EngineControl() {
+function GenerateFooter() {
   const { t } = useTranslation();
+  const engineId = useProjectStore((s) => s.engine.id);
+  const engine = useJobsStore((s) => s.engines.find((e) => e.id === engineId));
+  const busy = useJobsStore((s) => s.jobs.some((j) => ACTIVE.has(j.status) && j.engineId === engineId));
+  const error = useJobsStore((s) => s.enqueueError);
+  const ready = Boolean(engine?.available);
+
   return (
-    <div className={styles.sectionBody}>
-      <div className={styles.dropzone} style={{ justifyItems: "start", textAlign: "left", padding: "0.75rem" }}>
-        <strong style={{ fontSize: "0.875rem" }}>{t("engine.none")}</strong>
-        <span className={styles.hint}>{t("engine.noneHint")}</span>
-      </div>
+    <div className={styles.inspectorFooter}>
+      <Button size="lg" disabled={!ready} onClick={() => generateModel()}>
+        <Icon icon={Sparkles} size={16} />
+        {t("inspector.generate")}
+      </Button>
+      <span className={styles.hint} style={{ textAlign: "center", color: error ? "var(--color-destructive)" : undefined }}>
+        {error ?? (!ready ? t("inspector.generateHint") : busy ? t("inspector.generateQueued") : t("inspector.generateReady"))}
+      </span>
     </div>
   );
 }
 
 const SECTIONS: SectionDef[] = [
-  { tab: "create", id: "engine", phase: 6, content: <EngineControl /> },
+  { tab: "create", id: "engine", content: <EngineControl /> },
   { tab: "create", id: "quality", content: <QualityControl /> },
   { tab: "create", id: "scale", content: <ScaleControl /> },
   ...INSPECTOR_TABS.flatMap((tab) => PLANNED_SECTIONS[tab].map((s) => ({ tab, ...s }))),
@@ -200,17 +210,7 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
         </div>
       </div>
 
-      {tab === "create" && !needle && (
-        <div className={styles.inspectorFooter}>
-          <Button disabled size="lg">
-            <Icon icon={Sparkles} size={16} />
-            {t("inspector.generate")}
-          </Button>
-          <span className={styles.hint} style={{ textAlign: "center" }}>
-            {t("inspector.generateHint")}
-          </span>
-        </div>
-      )}
+      {tab === "create" && !needle && <GenerateFooter />}
     </div>
   );
 }

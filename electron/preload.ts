@@ -1,8 +1,16 @@
 import { contextBridge, ipcRenderer } from "electron";
-import type { FormaApi, IpcChannel, IpcChannels } from "./contract";
+import type { FormaApi, IpcChannel, IpcChannels, IpcEvents } from "./contract";
 
 function invoke<K extends IpcChannel>(channel: K, ...args: IpcChannels[K]["args"]): Promise<IpcChannels[K]["result"]> {
   return ipcRenderer.invoke(channel, ...args);
+}
+
+function subscribe<K extends keyof IpcEvents>(channel: K, callback: (...args: IpcEvents[K]) => void) {
+  const listener = (_event: unknown, ...args: unknown[]) => callback(...(args as IpcEvents[K]));
+  ipcRenderer.on(channel, listener);
+  return () => {
+    ipcRenderer.removeListener(channel, listener);
+  };
 }
 
 const api: FormaApi = {
@@ -20,18 +28,27 @@ const api: FormaApi = {
     import: () => invoke("models:import"),
     read: (source) => invoke("models:read", source),
   },
+  engines: {
+    list: () => invoke("engines:list"),
+  },
+  jobs: {
+    list: () => invoke("jobs:list"),
+    enqueue: (request) => invoke("jobs:enqueue", request),
+    cancel: (id) => invoke("jobs:cancel", id),
+    retry: (id) => invoke("jobs:retry", id),
+    logs: (id) => invoke("jobs:logs", id),
+    stageResult: (id) => invoke("jobs:stage-result", id),
+    onUpdate: (callback) => subscribe("jobs:update", callback),
+  },
   system: {
     info: () => invoke("system:info"),
+    hardware: (refresh) => invoke("system:hardware", refresh),
     openDataDir: () => invoke("system:open-data-dir"),
   },
   app: {
     setDirty: (dirty) => invoke("app:set-dirty", dirty),
     confirmClose: () => invoke("app:confirm-close"),
-    onCloseRequested: (callback) => {
-      const listener = () => callback();
-      ipcRenderer.on("app:close-requested", listener);
-      return () => ipcRenderer.removeListener("app:close-requested", listener);
-    },
+    onCloseRequested: (callback) => subscribe("app:close-requested", callback),
   },
 };
 

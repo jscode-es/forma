@@ -1,17 +1,29 @@
 import { z } from "zod";
 import type { ProjectScene, ProjectSettings } from "./contract";
 
-export const DEFAULT_SETTINGS: ProjectSettings = { quality: "balanced", physicalScale: false, heightMeters: 1.8 };
+export const DEFAULT_SETTINGS: ProjectSettings = {
+  quality: "balanced",
+  physicalScale: false,
+  heightMeters: 1.8,
+  engine: { id: null, parameters: {} },
+};
 export const DEFAULT_SCENE: ProjectScene = { model: { type: "default-cube" } };
 
 export const projectId = z.uuid();
 
 export const projectName = z.string().trim().min(1).max(120);
 
+export const engineId = z.string().regex(/^[a-z0-9][a-z0-9-]{1,63}$/);
+
+const parameterValue = z.union([z.number().finite(), z.boolean(), z.string().max(256)]);
+
+export const parameterValues = z.record(z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]{0,63}$/), parameterValue);
+
 export const projectSettings = z.object({
   quality: z.enum(["fast", "balanced", "high"]),
   physicalScale: z.boolean(),
   heightMeters: z.number().min(0.01).max(100),
+  engine: z.object({ id: engineId.nullable(), parameters: parameterValues }),
 });
 
 const modelName = z.string().max(120);
@@ -30,6 +42,62 @@ export const modelSource = z.discriminatedUnion("type", [
   z.object({ type: z.literal("staged"), stagingId: z.uuid() }),
   z.object({ type: z.literal("asset"), projectId: z.uuid(), assetId: z.uuid() }),
 ]);
+
+export const engineTask = z.enum(["image-to-3d", "text-to-3d", "texture", "rig", "animation"]);
+
+export const jobRequest = z.object({
+  engineId,
+  task: engineTask,
+  projectId: z.uuid().nullable(),
+  parameters: parameterValues,
+});
+
+const localizedText = z.object({ en: z.string().min(1).max(200), es: z.string().max(200).optional() });
+
+const parameterId = z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]{0,63}$/);
+
+export const engineManifest = z.object({
+  id: engineId,
+  name: z.string().min(1).max(80),
+  version: z.string().min(1).max(32),
+  license: z.string().min(1).max(80),
+  description: localizedText,
+  tasks: z.array(engineTask).min(1),
+  runtime: z.object({
+    type: z.enum(["node", "python"]),
+    entry: z.string().regex(/^[\w./-]+$/).refine((p) => !p.includes(".."), "entry must stay inside the engine folder"),
+  }),
+  timeoutSeconds: z.number().int().min(10).max(24 * 3600).default(1800),
+  requirements: z
+    .object({ vramGb: z.number().min(0).default(0), cuda: z.boolean().default(false) })
+    .default({ vramGb: 0, cuda: false }),
+  demo: z.boolean().default(false),
+  parameters: z
+    .array(
+      z.discriminatedUnion("type", [
+        z.object({
+          id: parameterId,
+          type: z.enum(["integer", "number"]),
+          label: localizedText,
+          min: z.number(),
+          max: z.number(),
+          step: z.number().positive().optional(),
+          default: z.number(),
+        }),
+        z.object({ id: parameterId, type: z.literal("boolean"), label: localizedText, default: z.boolean() }),
+        z.object({
+          id: parameterId,
+          type: z.literal("enum"),
+          label: localizedText,
+          options: z.array(z.object({ value: z.string().min(1).max(64), label: localizedText })).min(1),
+          default: z.string(),
+        }),
+      ]),
+    )
+    .default([]),
+});
+
+export type EngineManifest = z.infer<typeof engineManifest>;
 
 function parseJson<T>(raw: string, schema: z.ZodType<T>, fallback: T, defaults: object = {}): T {
   try {

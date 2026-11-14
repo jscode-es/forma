@@ -1,0 +1,28 @@
+{
+  "id": "forma-demo",
+  "name": "Forma demo",
+  "version": "1.0.0",
+  "license": "MIT",
+  "demo": true,
+  "description": {
+    "en": "Test engine without AI: simulates the stages of a generation and produces a simple shape.",
+    "es": "Motor de prueba sin IA: simula las etapas de una generación y produce una forma simple."
+  },
+  "tasks": ["image-to-3d", "text-to-3d"],
+  "runtime": { "type": "node", "entry": "main.mjs" },
+  "timeoutSeconds": 120,
+  "parameters": [
+    { "id": "steps", "type": "integer", "label": { "en": "Steps", "es": "Pasos" }, "min": 1, "max": 60, "step": 1, "default": 20 },
+    {
+      "id": "shape",
+      "type": "enum",
+      "label": { "en": "Shape", "es": "Forma" },
+      "default": "crystal",
+      "options": [
+        { "value": "crystal", "label": { "en": "Crystal", "es": "Cristal" } },
+        { "value": "pyramid", "label": { "en": "Pyramid", "es": "Pirámide" } }
+      ]
+    },
+    { "id": "fail", "type": "boolean", "label": { "en": "Simulate a failure", "es": "Simular un fallo" }, "default": false }
+  ]
+}

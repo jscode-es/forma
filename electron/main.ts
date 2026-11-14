@@ -3,7 +3,10 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { z } from "zod";
 import { openDb } from "./db";
+import { listEngines } from "./engines";
+import { getHardware } from "./hardware";
 import { handle } from "./ipc";
+import { jobs } from "./jobs";
 import {
   createProject,
   deleteProject,
@@ -15,7 +18,7 @@ import {
   updateProject,
 } from "./projects";
 import { clearStaging, importModel, readModel } from "./models";
-import { modelSource, projectId, projectInput, projectName } from "./schemas";
+import { jobRequest, modelSource, projectId, projectInput, projectName } from "./schemas";
 import { getSystemInfo, openDataDir } from "./system";
 
 const isDev = process.env.FORMA_DEV === "1";
@@ -75,7 +78,15 @@ function registerIpc() {
   handle("projects:delete", id, deleteProject);
   handle("models:import", none, importModel);
   handle("models:read", z.tuple([modelSource]), readModel);
+  handle("engines:list", none, async () => (await listEngines()).map((e) => e.info));
+  handle("jobs:list", none, () => jobs.list());
+  handle("jobs:enqueue", z.tuple([jobRequest]), (request) => jobs.enqueue(request));
+  handle("jobs:cancel", z.tuple([z.uuid()]), (id) => jobs.cancel(id));
+  handle("jobs:retry", z.tuple([z.uuid()]), (id) => jobs.retry(id));
+  handle("jobs:logs", z.tuple([z.uuid()]), (id) => jobs.logs(id));
+  handle("jobs:stage-result", z.tuple([z.uuid()]), (id) => jobs.stageResult(id));
   handle("system:info", none, getSystemInfo);
+  handle("system:hardware", z.tuple([z.boolean()]), getHardware);
   handle("system:open-data-dir", none, openDataDir);
   handle("app:set-dirty", z.tuple([z.boolean()]), (value) => {
     dirty = value;
@@ -90,6 +101,7 @@ app.whenReady().then(() => {
   openDb(path.join(app.getPath("userData"), "forma.db"));
   clearStaging();
   registerIpc();
+  jobs.recover();
 
   protocol.handle("app", (req) => {
     const { pathname } = new URL(req.url);
@@ -104,6 +116,8 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
+
+app.on("before-quit", () => jobs.shutdown());
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
