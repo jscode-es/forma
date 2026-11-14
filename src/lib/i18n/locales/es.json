@@ -402,7 +402,13 @@
       "cleaning": "Limpiando la malla",
       "removing-background": "Quitando el fondo",
       "optimizing": "Optimizando",
-      "lod": "Creando LOD"
+      "lod": "Creando LOD",
+      "neutralizing-lighting": "Neutralizando la iluminación",
+      "reducing": "Reduciendo caras",
+      "unwrapping": "Desplegando UV",
+      "rendering-geometry": "Renderizando vistas de la geometría",
+      "encoding-reference": "Codificando la referencia",
+      "baking": "Horneando el atlas"
     },
     "error": {
       "interrupted": "Interrumpido: la aplicación se cerró mientras se ejecutaba",
@@ -558,7 +564,8 @@
       "pip:downloading": "Descargando dependencias",
       "pip:installing-collected-packages": "Instalando dependencias",
       "pip:successfully-installed": "Dependencias instaladas",
-      "verifying": "Verificando la instalación"
+      "verifying": "Verificando la instalación",
+      "building": "Compilando extensiones nativas (requiere el CUDA toolkit y un compilador de C++)"
     },
     "error": {
       "git-missing": "Git no está instalado. Instálalo desde git-scm.com y vuelve a intentarlo.",

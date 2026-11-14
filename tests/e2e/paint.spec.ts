@@ -147,8 +147,11 @@ test("keeps pending strokes attached to their source when another model is impor
   await expect(page.getByRole("button", { name: "Return to paint source", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Save paint version", exact: true })).toBeDisabled();
   await page.getByRole("button", { name: "Return to paint source", exact: true }).click();
+  const paintVersions = page.getByText("Paint", { exact: true });
+  const before = await paintVersions.count();
   await page.getByRole("button", { name: "Save paint version", exact: true }).click();
   await expect(page.getByRole("button", { name: "Save paint version", exact: true })).toHaveCount(0);
+  await expect(paintVersions).toHaveCount(before + 1);
   await page.keyboard.press("Control+s");
   await expect(page.getByLabel("Unsaved changes")).toHaveCount(0);
   const parent = await page.evaluate(async () => (await window.forma!.projects.last())!.scene.variants.filter((variant) => variant.origin === "paint").at(-1)!.parentId);

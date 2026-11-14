@@ -82,7 +82,7 @@ In **Create 3D > Finish > Materials**, select a material to inspect its factors 
 
 **Upscale 2×/4×** resamples embedded maps bilinearly with a 4096-pixel limit per side. This is resampling, not AI detail reconstruction. Albedo is interpolated in linear RGB and normal vectors are normalized. Transparent normal, metallic, roughness and AO images cannot be processed safely by this path; use opaque data maps.
 
-**AI texture** selects an installed texture engine and an explicit reference for the active mesh. Its result is a preview with the original source retained, even if you select another model while the job runs. No compatible 12 GB Windows engine is validated yet; material editing and map imports work independently of AI generation.
+**AI texture** selects an installed texture engine and an explicit reference for the active mesh. Its result is a preview with the original source retained, even if you select another model while the job runs. The [Hunyuan3D Paint 2.1 PBR](../plugins/hunyuan3d-2-1-paint/README.md) plugin generates albedo, metallic and roughness, regenerates the UVs and can neutralize the reference lighting with Delight; choose the atlas resolution (512, 1024 or 2048 px) in its settings. Use a reference without background for cleaner textures. On an RTX 5070 (12 GB) a 40,000-face mesh with a 1024 px atlas takes about 3 minutes. Normal and AO maps are not generated: bake normals under **Finish > Normals** or import the maps. Material editing and map imports work without an AI engine.
 
 ## Optimize and LOD
 

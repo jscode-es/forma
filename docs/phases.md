@@ -119,13 +119,13 @@ The Hunyuan3D 2 MV plugin and view assignment are implemented with pinned code a
 
 ## Phase 11 · Texturing and PBR
 
-- [ ] Texture generation for generated and imported meshes
-- [ ] PBR maps: albedo, metallic, roughness, normal, AO
-- [ ] Lighting neutralization option and atlas resolution control
+- [x] Texture generation for generated and imported meshes (Hunyuan3D Paint 2.1 PBR plugin)
+- [ ] PBR maps: albedo, metallic, roughness, normal, AO (albedo, metallic and roughness generated; normal baked from geometry in Mesh tools; AO pending)
+- [x] Lighting neutralization option (Delight) and atlas resolution control
 - [x] Texture upscale (2x, 4x) with explicit limits
 - [x] Materials panel: factors, maps, isolate and compare
 
-Material inspection, five-map import, provenance and preview variants are implemented. Upscale uses bilinear resampling with a 4096-pixel side limit, linear RGB for albedo and normal renormalization; transparent data maps are rejected explicitly. Texture job settings, explicit references and protected source parents are integrated and tested using a protocol fixture. Real AI texturing, atlas controls and lighting neutralization remain pending: the investigated 12 GB candidate is not validated on Windows/RTX 5070 and does not generate normal/AO maps. See [feasibility evidence](superpowers/phase-11-texture-engine-feasibility.md).
+Material inspection, five-map import, provenance and preview variants are implemented. Upscale uses bilinear resampling with a 4096-pixel side limit, linear RGB for albedo and normal renormalization; transparent data maps are rejected explicitly. Texture job settings, explicit references and protected source parents are integrated and tested using a protocol fixture. The low-VRAM Paint 2.1 fork was discarded (torch 2.6 has no Blackwell support, see [feasibility evidence](superpowers/phase-11-texture-engine-feasibility.md)). The Hunyuan3D Paint 2.1 PBR plugin instead runs the official Paint 2.1 weights with the Hunyuan3D 2.0 renderer, CPU offload and torch 2.7.1 cu128. Verified on an RTX 5070 (12 GB): a Hunyuan3D 2.0 penguin (700,966 faces reduced to 40,000) textured with Delight, 15 steps and a 1024 px atlas in 173 s; roughness 40–101 and metallic 0–9 in the packed map. AO generation remains open.
 
 ## Phase 12 · Mesh tools (done)
 

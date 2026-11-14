@@ -108,6 +108,16 @@ function sortViews(references: ReferenceImage[]) {
   return [...references].sort((a, b) => REFERENCE_VIEWS.indexOf(a.view) - REFERENCE_VIEWS.indexOf(b.view));
 }
 
+function variantsChanged(current: Variant[], saved: Variant[]) {
+  if (current === saved) return false;
+  if (current.length !== saved.length) return true;
+  return current.some((variant, index) => {
+    const before = saved[index];
+    if (variant === before) return false;
+    return !before || (Object.keys(variant) as (keyof Variant)[]).some((key) => key !== "triangles" && variant[key] !== before[key]);
+  });
+}
+
 function trim(variants: Variant[], keep: string[]) {
   const extra = variants.length - MAX_VARIANTS;
   if (extra <= 0) return variants;
@@ -196,10 +206,13 @@ export const useProjectStore = create<ProjectState>()((set) => ({
     }),
   setComparing: (comparing) => set({ comparing }),
   recordTriangles: (id, triangles) =>
-    set((s) => ({ variants: s.variants.map((v) => (v.id === id && v.triangles === null ? { ...v, triangles } : v)) })),
+    set((s) => {
+      if (!s.variants.some((v) => v.id === id && v.triangles === null)) return {};
+      return { variants: s.variants.map((v) => (v.id === id && v.triangles === null ? { ...v, triangles } : v)) };
+    }),
   setName: (name) => set({ name }),
   acceptSaved: (project, snapshot) => set((s) => {
-    const changed = s.name !== snapshot.name || s.references !== snapshot.scene.references || s.variants !== snapshot.scene.variants || s.prompts !== snapshot.scene.prompts || s.activeVariantId !== snapshot.scene.activeVariantId || (Object.keys(snapshot.settings) as (keyof ProjectSettings)[]).some((key) => s[key] !== snapshot.settings[key]);
+    const changed = s.name !== snapshot.name || s.references !== snapshot.scene.references || variantsChanged(s.variants, snapshot.scene.variants) || s.prompts !== snapshot.scene.prompts || s.activeVariantId !== snapshot.scene.activeVariantId || (Object.keys(snapshot.settings) as (keyof ProjectSettings)[]).some((key) => s[key] !== snapshot.settings[key]);
     const variants = s.variants.map((v) => {
       const before = snapshot.scene.variants.find((item) => item.id === v.id);
       const saved = project.scene.variants.find((item) => item.id === v.id);

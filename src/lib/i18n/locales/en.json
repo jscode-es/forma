@@ -402,7 +402,13 @@
       "cleaning": "Cleaning mesh",
       "removing-background": "Removing background",
       "optimizing": "Optimizing",
-      "lod": "Creating LODs"
+      "lod": "Creating LODs",
+      "neutralizing-lighting": "Neutralizing lighting",
+      "reducing": "Reducing faces",
+      "unwrapping": "Unwrapping UVs",
+      "rendering-geometry": "Rendering geometry views",
+      "encoding-reference": "Encoding the reference",
+      "baking": "Baking the atlas"
     },
     "error": {
       "interrupted": "Interrupted: the app was closed while it ran",
@@ -558,7 +564,8 @@
       "pip:downloading": "Downloading dependencies",
       "pip:installing-collected-packages": "Installing dependencies",
       "pip:successfully-installed": "Dependencies installed",
-      "verifying": "Verifying the installation"
+      "verifying": "Verifying the installation",
+      "building": "Compiling native extensions (needs the CUDA toolkit and a C++ compiler)"
     },
     "error": {
       "git-missing": "Git is not installed. Install it from git-scm.com and try again.",

@@ -82,7 +82,7 @@ En **Crear 3D > Acabado > Materiales**, selecciona un material para consultar su
 
 **Ampliar 2×/4×** remuestrea los mapas con interpolación bilineal y un límite de 4096 píxeles por lado. No reconstruye detalle mediante IA. El albedo se interpola en RGB lineal y se normalizan los vectores de normales. Esta ruta rechaza mapas de datos con transparencia: utiliza imágenes opacas para normales, metalicidad, rugosidad y AO.
 
-**Textura IA** permite elegir un motor instalado y una referencia explícita para la malla activa. El resultado es una vista previa que conserva su modelo padre aunque selecciones otro durante el trabajo. Aún no se ha validado un motor compatible con Windows y 12 GB; la edición de materiales y la importación de mapas funcionan sin él.
+**Textura IA** permite elegir un motor instalado y una referencia explícita para la malla activa. El resultado es una vista previa que conserva su modelo padre aunque selecciones otro durante el trabajo. El plugin [Hunyuan3D Paint 2.1 PBR](../plugins/hunyuan3d-2-1-paint/README.md) genera albedo, metalicidad y rugosidad, regenera las UV y puede neutralizar la iluminación de la referencia con Delight; la resolución del atlas (512, 1024 o 2048 px) se elige en sus ajustes. Usa una referencia sin fondo para obtener texturas más limpias. En una RTX 5070 (12 GB), una malla de 40.000 caras con atlas de 1024 px tarda unos 3 minutos. No genera mapas normal ni AO: hornea las normales en **Acabado > Normales** o importa los mapas. La edición de materiales y la importación de mapas funcionan sin motor de IA.
 
 ## Optimizar y LOD
 
