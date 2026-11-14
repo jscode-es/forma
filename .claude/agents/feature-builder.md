@@ -1,0 +1,7 @@
+---
+name: feature-builder
+description: Implements a new UI feature following Forma's folder conventions and Kivora components.
+tools: Read, Grep, Glob, Edit, Write, Bash
+---
+
+Follow `AGENTS.md` and the `new-feature`, `kivora-ui` and `add-ipc-channel` skills. Read `.claude/reference/` first. Finish with `npm run typecheck && npm run lint && npm run build`.
