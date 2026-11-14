@@ -7,12 +7,14 @@ export const DEFAULT_SETTINGS: ProjectSettings = {
   physicalScale: false,
   heightMeters: 1.8,
   engine: { id: null, parameters: {} },
+  imageEngine: { id: null, parameters: {} },
 };
 export const DEFAULT_VARIANT_ID = "00000000-0000-4000-8000-000000000000";
 
 export function defaultScene(): ProjectScene {
   return {
     references: [],
+    prompts: [],
     variants: [
       {
         id: DEFAULT_VARIANT_ID,
@@ -52,6 +54,7 @@ export const projectSettings = z.object({
   physicalScale: z.boolean(),
   heightMeters: z.number().min(0.01).max(100),
   engine: z.object({ id: engineId.nullable(), parameters: parameterValues }),
+  imageEngine: z.object({ id: engineId.nullable(), parameters: parameterValues }),
 });
 
 const modelName = z.string().max(120);
@@ -75,6 +78,20 @@ export const referenceImage = z.object({
   original: imageSource,
   prepared: imageSource.nullable(),
   usePrepared: z.boolean(),
+  prompt: z
+    .object({ text: z.string().max(1000), seed: z.number().int().min(0).nullable(), engineId })
+    .nullable()
+    .default(null),
+});
+
+export const promptText = z.string().trim().min(1).max(1000);
+
+export const promptEntry = z.object({
+  id: z.uuid(),
+  text: promptText,
+  engineId,
+  params: parameterValues,
+  createdAt: z.string().max(40),
 });
 
 export const variant = z.object({
@@ -94,6 +111,7 @@ export const variant = z.object({
 export const projectScene = z
   .object({
     references: z.array(referenceImage).max(8),
+    prompts: z.array(promptEntry).max(50).default([]),
     variants: z.array(variant).min(1).max(24),
     activeVariantId: z.uuid(),
   })
@@ -108,7 +126,7 @@ export const modelSource = z.discriminatedUnion("type", [
   z.object({ type: z.literal("asset"), projectId: z.uuid(), assetId: z.uuid() }),
 ]);
 
-export const engineTask = z.enum(["image-to-3d", "text-to-3d", "remove-background", "optimize", "texture", "rig", "animation"]);
+export const engineTask = z.enum(["image-to-3d", "text-to-3d", "text-to-image", "remove-background", "optimize", "texture", "rig", "animation"]);
 
 export const jobRequest = z.object({
   engineId,
@@ -117,6 +135,7 @@ export const jobRequest = z.object({
   parameters: parameterValues,
   images: z.array(imageSource).max(8),
   models: z.array(sceneModel).max(4),
+  prompt: promptText.nullable().default(null),
 });
 
 const localizedText = z.object({ en: z.string().min(1).max(600), es: z.string().max(600).optional() });
@@ -184,16 +203,18 @@ export const engineManifest = z.object({
           id: parameterId,
           type: z.enum(["integer", "number"]),
           label: localizedText,
+          tasks: z.array(engineTask).optional(),
           min: z.number(),
           max: z.number(),
           step: z.number().positive().optional(),
           default: z.number(),
         }),
-        z.object({ id: parameterId, type: z.literal("boolean"), label: localizedText, default: z.boolean() }),
+        z.object({ id: parameterId, type: z.literal("boolean"), label: localizedText, tasks: z.array(engineTask).optional(), default: z.boolean() }),
         z.object({
           id: parameterId,
           type: z.literal("enum"),
           label: localizedText,
+          tasks: z.array(engineTask).optional(),
           options: z.array(z.object({ value: z.string().min(1).max(64), label: localizedText })).min(1),
           default: z.string(),
         }),
@@ -232,7 +253,7 @@ export function parseStoredScene(raw: string): ProjectScene {
     const variants = current.data.variants.filter((v) => v.model.type !== "staged");
     const active = variants.some((v) => v.id === current.data.activeVariantId) ? current.data.activeVariantId : variants[0]?.id;
     if (!active) return defaultScene();
-    return { references: references(current.data.references), variants, activeVariantId: active };
+    return { references: references(current.data.references), prompts: current.data.prompts, variants, activeVariantId: active };
   }
 
   const legacy = legacyScene.safeParse(data);

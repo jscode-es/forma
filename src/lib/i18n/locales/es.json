@@ -213,6 +213,14 @@
       "retarget": {
         "title": "Aplicar a un personaje",
         "help": "Asigna los huesos de un personaje con esqueleto y le aplica el clip."
+      },
+      "prompt": {
+        "title": "Prompt",
+        "help": "Describe un objeto. El motor de imagen crea candidatas; elige una y se convierte en la referencia para generar el 3D."
+      },
+      "promptHistory": {
+        "title": "Historial de prompts",
+        "help": "Prompts usados en este proyecto con sus semillas. Reutiliza uno para repetirlo o variarlo."
       }
     },
     "generateReady": "El trabajo se ejecuta en local y aparece en la cola.",
@@ -350,7 +358,8 @@
       "materials-lost": "Se perderían materiales o texturas",
       "unsupported-rigged": "Aún no se admiten modelos con esqueleto o morph targets",
       "model-required": "Esta tarea necesita un modelo",
-      "verification-failed": "El archivo escrito no coincide"
+      "verification-failed": "El archivo escrito no coincide",
+      "prompt-required": "Escribe un prompt primero"
     }
   },
   "models": {
@@ -397,7 +406,8 @@
     "image-too-small": "La imagen mide menos de 64 px",
     "image-too-many-pixels": "La imagen supera los 16 megapíxeles",
     "reference-required": "Este motor necesita una imagen de referencia",
-    "export-verification-failed": "El archivo exportado no coincide con la versión"
+    "export-verification-failed": "El archivo exportado no coincide con la versión",
+    "prompt-required": "Escribe un prompt primero"
   },
   "versions": {
     "title": "Versiones",
@@ -491,5 +501,26 @@
       "vram": "Esta GPU tiene menos de {{required}} GB de VRAM."
     },
     "empty": "No hay motores disponibles en esta versión."
+  },
+  "prompt": {
+    "label": "Prompt",
+    "placeholder": "Una silla de madera roja con patas curvas",
+    "engine": "Motor de imagen",
+    "generate": "Generar imágenes",
+    "generating": "Generando imágenes… {{percent}}%",
+    "candidates": "Candidatas",
+    "pickHint": "Elige una imagen para usarla como referencia del 3D.",
+    "pickedHint": "Referencia lista: pulsa Generar para crear el modelo 3D.",
+    "use": "Usar la imagen con semilla {{seed}}",
+    "useImage": "Usar la imagen {{index}}",
+    "picked": "Referencia",
+    "noEngine": "Activa un motor de imagen como SDXL-Lightning en Modelos.",
+    "historyEmpty": "Todavía no hay prompts.",
+    "reuse": "Reutilizar",
+    "reuseLabel": "Reutilizar el prompt \"{{text}}\"",
+    "seed": "semilla {{seed}}",
+    "images": "{{count}} imágenes",
+    "fromPrompt": "Generada desde un prompt",
+    "fromPromptSeed": "Generada desde un prompt · semilla {{seed}}"
   }
 }

@@ -104,9 +104,9 @@ Target: the interface structure of the design reference, without engines.
 
 ## Phase 9 · Text to 3D
 
-- [ ] Prompt input with text-to-image step, then image-to-3D
-- [ ] Image candidates to pick from before generating
-- [ ] Prompt history and seeds saved with the project
+- [x] Prompt input with text-to-image step (SDXL-Lightning plugin), then image-to-3D
+- [x] Image candidates to pick from before generating
+- [x] Prompt history and seeds saved with the project
 
 ## Phase 10 · Multi-view and reference review
 

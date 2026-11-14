@@ -3,16 +3,22 @@
 import { useMemo } from "react";
 import { Badge, Input, Label, Select, Switch, ToggleGroup, ToggleGroupItem } from "@kivora/nextjs";
 import { useTranslation } from "react-i18next";
-import type { EngineParameter, ParameterValue } from "@/lib/forma";
+import type { EngineParameter, EngineTask, ParameterValue } from "@/lib/forma";
 import { useProjectStore } from "@/stores/project-store";
 import { localized, useJobsStore } from "../jobs-store";
 import styles from "../jobs.module.css";
 
-function ParameterControl({ parameter, value }: { parameter: EngineParameter; value: ParameterValue | undefined }) {
+type ParameterProps = {
+  parameter: EngineParameter;
+  value: ParameterValue | undefined;
+  idPrefix: string;
+  setParameter: (key: string, value: ParameterValue) => void;
+};
+
+function ParameterControl({ parameter, value, idPrefix, setParameter }: ParameterProps) {
   const { i18n } = useTranslation();
-  const setParameter = useProjectStore((s) => s.setEngineParameter);
   const label = localized(parameter.label, i18n.language);
-  const inputId = `engine-param-${parameter.id}`;
+  const inputId = `${idPrefix}-${parameter.id}`;
 
   if (parameter.type === "boolean") {
     return (
@@ -64,20 +70,26 @@ function ParameterControl({ parameter, value }: { parameter: EngineParameter; va
   );
 }
 
-export function EngineControl() {
+export type EngineControlTask = Extract<EngineTask, "image-to-3d" | "text-to-image">;
+
+export function EngineControl({ task = "image-to-3d" }: { task?: EngineControlTask }) {
   const { t, i18n } = useTranslation();
   const allEngines = useJobsStore((s) => s.engines);
-  const engines = useMemo(() => allEngines.filter((e) => e.tasks.includes("image-to-3d")), [allEngines]);
-  const selection = useProjectStore((s) => s.engine);
-  const setEngine = useProjectStore((s) => s.setEngine);
-  const qualitySteps = useProjectStore((s) => s.qualitySteps[s.quality]);
+  const engines = useMemo(() => allEngines.filter((e) => e.tasks.includes(task)), [allEngines, task]);
+  const forImages = task === "text-to-image";
+  const selection = useProjectStore((s) => (forImages ? s.imageEngine : s.engine));
+  const setModelEngine = useProjectStore((s) => s.setEngine);
+  const setImageEngine = useProjectStore((s) => s.setImageEngine);
+  const setParameter = useProjectStore((s) => (forImages ? s.setImageEngineParameter : s.setEngineParameter));
+  const setEngine = (id: string | null) => (forImages ? setImageEngine({ id, parameters: {} }) : setModelEngine(id));
+  const qualitySteps = useProjectStore((s) => (forImages ? undefined : s.qualitySteps[s.quality]));
   const engine = engines.find((e) => e.id === selection.id) ?? null;
 
   if (engines.length === 0) {
     return (
       <div className={styles.notice}>
         <strong>{t("engine.none")}</strong>
-        <span className={styles.hint}>{t("engine.activateHint")}</span>
+        <span className={styles.hint}>{forImages ? t("prompt.noEngine") : t("engine.activateHint")}</span>
       </div>
     );
   }
@@ -91,7 +103,7 @@ export function EngineControl() {
   return (
     <div className={styles.paramStack} style={{ gap: "0.75rem" }}>
       <Select
-        aria-label={t("inspector.sections.engine.title")}
+        aria-label={forImages ? t("prompt.engine") : t("inspector.sections.engine.title")}
         options={options}
         value={options.find((o) => o.value === selection.id) ?? null}
         placeholder={t("engine.choose")}
@@ -107,13 +119,17 @@ export function EngineControl() {
             {localized(engine.description, i18n.language)} · {engine.license} · v{engine.version}
           </span>
           {!engine.available && <Badge variant="destructive">{t(`engine.problem.${engine.problem}`, { defaultValue: engine.problem ?? "" })}</Badge>}
-          {engine.parameters.map((parameter) => (
-            <ParameterControl
-              key={parameter.id}
-              parameter={parameter}
-              value={selection.parameters[parameter.id] ?? (parameter.id === "steps" ? qualitySteps : undefined)}
-            />
-          ))}
+          {engine.parameters
+            .filter((parameter) => !parameter.tasks || parameter.tasks.includes(task))
+            .map((parameter) => (
+              <ParameterControl
+                key={parameter.id}
+                parameter={parameter}
+                idPrefix={`engine-param-${task}`}
+                setParameter={setParameter}
+                value={selection.parameters[parameter.id] ?? (parameter.id === "steps" ? qualitySteps : undefined)}
+              />
+            ))}
         </>
       )}
     </div>

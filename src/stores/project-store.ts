@@ -6,6 +6,7 @@ import type {
   Project,
   ProjectScene,
   ProjectSettings,
+  PromptEntry,
   Quality,
   QualitySteps,
   ReferenceImage,
@@ -17,12 +18,15 @@ export type { Quality };
 
 export const DEFAULT_QUALITY_STEPS: QualitySteps = { fast: 15, balanced: 30, high: 50 };
 const MAX_VARIANTS = 24;
+const MAX_PROMPTS = 50;
 
 type ProjectState = ProjectSettings & {
   id: string | null;
   sessionId: string;
   name: string | null;
   references: ReferenceImage[];
+  prompts: PromptEntry[];
+  prompt: string;
   variants: Variant[];
   activeVariantId: string;
   previewVariantId: string | null;
@@ -34,6 +38,10 @@ type ProjectState = ProjectSettings & {
   setHeightMeters: (height: number) => void;
   setEngine: (id: string | null) => void;
   setEngineParameter: (key: string, value: ParameterValue) => void;
+  setImageEngine: (selection: EngineSelection) => void;
+  setImageEngineParameter: (key: string, value: ParameterValue) => void;
+  setPrompt: (prompt: string) => void;
+  addPrompt: (entry: PromptEntry) => void;
   setReference: (reference: ReferenceImage) => void;
   updateReference: (id: string, patch: Partial<Pick<ReferenceImage, "prepared" | "usePrepared">>) => void;
   removeReference: (id: string) => void;
@@ -55,6 +63,7 @@ export const DEFAULT_SETTINGS: ProjectSettings = {
   physicalScale: false,
   heightMeters: 1.8,
   engine: DEFAULT_ENGINE,
+  imageEngine: DEFAULT_ENGINE,
 };
 const DEFAULT_VARIANT_ID = "00000000-0000-4000-8000-000000000000";
 
@@ -95,6 +104,8 @@ export const useProjectStore = create<ProjectState>()((set) => ({
   sessionId: crypto.randomUUID(),
   name: null,
   references: [],
+  prompts: [],
+  prompt: "",
   dirty: false,
   setQuality: (quality) =>
     set((s) => {
@@ -113,6 +124,11 @@ export const useProjectStore = create<ProjectState>()((set) => ({
   setEngine: (id) => set({ engine: { id, parameters: {} }, dirty: true }),
   setEngineParameter: (key, value) =>
     set((s) => ({ engine: { ...s.engine, parameters: { ...s.engine.parameters, [key]: value } }, dirty: true })),
+  setImageEngine: (imageEngine) => set({ imageEngine, dirty: true }),
+  setImageEngineParameter: (key, value) =>
+    set((s) => ({ imageEngine: { ...s.imageEngine, parameters: { ...s.imageEngine.parameters, [key]: value } }, dirty: true })),
+  setPrompt: (prompt) => set({ prompt }),
+  addPrompt: (entry) => set((s) => ({ prompts: [entry, ...s.prompts].slice(0, MAX_PROMPTS), dirty: true })),
   setReference: (reference) => set({ references: [reference], dirty: true }),
   updateReference: (id, patch) =>
     set((s) => ({ references: s.references.map((r) => (r.id === id ? { ...r, ...patch } : r)), dirty: true })),
@@ -159,6 +175,8 @@ export const useProjectStore = create<ProjectState>()((set) => ({
       sessionId: crypto.randomUUID(),
       name: project.name,
       references: project.scene.references,
+      prompts: project.scene.prompts,
+      prompt: "",
       variants: project.scene.variants,
       activeVariantId: project.scene.activeVariantId,
       previewVariantId: null,
@@ -173,6 +191,8 @@ export const useProjectStore = create<ProjectState>()((set) => ({
       sessionId: crypto.randomUUID(),
       name: null,
       references: [],
+      prompts: [],
+      prompt: "",
       dirty: false,
     }),
 }));
@@ -197,13 +217,13 @@ export function sceneModelOf(variant: Variant): SceneModel {
 }
 
 export function currentSettings(): ProjectSettings {
-  const { quality, qualitySteps, physicalScale, heightMeters, engine } = useProjectStore.getState();
-  return { quality, qualitySteps, physicalScale, heightMeters, engine };
+  const { quality, qualitySteps, physicalScale, heightMeters, engine, imageEngine } = useProjectStore.getState();
+  return { quality, qualitySteps, physicalScale, heightMeters, engine, imageEngine };
 }
 
 export function currentScene(): ProjectScene {
-  const { references, variants, activeVariantId } = useProjectStore.getState();
-  return { references, variants, activeVariantId };
+  const { references, prompts, variants, activeVariantId } = useProjectStore.getState();
+  return { references, prompts, variants, activeVariantId };
 }
 
 export function activeImage(reference: ReferenceImage): ImageSource {

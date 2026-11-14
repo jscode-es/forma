@@ -36,10 +36,10 @@ export async function stubSaveDialog(app: ElectronApplication, file: string) {
   }, file);
 }
 
-export async function chooseEngine(page: Page, name: string) {
+export async function chooseEngine(page: Page, name: string, field = "Generation engine") {
   await page.getByRole("button", { name: "Create 3D", exact: true }).click();
   await page.getByRole("tab", { name: "Create", exact: true }).click();
-  await page.getByRole("combobox", { name: "Generation engine" }).focus();
+  await page.getByRole("combobox", { name: field }).focus();
   await page.keyboard.press("ArrowDown");
   await page.getByRole("option", { name: new RegExp(name) }).click();
 }

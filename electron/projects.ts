@@ -52,7 +52,7 @@ function resolveScene(projectId: string, scene: ProjectScene): ProjectScene {
     original: commitImage(projectId, r.original, r.name),
     prepared: r.prepared ? commitImage(projectId, r.prepared, `${r.name} (prepared)`) : null,
   }));
-  return { references, variants, activeVariantId: scene.activeVariantId };
+  return { references, prompts: scene.prompts, variants, activeVariantId: scene.activeVariantId };
 }
 
 function getRow(id: string): Row {

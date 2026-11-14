@@ -84,6 +84,7 @@ export async function importReference(): Promise<ReferenceImage | null> {
     original: { type: "staged", stagingId },
     prepared: null,
     usePrepared: false,
+    prompt: null,
   };
 }
 

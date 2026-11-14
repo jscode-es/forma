@@ -26,7 +26,7 @@ Cada proyecto nuevo empieza con un cubo de 1 m. Se recuerdan los proyectos, los 
 Forma incluye los motores que admite, pero los activas tú, porque sus licencias son entre tú y sus autores.
 
 1. Abre **Modelos** (menú izquierdo) → **Motores**.
-2. Pulsa **Activar** en el motor (por ejemplo Hunyuan3D 2.0). Revisa los requisitos: GPU NVIDIA con CUDA y VRAM suficiente, Python 3.11 y Git, espacio en disco.
+2. Pulsa **Activar** en el motor (por ejemplo Hunyuan3D 2.0). Revisa los requisitos: GPU NVIDIA con CUDA y VRAM suficiente, Python 3.11, Git si el plugin descarga código, espacio en disco.
 3. Lee las licencias, marca **He leído y acepto estas licencias** y pulsa **Aceptar y activar**.
 4. Forma descarga el código del motor en una versión fija, prepara su entorno de Python (varios GB la primera vez), lo verifica y descarga los pesos del modelo. Ves el progreso y las últimas líneas de salida, y puedes cancelar.
 
@@ -45,6 +45,16 @@ Hunyuan3D 2.0 tiene licencia de Tencent y no se aplica en la Unión Europea, el 
 5. Pulsa **Generar modelo**. El trabajo aparece en **Cola de trabajos**; **Proceso** muestra el progreso, las imágenes preparadas y el registro.
 
 En una RTX 5070 (12 GB), Hunyuan3D 2.0 tarda unos 2 minutos con 30 pasos.
+
+## Crear un modelo desde texto
+
+1. Activa un motor de imagen, como **SDXL-Lightning**, en **Modelos → Motores**.
+2. En **Crear 3D → Crear → Prompt**, describe un objeto y elige el motor de imagen. *Imágenes* fija cuántas candidatas obtienes y *Semilla* las hace reproducibles; la candidata *n* usa semilla + *n*.
+3. Pulsa **Generar imágenes** (o Ctrl+Enter en el prompt). Las candidatas aparecen bajo el botón.
+4. Pulsa la candidata que te guste: se convierte en la referencia, con su prompt y su semilla.
+5. Sigue como en [Crear un modelo desde una imagen](#crear-un-modelo-desde-una-imagen), desde el paso 3.
+
+El **Historial de prompts** guarda todos los prompts del proyecto con los ajustes del motor y la semilla. **Reutilizar** recupera el prompt y los ajustes para repetirlo o variarlo.
 
 ## Versiones
 

@@ -1,5 +1,6 @@
 import { copyFileSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { crc32, deflateSync } from "node:zlib";
 
 const send = (message) => process.stdout.write(`${JSON.stringify(message)}\n`);
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -68,6 +69,42 @@ function buildGlb({ vertices, faces }) {
   return Buffer.concat([header, chunkHeader(jsonChunk.length, "JSON"), jsonChunk, chunkHeader(binChunk.length, "BIN\0"), binChunk]);
 }
 
+function buildPng(key) {
+  let hash = 2166136261;
+  for (const char of key) hash = Math.imul(hash ^ char.charCodeAt(0), 16777619) >>> 0;
+  const hue = hash % 360;
+  const [r, g, b] = [0, 8, 4].map((n) => {
+    const k = (n + hue / 30) % 12;
+    return Math.round(255 * (0.55 - 0.35 * Math.max(-1, Math.min(k - 3, 9 - k, 1))));
+  });
+  const size = 256;
+  const radius = 60 + (hash >>> 9) % 40;
+  const raw = Buffer.alloc(size * (size * 3 + 1));
+  for (let y = 0; y < size; y++) {
+    const row = y * (size * 3 + 1);
+    for (let x = 0; x < size; x++) {
+      const inside = (x - 128) ** 2 + (y - 120) ** 2 < radius ** 2;
+      const shadow = ((x - 128) / (radius * 1.1)) ** 2 + ((y - 200) / 10) ** 2 < 1;
+      const color = inside ? [r, g, b] : shadow ? [215, 215, 220] : [255, 255, 255];
+      raw.set(color, row + 1 + x * 3);
+    }
+  }
+  const chunk = (type, data) => {
+    const head = Buffer.alloc(8);
+    head.writeUInt32BE(data.length, 0);
+    head.write(type, 4);
+    const crc = Buffer.alloc(4);
+    crc.writeUInt32BE(crc32(Buffer.concat([Buffer.from(type), data])), 0);
+    return Buffer.concat([head, data, crc]);
+  };
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(size, 0);
+  ihdr.writeUInt32BE(size, 4);
+  ihdr.set([8, 2, 0, 0, 0], 8);
+  const signature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  return Buffer.concat([signature, chunk("IHDR", ihdr), chunk("IDAT", deflateSync(raw)), chunk("IEND", Buffer.alloc(0))]);
+}
+
 const job = JSON.parse(readFileSync(process.argv[process.argv.indexOf("--job") + 1], "utf8"));
 const { steps, shape, fail } = job.parameters;
 const images = job.inputs?.images ?? [];
@@ -77,6 +114,25 @@ if (job.task === "remove-background") {
   await sleep(300);
   copyFileSync(images[0], join(job.outputDir, "prepared.png"));
   send({ type: "result", files: [{ path: "prepared.png", label: "Prepared image (demo: unchanged)", kind: "image" }] });
+  process.exit(0);
+}
+if (job.task === "text-to-image") {
+  const prompt = job.inputs?.prompt ?? "";
+  const { count, seed } = job.parameters;
+  send({ type: "log", level: "info", message: `demo images for "${prompt}": ${count} from seed ${seed}` });
+  const files = [];
+  for (let index = 0; index < count; index++) {
+    await sleep(150);
+    if (fail) {
+      send({ type: "error", message: "Simulated failure requested by the user" });
+      process.exit(1);
+    }
+    const path = `candidate-${index}.png`;
+    writeFileSync(join(job.outputDir, path), buildPng(`${prompt}#${seed + index}`));
+    files.push({ path, label: `${prompt.slice(0, 80)} · ${seed + index}`, kind: "image", meta: { seed: seed + index } });
+    send({ type: "progress", value: (index + 1) / count, stage: "sampling" });
+  }
+  send({ type: "result", files });
   process.exit(0);
 }
 if (images.length > 0) send({ type: "log", level: "info", message: `reference: ${images[0]}` });

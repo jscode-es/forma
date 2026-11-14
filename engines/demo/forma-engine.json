@@ -5,12 +5,13 @@
   "license": "MIT",
   "demo": true,
   "description": {
-    "en": "Test engine without AI: simulates the stages of a generation and produces a simple shape.",
-    "es": "Motor de prueba sin IA: simula las etapas de una generación y produce una forma simple."
+    "en": "Test engine without AI: simulates the stages of a generation and produces simple shapes and images.",
+    "es": "Motor de prueba sin IA: simula las etapas de una generación y produce formas e imágenes simples."
   },
   "tasks": [
     "image-to-3d",
     "text-to-3d",
+    "text-to-image",
     "remove-background"
   ],
   "runtime": {
@@ -29,7 +30,11 @@
       "min": 1,
       "max": 60,
       "step": 1,
-      "default": 20
+      "default": 20,
+      "tasks": [
+        "image-to-3d",
+        "text-to-3d"
+      ]
     },
     {
       "id": "shape",
@@ -68,7 +73,41 @@
             "es": "Zorro (descargado)"
           }
         }
+      ],
+      "tasks": [
+        "image-to-3d",
+        "text-to-3d"
       ]
+    },
+    {
+      "id": "count",
+      "type": "integer",
+      "label": {
+        "en": "Images",
+        "es": "Imágenes"
+      },
+      "tasks": [
+        "text-to-image"
+      ],
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "id": "seed",
+      "type": "integer",
+      "label": {
+        "en": "Seed",
+        "es": "Semilla"
+      },
+      "tasks": [
+        "text-to-image"
+      ],
+      "min": 0,
+      "max": 2147483647,
+      "step": 1,
+      "default": 42
     },
     {
       "id": "fail",

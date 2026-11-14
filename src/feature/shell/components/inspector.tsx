@@ -24,6 +24,7 @@ import { Play, Search, Settings, SlidersHorizontal, Sparkles } from "lucide-reac
 import { useTranslation } from "react-i18next";
 import { ACTIVE, EngineControl, generateModel, useJobsStore } from "@/feature/jobs";
 import { useModelsStore } from "@/feature/models";
+import { PromptControl, PromptHistory } from "@/feature/prompt";
 import { ExportControl, LodExportControl, OptimizeControl } from "@/feature/versions";
 import { DEFAULT_QUALITY_STEPS, useProjectStore, type Quality } from "@/stores/project-store";
 import { currentTab, useWorkspaceStore, type InspectorTab } from "@/stores/workspace-store";
@@ -42,7 +43,7 @@ function QualityControl() {
   const steps = useProjectStore((s) => s.qualitySteps[s.quality]);
 
   return (
-    <div className={styles.sectionBody} style={{ padding: 0 }}>
+    <div className={styles.sectionBody} style={{ padding: 0, margin: 0 }}>
       <ToggleGroup
         type="single"
         value={quality}
@@ -188,6 +189,7 @@ function AnimationFooter() {
 }
 
 const SECTIONS: SectionDef[] = [
+  { tab: "create", id: "prompt", action: <ManageModelsButton />, content: <PromptControl /> },
   {
     tab: "create",
     id: "engine",
@@ -199,6 +201,7 @@ const SECTIONS: SectionDef[] = [
   { tab: "files", id: "glb", content: <ExportControl /> },
   { tab: "files", id: "lod", content: <LodExportControl /> },
   { tab: "create", id: "scale", content: <ScaleControl /> },
+  { tab: "create", id: "promptHistory", content: <PromptHistory /> },
   ...(Object.keys(PLANNED_SECTIONS) as InspectorTab[]).flatMap((tab) => PLANNED_SECTIONS[tab].map((s) => ({ tab, ...s }))),
 ];
 

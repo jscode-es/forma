@@ -1,0 +1,16 @@
+{
+  "python": "3.11",
+  "requirements": "requirements.txt",
+  "files": [
+    "forma-engine.json",
+    "main.py",
+    "requirements.txt",
+    "README.md"
+  ],
+  "licenseNotice": {
+    "en": "Stable Diffusion XL 1.0 (Stability AI) and SDXL-Lightning (ByteDance) weights are licensed under the CreativeML Open RAIL++-M License, which allows commercial use but forbids the uses listed in its Attachment A. You are responsible for following it.",
+    "es": "Los pesos de Stable Diffusion XL 1.0 (Stability AI) y SDXL-Lightning (ByteDance) están licenciados bajo la CreativeML Open RAIL++-M License, que permite el uso comercial pero prohíbe los usos de su Anexo A. Eres responsable de cumplirla."
+  },
+  "check": "import torch, diffusers; print('cuda', torch.cuda.is_available())",
+  "diskGb": 12
+}

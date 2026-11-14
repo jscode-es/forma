@@ -29,10 +29,10 @@ Forma runs every AI model as an **engine**: a folder with a manifest and an entr
 }
 ```
 
-- `id`: lowercase letters, digits and dashes. `tasks`: `image-to-3d`, `text-to-3d`, `remove-background`, `optimize`, `texture`, `rig`, `animation`.
+- `id`: lowercase letters, digits and dashes. `tasks`: `image-to-3d`, `text-to-3d`, `text-to-image`, `remove-background`, `optimize`, `texture`, `rig`, `animation`.
 - `inputs.images` and `inputs.models`: `{ "min": 1, "max": 1 }` declare how many reference images or GLB models the engine needs. Forma rejects a job outside that range and copies the images into the job folder before it starts.
 - `runtime.type`: `python` uses `<engine>/.venv` if present, then the absolute path in `<engine>/python.json` (`{ "python": "..." }`, written by the installer with `--python`), otherwise the Python found on the system (`FORMA_PYTHON` overrides it). `node` runs with Electron's bundled Node.js and can `require` Forma's own dependencies (`NODE_PATH` points to the app's `node_modules`).
-- Parameters are rendered automatically in the inspector and validated (type, range, options) before a job starts. Unknown values are dropped.
+- Parameters are rendered automatically in the inspector and validated (type, range, options) before a job starts. Unknown values are dropped. An optional `tasks` array on a parameter limits the inspector controls where it appears (an engine with several tasks can keep `count` for `text-to-image` and `steps` for `image-to-3d`).
 - An engine is marked unavailable when its entry file is missing, Python is missing, CUDA is required but not present, or the GPU has less VRAM than `requirements.vramGb`.
 
 ## Weights
@@ -75,7 +75,7 @@ Forma starts one process per job: `<runtime> <entry> --job <job.json>`, with the
   "task": "image-to-3d",
   "parameters": { "steps": 30 },
   "weights": { "my-engine-dit": "<data folder>/models/my-engine-dit/<revision>" },
-  "inputs": { "images": ["<jobs>/<uuid>/in/image-0.png"], "models": ["<jobs>/<uuid>/in/model-0.glb"] },
+  "inputs": { "images": ["<jobs>/<uuid>/in/image-0.png"], "models": ["<jobs>/<uuid>/in/model-0.glb"], "prompt": null },
   "outputDir": "<jobs>/<uuid>/out"
 }
 ```
@@ -87,12 +87,14 @@ The engine writes **one JSON object per line** to stdout. Anything else on stdou
 | `{"type":"progress","value":0.4,"stage":"sampling"}` | Progress from 0 to 1, optional stage name |
 | `{"type":"log","level":"info","message":"..."}` | Log line (`debug`, `info`, `warn`, `error`) |
 | `{"type":"intermediate","path":"views.png","label":"Views","kind":"image"}` | File inside `outputDir` worth inspecting |
-| `{"type":"result","files":[{"path":"model.glb","label":"Model","kind":"model"}]}` | Final files; a `model` file must be a GLB |
+| `{"type":"result","files":[{"path":"model.glb","label":"Model","kind":"model"}]}` | Final files; a `model` file must be a GLB. Each file may carry `meta`, up to 8 numbers, booleans or short strings |
 | `{"type":"error","message":"..."}` | Failure reason shown to the user |
 
 A job succeeds only if the process exits with code 0 after sending `result`. Paths must stay inside `outputDir`.
 
 A `remove-background` job returns an `image` result (PNG with alpha). Forma offers it as the prepared version of the reference.
+
+A `text-to-image` job receives the user's prompt in `inputs.prompt` (1 to 1000 characters; Forma refuses the job without one) and returns one or more `image` results, the candidates. Give each candidate its seed in `meta` (`{"seed": 43}`) so the project can record it when the user picks that image as the reference. The [SDXL-Lightning plugin](../plugins/sdxl-lightning/README.md) is the reference implementation.
 
 ## Installable plugins
 

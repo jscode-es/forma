@@ -58,6 +58,11 @@ function ReferenceCard({ reference }: { reference: ReferenceImage }) {
           <Icon icon={Trash2} size={14} />
         </Button>
       </div>
+      {reference.prompt && (
+        <span className={styles.hint}>
+          {reference.prompt.seed === null ? t("prompt.fromPrompt") : t("prompt.fromPromptSeed", { seed: reference.prompt.seed })}
+        </span>
+      )}
       <div className={styles.thumbs}>
         <Thumbnail source={reference.original} label={t("references.original")} />
         {reference.prepared && <Thumbnail source={reference.prepared} label={t("references.prepared")} />}

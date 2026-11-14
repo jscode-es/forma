@@ -213,6 +213,14 @@
       "retarget": {
         "title": "Apply to a character",
         "help": "Maps the bones of a rigged character and applies the clip to it."
+      },
+      "prompt": {
+        "title": "Prompt",
+        "help": "Describe an object. The image engine creates candidates; pick one and it becomes the reference for the 3D generation."
+      },
+      "promptHistory": {
+        "title": "Prompt history",
+        "help": "Prompts used in this project with their seeds. Reuse one to repeat or vary it."
       }
     },
     "generateReady": "The job runs locally and appears in the job queue.",
@@ -350,7 +358,8 @@
       "materials-lost": "Materials or textures would be lost",
       "unsupported-rigged": "Models with skeleton or morph targets are not supported yet",
       "model-required": "This task needs a model",
-      "verification-failed": "The written file does not match"
+      "verification-failed": "The written file does not match",
+      "prompt-required": "Write a prompt first"
     }
   },
   "models": {
@@ -397,7 +406,8 @@
     "image-too-small": "The image is smaller than 64 px",
     "image-too-many-pixels": "The image exceeds 16 megapixels",
     "reference-required": "This engine needs a reference image",
-    "export-verification-failed": "The exported file does not match the version"
+    "export-verification-failed": "The exported file does not match the version",
+    "prompt-required": "Write a prompt first"
   },
   "versions": {
     "title": "Versions",
@@ -491,5 +501,26 @@
       "vram": "This GPU has less than {{required}} GB of VRAM."
     },
     "empty": "No engines available in this version."
+  },
+  "prompt": {
+    "label": "Prompt",
+    "placeholder": "A red wooden chair with curved legs",
+    "engine": "Image engine",
+    "generate": "Generate images",
+    "generating": "Generating images… {{percent}}%",
+    "candidates": "Candidates",
+    "pickHint": "Pick an image to use it as the reference for 3D.",
+    "pickedHint": "Reference ready: press Generate to create the 3D model.",
+    "use": "Use the image with seed {{seed}}",
+    "useImage": "Use image {{index}}",
+    "picked": "Reference",
+    "noEngine": "Activate an image engine such as SDXL-Lightning in Models.",
+    "historyEmpty": "No prompts yet.",
+    "reuse": "Reuse",
+    "reuseLabel": "Reuse the prompt \"{{text}}\"",
+    "seed": "seed {{seed}}",
+    "images": "{{count}} images",
+    "fromPrompt": "Generated from a prompt",
+    "fromPromptSeed": "Generated from a prompt · seed {{seed}}"
   }
 }
