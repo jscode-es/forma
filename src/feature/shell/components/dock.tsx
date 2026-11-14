@@ -1,30 +1,14 @@
 "use client";
 
-import { Badge, Icon, Tabs, TabsContent, TabsList, TabsTrigger } from "@kivora/nextjs";
-import { Clock, type LucideIcon } from "lucide-react";
+import { Badge, Tabs, TabsContent, TabsList, TabsTrigger } from "@kivora/nextjs";
 import { useTranslation } from "react-i18next";
 import { ACTIVE, JobsPanel, ProcessPanel, useJobsStore } from "@/feature/jobs";
 import { VersionsPanel } from "@/feature/versions";
+import { AnimationTimeline } from "@/feature/animation";
 import { useWorkspaceStore, type DockTab } from "@/stores/workspace-store";
 import styles from "../shell.module.css";
 
 const TABS: DockTab[] = ["session", "jobs", "process", "timeline"];
-
-function Placeholder({ id, icon, phase }: { id: "timeline"; icon: LucideIcon; phase?: number }) {
-  const { t } = useTranslation();
-  return (
-    <div className={styles.dockEmpty}>
-      <span className={styles.iconTile}>
-        <Icon icon={icon} size={18} />
-      </span>
-      <div style={{ display: "grid", gap: "0.25rem", flex: 1 }}>
-        <strong style={{ fontSize: "0.875rem" }}>{t(`dock.${id}.title`)}</strong>
-        <span className={styles.hint}>{t(`dock.${id}.description`)}</span>
-      </div>
-      {phase && <Badge variant="outline">{t("common.phase", { phase })}</Badge>}
-    </div>
-  );
-}
 
 export function Dock() {
   const { t } = useTranslation();
@@ -57,7 +41,7 @@ export function Dock() {
         <ProcessPanel />
       </TabsContent>
       <TabsContent value="timeline" className={styles.dockBody}>
-        <Placeholder id="timeline" icon={Clock} phase={15} />
+        <AnimationTimeline />
       </TabsContent>
       </section>
     </Tabs>

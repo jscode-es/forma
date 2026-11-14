@@ -110,47 +110,59 @@ Target: the interface structure of the design reference, without engines.
 
 ## Phase 10 · Multi-view and reference review
 
-- [ ] Front, back, left, right (and optional top) references
+- [x] Front, back, left, right (and optional top) references
 - [ ] Multi-view engine (Hunyuan 2 MV) and view assignment
-- [ ] Reference review: scale and silhouette warnings, height matching without stretching
-- [ ] Alignment and projection tools with explicit cameras
+- [x] Reference review: scale and silhouette warnings, height matching without stretching
+- [x] Alignment and projection tools with explicit cameras
+
+The Hunyuan3D 2 MV plugin and view assignment are implemented with pinned code and checksummed weights. Electron multi-view generation, persistence and alignment are exercised with the demo engine; the Python wrapper has isolated contract tests. The engine checkbox remains open until a real GPU inference run validates the new MV plugin. Projection is a session-only orthographic reference overlay; it does not paint or alter the mesh.
 
 ## Phase 11 · Texturing and PBR
 
 - [ ] Texture generation for generated and imported meshes
 - [ ] PBR maps: albedo, metallic, roughness, normal, AO
 - [ ] Lighting neutralization option and atlas resolution control
-- [ ] Texture upscale (2x, 4x) with explicit limits
-- [ ] Materials panel: factors, maps, isolate and compare
+- [x] Texture upscale (2x, 4x) with explicit limits
+- [x] Materials panel: factors, maps, isolate and compare
 
-## Phase 12 · Mesh tools
+Material inspection, five-map import, provenance and preview variants are implemented. Upscale uses bilinear resampling with a 4096-pixel side limit, linear RGB for albedo and normal renormalization; transparent data maps are rejected explicitly. Texture job settings, explicit references and protected source parents are integrated and tested using a protocol fixture. Real AI texturing, atlas controls and lighting neutralization remain pending: the investigated 12 GB candidate is not validated on Windows/RTX 5070 and does not generate normal/AO maps. See [feasibility evidence](superpowers/phase-11-texture-engine-feasibility.md).
 
-- [ ] Mesh inspection: degenerate faces, open borders, non-manifold edges, components
-- [ ] Retopology with face budget and UV regeneration (headless Blender)
-- [ ] UV unwrap and pack with template export
-- [ ] Normals: recalculation and baking from a detailed source
-- [ ] Every operation produces a variant before being applied
+## Phase 12 · Mesh tools (done)
 
-## Phase 13 · Paint 3D
+- [x] Mesh inspection: degenerate faces, open borders, non-manifold edges, components
+- [x] Retopology with face budget and UV regeneration (headless Blender)
+- [x] UV unwrap and pack with template export
+- [x] Normals: recalculation and baking from a detailed source
+- [x] Every modifying operation produces a variant before being applied
 
-- [ ] Brush, clone, eyedropper and restore on base color (UV0, up to 2048 px)
-- [ ] Per-stroke undo and redo, protected unsaved strokes
-- [ ] Save as variant
+Validated with Blender 5.2.1 LTS on Windows, including real QuadriFlow, packed UVs, PNG template export and CPU normal baking. Inspection produces a report without changing the model. Retopology budgets count quads (the exported GLB can contain twice as many triangles). Retopology and UV replacement reject textured/complex materials; modifying operations reject rigs, morph targets and animations. Baking requires a target with UVs and a spatially aligned detailed variant. See [engine evidence](superpowers/evidence/phase12-blender-mesh.md) and the manuals for limits.
 
-## Phase 14 · Rig
+## Phase 13 · Paint 3D (done)
 
-- [ ] Humanoid auto-rig with guides and automatic weights
-- [ ] Rig editor: bones, weights visualization, pose test
-- [ ] Rig variants versioned, with clips preserved or discarded explicitly
+- [x] Brush, clone, eyedropper and restore on base color (UV0, up to 2048 px)
+- [x] Per-stroke undo and redo, protected unsaved strokes
+- [x] Save as variant
 
-## Phase 15 · Animation
+Painting runs interactively in the existing viewer, with a 64 MiB history budget, pinned draft sources and automatic paint-variant creation before project save. Electron checks cover actual painted PNG pixels in an exported GLB, clone/restore sampling, close cancellation and changing the displayed source. UV-space painting can affect adjacent or overlapping islands; nonidentity texture transforms, nonzero UV channels and extension-bearing materials are rejected. See [painting evidence](superpowers/evidence/phase13-paint.md) and the manuals for details.
 
-- [ ] Animation library independent of projects
-- [ ] Presets: idle, walk, run
-- [ ] Timeline editor: tracks per bone, keys, interpolation, FPS, undo and redo
-- [ ] Retarget with bone mapping and validation
-- [ ] Motion from video (local pose estimation)
+## Phase 14 · Rig (done)
+
+- [x] Humanoid auto-rig with guides and automatic weights
+- [x] Rig editor: bones, weights visualization, pose test
+- [x] Rig variants versioned, with clips preserved or discarded explicitly
+
+The built-in Blender rig engine creates a 19-bone standing humanoid skeleton from adjustable body landmarks and real automatic heat weights. Bone rest-position edits produce preview variants; bones, selected-joint weight colors and reversible local pose tests run in the viewer. Compatible edit clips retain their original animation payloads, while replacement requires explicit discard. Inputs are conservatively limited to embedded, extension-free GLB with one skin and valid normalized weights; edit preservation requires identity skinned-mesh/nonjoint ancestor world transforms and matching rest/bind poses. No fingers, IK controls or anatomy inference are included. Real Blender deformation, raw-weight guards and Electron rig/export/clip workflows are verified in [rig evidence](superpowers/evidence/phase14-rig.md).
+
+## Phase 15 · Animation (local workflows done)
+
+- [x] Animation library independent of projects
+- [x] Presets: idle, walk, run
+- [x] Timeline editor: tracks per bone, keys, interpolation, FPS, undo and redo
+- [x] Retarget with bone mapping and validation
+- [x] Motion from video (local pose estimation)
 - [ ] Text-to-motion through optional external providers
+
+The independent SQLite library imports/exports validated portable clips. Local TRS key editing supports linear/step interpolation, quaternion playback, source-protected drafts and animated GLB variants; imported cubic clips are sampled to editable keys while unrelated source clips remain intact. Procedural humanoid presets and compatible-rig retargeting are verified against actual skins. The authorized MediaPipe Motion runtime/model is installed and real CPU video inference produces changing joint tracks that deform exported GLB meshes. Capture is in-place, without calibrated root travel, twist, fingers or face tracking. The user chose no external provider, so optional text-to-motion remains unconfigured. See [animation verification](superpowers/evidence/phase15-animation.md) and [local motion evidence](superpowers/evidence/phase15-motion-feasibility.md).
 
 ## Phase 16 · More engines and plugins
 

@@ -1,0 +1,11 @@
+{
+  "python": "3.11",
+  "requirements": "requirements.txt",
+  "files": ["forma-engine.json", "main.py", "requirements.txt", "README.md"],
+  "licenseNotice": {
+    "en": "MediaPipe and the BlazePose GHUM model use Apache-2.0. OpenCV uses Apache-2.0; NumPy and SciPy use BSD licenses. Installation downloads Python dependencies; the model is downloaded separately after accepting its license. Video inference stays on this computer.",
+    "es": "MediaPipe y el modelo BlazePose GHUM usan Apache-2.0. OpenCV usa Apache-2.0; NumPy y SciPy usan licencias BSD. La instalación descarga dependencias Python; el modelo se descarga por separado tras aceptar su licencia. La inferencia de vídeo se ejecuta en este equipo."
+  },
+  "check": "import cv2, mediapipe, numpy, scipy; print('MediaPipe', mediapipe.__version__, 'OpenCV', cv2.__version__)",
+  "diskGb": 1.2
+}

@@ -21,6 +21,7 @@
     "prepare": "husky",
     "fixtures": "node scripts/fetch-fixtures.mjs",
     "plugin:install": "node scripts/install-plugin.mjs",
+    "test:unit": "node --test tests/*.test.mjs tests/electron/job-queue.test.cjs tests/electron/animation-library.test.cjs",
     "test:e2e": "playwright test"
   },
   "devDependencies": {

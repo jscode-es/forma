@@ -1,17 +1,19 @@
 import { execFile, spawn, type ChildProcess } from "node:child_process";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { createInterface } from "node:readline";
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, dialog, nativeImage } from "electron";
 import { z } from "zod";
-import type { ImageSource, JobFile, JobInfo, JobRequest, ReferenceImage, SceneModel } from "./contract";
+import type { ExportResult, ImageSource, JobFile, JobInfo, JobRequest, ReferenceImage, ReferenceView, SceneModel } from "./contract";
+import { getBlender } from "./blender";
 import { getDb } from "./db";
 import { enginePython, listEngines, resolveParameters, type InstalledEngine } from "./engines";
 import { findPython } from "./hardware";
 import { imageExtension, imagePath, inspectImage, stageImageFile } from "./images";
 import { modelPath, stageModelFile, stagingRoot } from "./models";
 import { installedWeights } from "./weights";
+import { videoPath, stageVideoFile } from "./videos";
 
 type Row = {
   id: string;
@@ -32,6 +34,7 @@ type Row = {
 
 const NOW = "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')";
 const MAX_LOG_BYTES = 64 * 1024;
+type RunningJob = { id: string; child: ChildProcess | null; cancelled: boolean };
 
 const message = z.discriminatedUnion("type", [
   z.object({ type: z.literal("progress"), value: z.number().min(0).max(1), stage: z.string().max(80).optional() }),
@@ -135,7 +138,8 @@ function offlineEnv(dir: string): NodeJS.ProcessEnv {
 }
 
 class JobRunner {
-  private running: { id: string; child: ChildProcess; cancelled: boolean } | null = null;
+  private running: RunningJob | null = null;
+  private stopping = false;
 
   recover() {
     getDb()
@@ -145,9 +149,10 @@ class JobRunner {
   }
 
   shutdown() {
+    this.stopping = true;
     if (!this.running) return;
     this.running.cancelled = true;
-    killTree(this.running.child);
+    if (this.running.child) killTree(this.running.child);
   }
 
   list(): JobInfo[] {
@@ -165,6 +170,12 @@ class JobRunner {
     const limits = engine.manifest.inputs.images;
     if (request.images.length < limits.min) throw new Error("reference-required");
     if (request.images.length > limits.max) throw new Error("Too many reference images");
+    const accepted = request.task === "remove-background" ? [] : engine.manifest.inputs.views;
+    const views = accepted.length > 0 ? (request.views ?? []) : [];
+    if (accepted.length > 0) {
+      if (views.length !== request.images.length) throw new Error("views-mismatch");
+      if (new Set(views).size !== views.length || views.some((view) => !accepted.includes(view))) throw new Error("view-unsupported");
+    }
     const sources = request.images.map((image) => imagePath(image, request.projectId));
     const modelLimits = engine.manifest.inputs.models;
     if (request.models.length < modelLimits.min) throw new Error("model-required");
@@ -174,6 +185,9 @@ class JobRunner {
       if (model.type === "asset" && request.projectId) return modelPath({ type: "asset", projectId: request.projectId, assetId: model.assetId });
       throw new Error("model-required");
     });
+    const videoLimits = engine.manifest.inputs.videos;
+    const videoSources = (request.videos ?? []).map(videoPath);
+    if (videoSources.length < videoLimits.min || videoSources.length > videoLimits.max) throw new Error("animation.videoRequired");
 
     const id = randomUUID();
     fs.mkdirSync(path.join(jobDir(id), "out"), { recursive: true });
@@ -188,7 +202,12 @@ class JobRunner {
       fs.copyFileSync(source, path.join(jobDir(id), name));
       return name;
     });
-    fs.writeFileSync(path.join(jobDir(id), "inputs.json"), JSON.stringify({ images: inputs, models, prompt }));
+    const videos = videoSources.map((source, index) => {
+      const name = `in/video-${index}.video`;
+      fs.copyFileSync(source, path.join(jobDir(id), name));
+      return name;
+    });
+    fs.writeFileSync(path.join(jobDir(id), "inputs.json"), JSON.stringify({ images: inputs, models, videos, prompt, views }));
     getDb()
       .prepare("INSERT INTO jobs (id, engine_id, kind, project_id, status, params) VALUES (?, ?, ?, ?, 'queued', ?)")
       .run(id, engine.manifest.id, request.task, request.projectId, JSON.stringify(parameters));
@@ -200,20 +219,22 @@ class JobRunner {
   cancel(id: string) {
     const row = getRow(id);
     if (row.status === "queued") {
+      if (this.running?.id === id) this.running.cancelled = true;
       getDb().prepare(`UPDATE jobs SET status = 'cancelled', finished_at = ${NOW} WHERE id = ?`).run(id);
       emit(id);
     } else if (row.status === "running" && this.running?.id === id) {
       this.running.cancelled = true;
-      killTree(this.running.child);
+      if (this.running.child) killTree(this.running.child);
     }
   }
 
   retry(id: string): Promise<JobInfo> {
     const row = getRow(id);
-    const { images: imageFiles, models: modelFiles, prompt } = this.inputs(id);
+    const { images: imageFiles, models: modelFiles, videos: videoFiles, prompt, views } = this.inputs(id);
     const images: ImageSource[] = imageFiles.map((file) => stageImageFile(path.join(jobDir(id), file)));
     const models: SceneModel[] = modelFiles.map((file) => stageModelFile(path.join(jobDir(id), file), "Input"));
     return this.enqueue({
+      videos: videoFiles.map((file) => stageVideoFile(path.join(jobDir(id), file), "Video")),
       engineId: row.engine_id,
       task: row.kind as JobRequest["task"],
       projectId: null,
@@ -221,15 +242,22 @@ class JobRunner {
       images,
       models,
       prompt,
+      views,
     });
   }
 
-  private inputs(id: string): { images: string[]; models: string[]; prompt: string | null } {
+  private inputs(id: string): { images: string[]; models: string[]; videos: string[]; prompt: string | null; views: ReferenceView[] } {
     try {
       const parsed = JSON.parse(fs.readFileSync(path.join(jobDir(id), "inputs.json"), "utf8"));
-      return { images: parsed.images ?? [], models: parsed.models ?? [], prompt: typeof parsed.prompt === "string" ? parsed.prompt : null };
+      return {
+        images: parsed.images ?? [],
+        models: parsed.models ?? [],
+        videos: parsed.videos ?? [],
+        prompt: typeof parsed.prompt === "string" ? parsed.prompt : null,
+        views: parsed.views ?? [],
+      };
     } catch {
-      return { images: [], models: [], prompt: null };
+      return { images: [], models: [], videos: [], prompt: null, views: [] };
     }
   }
 
@@ -255,6 +283,7 @@ class JobRunner {
     const { width, height } = inspectImage(file);
     return {
       id: randomUUID(),
+      view: "front",
       name: (image.label || path.basename(image.path, path.extname(image.path))).slice(0, 120),
       width,
       height,
@@ -271,11 +300,39 @@ class JobRunner {
     return fs.readFileSync(file);
   }
 
+  async exportFile(id: string, relative: string): Promise<ExportResult | null> {
+    const job = toInfo(getRow(id));
+    const result = job.results.find((file) => file.path === relative && file.kind === "uv-template");
+    if (job.status !== "succeeded" || !result || relative !== "out/uv-template.png") throw new Error("File not found");
+    const file = this.resolveFile(id, relative);
+    const { size } = fs.statSync(file);
+    if (size < 33 || size > 20 * 1024 * 1024) throw new Error("image-too-large");
+    const data = fs.readFileSync(file);
+    if (!data.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])) || data.readUInt32BE(8) !== 13 || data.toString("ascii", 12, 16) !== "IHDR") throw new Error("image-unsupported");
+    const width = data.readUInt32BE(16);
+    const height = data.readUInt32BE(20);
+    if (width < 64 || height < 64 || width * height > 16 * 1024 * 1024) throw new Error("image-too-many-pixels");
+    const image = nativeImage.createFromBuffer(data);
+    const decoded = image.getSize();
+    if (image.isEmpty() || decoded.width !== width || decoded.height !== height) throw new Error("image-unsupported");
+    const expected = createHash("sha256").update(data).digest("hex");
+    const window = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
+    const options = { defaultPath: "uv-template.png", filters: [{ name: "PNG", extensions: ["png"] }] };
+    const target = window ? await dialog.showSaveDialog(window, options) : await dialog.showSaveDialog(options);
+    if (target.canceled || !target.filePath) return null;
+    fs.writeFileSync(target.filePath, data);
+    const written = fs.readFileSync(target.filePath);
+    if (createHash("sha256").update(written).digest("hex") !== expected) throw new Error("export-verification-failed");
+    return { path: target.filePath, sha256: expected, size: written.length };
+  }
+
   private resolveFile(id: string, relative: string) {
     const root = jobDir(id);
     const file = path.resolve(root, relative);
     if (!file.startsWith(root + path.sep) || !fs.existsSync(file)) throw new Error("File not found");
-    return file;
+    const resolved = fs.realpathSync(file);
+    if (!resolved.startsWith(fs.realpathSync(root) + path.sep) || !fs.statSync(resolved).isFile()) throw new Error("File not found");
+    return resolved;
   }
 
   logs(id: string): string {
@@ -306,11 +363,30 @@ class JobRunner {
   }
 
   private pump() {
-    if (this.running) return;
+    if (this.running || this.stopping) return;
     const next = getDb().prepare("SELECT id FROM jobs WHERE status = 'queued' ORDER BY created_at LIMIT 1").get() as
       | { id: string }
       | undefined;
-    if (next) this.start(next.id).catch((error) => this.finish(next.id, "failed", String(error?.message ?? error)));
+    if (!next) return;
+    const running: RunningJob = { id: next.id, child: null, cancelled: false };
+    this.running = running;
+    this.start(running).catch((error) => {
+      if (this.running !== running) return;
+      if (running.cancelled || this.stopping || getRow(running.id).status === "cancelled") {
+        this.running = null;
+        this.pump();
+        return;
+      }
+      this.finish(running.id, "failed", String(error?.message ?? error));
+    });
+  }
+
+  private canStart(running: RunningJob) {
+    if (this.running !== running) return false;
+    if (!this.stopping && !running.cancelled && getRow(running.id).status === "queued") return true;
+    this.running = null;
+    this.pump();
+    return false;
   }
 
   private finish(id: string, status: JobInfo["status"], error: string | null) {
@@ -324,6 +400,11 @@ class JobRunner {
 
   private async command(engine: InstalledEngine): Promise<{ command: string; args: string[]; env: NodeJS.ProcessEnv }> {
     const entry = path.join(engine.dir, engine.manifest.runtime.entry);
+    if (engine.manifest.runtime.type === "blender") {
+      const blender = await getBlender();
+      if (!blender) throw new Error("blender-missing");
+      return { command: blender.path, args: ["--background", "--factory-startup", "--disable-autoexec", "--python", entry, "--"], env: {} };
+    }
     if (engine.manifest.runtime.type === "node") {
       const nodePath = [path.join(app.getAppPath(), "node_modules"), process.env.NODE_PATH].filter(Boolean).join(path.delimiter);
       return { command: process.execPath, args: [entry], env: { ELECTRON_RUN_AS_NODE: "1", NODE_PATH: nodePath } };
@@ -333,10 +414,14 @@ class JobRunner {
     return { command: python, args: [entry], env: {} };
   }
 
-  private async start(id: string) {
+  private async start(running: RunningJob) {
+    const id = running.id;
     const row = getRow(id);
     const engine = (await listEngines()).find((e) => e.manifest.id === row.engine_id);
+    if (!this.canStart(running)) return;
     if (!engine) throw new Error("Engine not installed");
+    const { command, args, env } = await this.command(engine);
+    if (!this.canStart(running)) return;
 
     const dir = jobDir(id);
     const spec = {
@@ -347,7 +432,9 @@ class JobRunner {
       inputs: {
         images: this.inputs(id).images.map((file) => path.join(dir, file)),
         models: this.inputs(id).models.map((file) => path.join(dir, file)),
+        videos: this.inputs(id).videos.map((file) => path.join(dir, file)),
         prompt: this.inputs(id).prompt,
+        views: this.inputs(id).views,
       },
       outputDir: path.join(dir, "out"),
     };
@@ -355,7 +442,6 @@ class JobRunner {
     const log = fs.createWriteStream(path.join(dir, "job.log"), { flags: "a" });
     const write = (line: string) => log.write(`${new Date().toISOString()} ${line}\n`);
 
-    const { command, args, env } = await this.command(engine);
     const child = spawn(command, [...args, "--job", path.join(dir, "job.json")], {
       cwd: engine.dir,
       env: { ...offlineEnv(dir), ...env },
@@ -363,7 +449,7 @@ class JobRunner {
       detached: process.platform !== "win32",
       stdio: ["ignore", "pipe", "pipe"],
     });
-    this.running = { id, child, cancelled: false };
+    running.child = child;
     getDb().prepare(`UPDATE jobs SET status = 'running', started_at = ${NOW}, progress = 0 WHERE id = ?`).run(id);
     emit(id);
     write(`start ${engine.manifest.id}@${engine.manifest.version}`);

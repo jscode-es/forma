@@ -1,0 +1,812 @@
+{
+  "id": "forma-blender-rig",
+  "name": "Forma Blender rig",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": {
+    "en": "Local humanoid heat-weight rigging and rest-joint editing with explicit clip preservation.",
+    "es": "Rig humanoide local con pesos automáticos y edición de reposo, con conservación explícita de clips."
+  },
+  "tasks": [
+    "rig"
+  ],
+  "runtime": {
+    "type": "blender",
+    "entry": "main.py"
+  },
+  "timeoutSeconds": 1800,
+  "inputs": {
+    "models": {
+      "min": 1,
+      "max": 1
+    },
+    "images": {
+      "min": 0,
+      "max": 0
+    }
+  },
+  "parameters": [
+    {
+      "id": "mode",
+      "type": "enum",
+      "label": {
+        "en": "Rig operation",
+        "es": "Operación de rig"
+      },
+      "options": [
+        {
+          "value": "auto",
+          "label": {
+            "en": "Auto rig",
+            "es": "Rig automático"
+          }
+        },
+        {
+          "value": "edit",
+          "label": {
+            "en": "Edit rest joint",
+            "es": "Editar articulación de reposo"
+          }
+        }
+      ],
+      "default": "auto"
+    },
+    {
+      "id": "clipPolicy",
+      "type": "enum",
+      "label": {
+        "en": "Animation clips",
+        "es": "Clips de animación"
+      },
+      "options": [
+        {
+          "value": "preserve",
+          "label": {
+            "en": "Preserve",
+            "es": "Conservar"
+          }
+        },
+        {
+          "value": "discard",
+          "label": {
+            "en": "Discard",
+            "es": "Descartar"
+          }
+        }
+      ],
+      "default": "preserve"
+    },
+    {
+      "id": "boneIndex",
+      "type": "integer",
+      "label": {
+        "en": "Joint index",
+        "es": "Índice de articulación"
+      },
+      "min": 0,
+      "max": 255,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "id": "offsetX",
+      "type": "number",
+      "label": {
+        "en": "Joint offset X",
+        "es": "Desplazamiento X"
+      },
+      "min": -0.5,
+      "max": 0.5,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "offsetY",
+      "type": "number",
+      "label": {
+        "en": "Joint offset Y",
+        "es": "Desplazamiento Y"
+      },
+      "min": -0.5,
+      "max": 0.5,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "offsetZ",
+      "type": "number",
+      "label": {
+        "en": "Joint offset Z",
+        "es": "Desplazamiento Z"
+      },
+      "min": -0.5,
+      "max": 0.5,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "hipsX",
+      "type": "number",
+      "label": {
+        "en": "hips X",
+        "es": "hips X"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "hipsY",
+      "type": "number",
+      "label": {
+        "en": "hips Y",
+        "es": "hips Y"
+      },
+      "min": -0.1,
+      "max": 1.1,
+      "step": 0.005,
+      "default": 0.52
+    },
+    {
+      "id": "hipsZ",
+      "type": "number",
+      "label": {
+        "en": "hips Z",
+        "es": "hips Z"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "spineX",
+      "type": "number",
+      "label": {
+        "en": "spine X",
+        "es": "spine X"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "spineY",
+      "type": "number",
+      "label": {
+        "en": "spine Y",
+        "es": "spine Y"
+      },
+      "min": -0.1,
+      "max": 1.1,
+      "step": 0.005,
+      "default": 0.66
+    },
+    {
+      "id": "spineZ",
+      "type": "number",
+      "label": {
+        "en": "spine Z",
+        "es": "spine Z"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "chestX",
+      "type": "number",
+      "label": {
+        "en": "chest X",
+        "es": "chest X"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "chestY",
+      "type": "number",
+      "label": {
+        "en": "chest Y",
+        "es": "chest Y"
+      },
+      "min": -0.1,
+      "max": 1.1,
+      "step": 0.005,
+      "default": 0.78
+    },
+    {
+      "id": "chestZ",
+      "type": "number",
+      "label": {
+        "en": "chest Z",
+        "es": "chest Z"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "neckX",
+      "type": "number",
+      "label": {
+        "en": "neck X",
+        "es": "neck X"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "neckY",
+      "type": "number",
+      "label": {
+        "en": "neck Y",
+        "es": "neck Y"
+      },
+      "min": -0.1,
+      "max": 1.1,
+      "step": 0.005,
+      "default": 0.88
+    },
+    {
+      "id": "neckZ",
+      "type": "number",
+      "label": {
+        "en": "neck Z",
+        "es": "neck Z"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "headX",
+      "type": "number",
+      "label": {
+        "en": "head X",
+        "es": "head X"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "headY",
+      "type": "number",
+      "label": {
+        "en": "head Y",
+        "es": "head Y"
+      },
+      "min": -0.1,
+      "max": 1.1,
+      "step": 0.005,
+      "default": 0.98
+    },
+    {
+      "id": "headZ",
+      "type": "number",
+      "label": {
+        "en": "head Z",
+        "es": "head Z"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "leftHipX",
+      "type": "number",
+      "label": {
+        "en": "leftHip X",
+        "es": "leftHip X"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0.1
+    },
+    {
+      "id": "leftHipY",
+      "type": "number",
+      "label": {
+        "en": "leftHip Y",
+        "es": "leftHip Y"
+      },
+      "min": -0.1,
+      "max": 1.1,
+      "step": 0.005,
+      "default": 0.5
+    },
+    {
+      "id": "leftHipZ",
+      "type": "number",
+      "label": {
+        "en": "leftHip Z",
+        "es": "leftHip Z"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "rightHipX",
+      "type": "number",
+      "label": {
+        "en": "rightHip X",
+        "es": "rightHip X"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": -0.1
+    },
+    {
+      "id": "rightHipY",
+      "type": "number",
+      "label": {
+        "en": "rightHip Y",
+        "es": "rightHip Y"
+      },
+      "min": -0.1,
+      "max": 1.1,
+      "step": 0.005,
+      "default": 0.5
+    },
+    {
+      "id": "rightHipZ",
+      "type": "number",
+      "label": {
+        "en": "rightHip Z",
+        "es": "rightHip Z"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "leftShoulderX",
+      "type": "number",
+      "label": {
+        "en": "leftShoulder X",
+        "es": "leftShoulder X"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0.18
+    },
+    {
+      "id": "leftShoulderY",
+      "type": "number",
+      "label": {
+        "en": "leftShoulder Y",
+        "es": "leftShoulder Y"
+      },
+      "min": -0.1,
+      "max": 1.1,
+      "step": 0.005,
+      "default": 0.78
+    },
+    {
+      "id": "leftShoulderZ",
+      "type": "number",
+      "label": {
+        "en": "leftShoulder Z",
+        "es": "leftShoulder Z"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "rightShoulderX",
+      "type": "number",
+      "label": {
+        "en": "rightShoulder X",
+        "es": "rightShoulder X"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": -0.18
+    },
+    {
+      "id": "rightShoulderY",
+      "type": "number",
+      "label": {
+        "en": "rightShoulder Y",
+        "es": "rightShoulder Y"
+      },
+      "min": -0.1,
+      "max": 1.1,
+      "step": 0.005,
+      "default": 0.78
+    },
+    {
+      "id": "rightShoulderZ",
+      "type": "number",
+      "label": {
+        "en": "rightShoulder Z",
+        "es": "rightShoulder Z"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "leftElbowX",
+      "type": "number",
+      "label": {
+        "en": "leftElbow X",
+        "es": "leftElbow X"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0.34
+    },
+    {
+      "id": "leftElbowY",
+      "type": "number",
+      "label": {
+        "en": "leftElbow Y",
+        "es": "leftElbow Y"
+      },
+      "min": -0.1,
+      "max": 1.1,
+      "step": 0.005,
+      "default": 0.78
+    },
+    {
+      "id": "leftElbowZ",
+      "type": "number",
+      "label": {
+        "en": "leftElbow Z",
+        "es": "leftElbow Z"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "rightElbowX",
+      "type": "number",
+      "label": {
+        "en": "rightElbow X",
+        "es": "rightElbow X"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": -0.34
+    },
+    {
+      "id": "rightElbowY",
+      "type": "number",
+      "label": {
+        "en": "rightElbow Y",
+        "es": "rightElbow Y"
+      },
+      "min": -0.1,
+      "max": 1.1,
+      "step": 0.005,
+      "default": 0.78
+    },
+    {
+      "id": "rightElbowZ",
+      "type": "number",
+      "label": {
+        "en": "rightElbow Z",
+        "es": "rightElbow Z"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "leftWristX",
+      "type": "number",
+      "label": {
+        "en": "leftWrist X",
+        "es": "leftWrist X"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0.47
+    },
+    {
+      "id": "leftWristY",
+      "type": "number",
+      "label": {
+        "en": "leftWrist Y",
+        "es": "leftWrist Y"
+      },
+      "min": -0.1,
+      "max": 1.1,
+      "step": 0.005,
+      "default": 0.78
+    },
+    {
+      "id": "leftWristZ",
+      "type": "number",
+      "label": {
+        "en": "leftWrist Z",
+        "es": "leftWrist Z"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "rightWristX",
+      "type": "number",
+      "label": {
+        "en": "rightWrist X",
+        "es": "rightWrist X"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": -0.47
+    },
+    {
+      "id": "rightWristY",
+      "type": "number",
+      "label": {
+        "en": "rightWrist Y",
+        "es": "rightWrist Y"
+      },
+      "min": -0.1,
+      "max": 1.1,
+      "step": 0.005,
+      "default": 0.78
+    },
+    {
+      "id": "rightWristZ",
+      "type": "number",
+      "label": {
+        "en": "rightWrist Z",
+        "es": "rightWrist Z"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "leftKneeX",
+      "type": "number",
+      "label": {
+        "en": "leftKnee X",
+        "es": "leftKnee X"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0.1
+    },
+    {
+      "id": "leftKneeY",
+      "type": "number",
+      "label": {
+        "en": "leftKnee Y",
+        "es": "leftKnee Y"
+      },
+      "min": -0.1,
+      "max": 1.1,
+      "step": 0.005,
+      "default": 0.27
+    },
+    {
+      "id": "leftKneeZ",
+      "type": "number",
+      "label": {
+        "en": "leftKnee Z",
+        "es": "leftKnee Z"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "rightKneeX",
+      "type": "number",
+      "label": {
+        "en": "rightKnee X",
+        "es": "rightKnee X"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": -0.1
+    },
+    {
+      "id": "rightKneeY",
+      "type": "number",
+      "label": {
+        "en": "rightKnee Y",
+        "es": "rightKnee Y"
+      },
+      "min": -0.1,
+      "max": 1.1,
+      "step": 0.005,
+      "default": 0.27
+    },
+    {
+      "id": "rightKneeZ",
+      "type": "number",
+      "label": {
+        "en": "rightKnee Z",
+        "es": "rightKnee Z"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "leftAnkleX",
+      "type": "number",
+      "label": {
+        "en": "leftAnkle X",
+        "es": "leftAnkle X"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0.1
+    },
+    {
+      "id": "leftAnkleY",
+      "type": "number",
+      "label": {
+        "en": "leftAnkle Y",
+        "es": "leftAnkle Y"
+      },
+      "min": -0.1,
+      "max": 1.1,
+      "step": 0.005,
+      "default": 0.05
+    },
+    {
+      "id": "leftAnkleZ",
+      "type": "number",
+      "label": {
+        "en": "leftAnkle Z",
+        "es": "leftAnkle Z"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "rightAnkleX",
+      "type": "number",
+      "label": {
+        "en": "rightAnkle X",
+        "es": "rightAnkle X"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": -0.1
+    },
+    {
+      "id": "rightAnkleY",
+      "type": "number",
+      "label": {
+        "en": "rightAnkle Y",
+        "es": "rightAnkle Y"
+      },
+      "min": -0.1,
+      "max": 1.1,
+      "step": 0.005,
+      "default": 0.05
+    },
+    {
+      "id": "rightAnkleZ",
+      "type": "number",
+      "label": {
+        "en": "rightAnkle Z",
+        "es": "rightAnkle Z"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0
+    },
+    {
+      "id": "leftToeX",
+      "type": "number",
+      "label": {
+        "en": "leftToe X",
+        "es": "leftToe X"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0.1
+    },
+    {
+      "id": "leftToeY",
+      "type": "number",
+      "label": {
+        "en": "leftToe Y",
+        "es": "leftToe Y"
+      },
+      "min": -0.1,
+      "max": 1.1,
+      "step": 0.005,
+      "default": 0.03
+    },
+    {
+      "id": "leftToeZ",
+      "type": "number",
+      "label": {
+        "en": "leftToe Z",
+        "es": "leftToe Z"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0.35
+    },
+    {
+      "id": "rightToeX",
+      "type": "number",
+      "label": {
+        "en": "rightToe X",
+        "es": "rightToe X"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": -0.1
+    },
+    {
+      "id": "rightToeY",
+      "type": "number",
+      "label": {
+        "en": "rightToe Y",
+        "es": "rightToe Y"
+      },
+      "min": -0.1,
+      "max": 1.1,
+      "step": 0.005,
+      "default": 0.03
+    },
+    {
+      "id": "rightToeZ",
+      "type": "number",
+      "label": {
+        "en": "rightToe Z",
+        "es": "rightToe Z"
+      },
+      "min": -0.75,
+      "max": 0.75,
+      "step": 0.005,
+      "default": 0.35
+    }
+  ]
+}

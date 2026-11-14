@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { BrowserWindow, dialog } from "electron";
+import { BrowserWindow, dialog, nativeImage } from "electron";
 import type { ImageSource, ReferenceImage } from "./contract";
 import { getDb } from "./db";
 import { projectRoot, stagingRoot } from "./models";
@@ -78,6 +78,7 @@ export async function importReference(): Promise<ReferenceImage | null> {
   fs.copyFileSync(source, stagedFile(stagingId));
   return {
     id: randomUUID(),
+    view: "front",
     name: path.basename(source, path.extname(source)).slice(0, 120) || "Reference",
     width,
     height,
@@ -94,6 +95,29 @@ export function stageImageFile(file: string): ImageSource {
   fs.mkdirSync(stagingRoot(), { recursive: true });
   fs.copyFileSync(file, stagedFile(stagingId));
   return { type: "staged", stagingId };
+}
+
+export function stageReferenceBytes(bytes: Uint8Array, pngOnly = true): ImageSource {
+  if (bytes.byteLength > MAX_BYTES) throw new Error("image-too-large");
+  const data = Buffer.from(bytes);
+  const info = detect(data);
+  if (!info || (pngOnly && info.format !== "png")) throw new Error("image-unsupported");
+  if (info.width < MIN_SIDE || info.height < MIN_SIDE) throw new Error("image-too-small");
+  if (info.width * info.height > MAX_PIXELS) throw new Error("image-too-many-pixels");
+  if (info.format !== "webp" && nativeImage.createFromBuffer(data).isEmpty()) throw new Error("image-unsupported");
+  const stagingId = randomUUID();
+  fs.mkdirSync(stagingRoot(), { recursive: true });
+  fs.writeFileSync(stagedFile(stagingId), data);
+  return { type: "staged", stagingId };
+}
+
+export function importReferenceBytes(bytes: Uint8Array, name: string): ReferenceImage {
+  const original = stageReferenceBytes(bytes, false);
+  const { width, height } = detect(Buffer.from(bytes))!;
+  return {
+    id: randomUUID(), view: "front", name: path.basename(name, path.extname(name)).slice(0, 120) || "Reference",
+    width, height, original, prepared: null, usePrepared: false, prompt: null,
+  };
 }
 
 export function imagePath(source: ImageSource, projectId: string | null): string {

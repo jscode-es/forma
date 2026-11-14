@@ -15,6 +15,7 @@ import {
 } from "@kivora/nextjs";
 import { Box, Camera, Grid3x3, MousePointer2, Scan, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { ReferenceOverlay } from "@/feature/references";
 import { displayedVariant, useProjectStore, variantName } from "@/stores/project-store";
 import { useWorkspaceStore, type ViewMode } from "@/stores/workspace-store";
 import type { CameraPreset } from "../engine/viewer";
@@ -67,6 +68,7 @@ export function Viewport() {
 
       <div className={styles.stage}>
         <ViewportCanvas className={styles.canvas} />
+        <ReferenceOverlay />
 
         {status === "loading" && (
           <div className={styles.loading}>

@@ -4,6 +4,8 @@ import { Button, Icon, Kbd } from "@kivora/nextjs";
 import { ChevronRight, Folder, Plus, Save, SlidersHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { saveProject, startNewProject, useProjectFlow } from "@/feature/projects";
+import { usePaintStore } from "@/feature/paint";
+import { useAnimationStore } from "@/feature/animation";
 import { useProjectStore } from "@/stores/project-store";
 import styles from "../shell.module.css";
 import { BrandMark } from "./brand-mark";
@@ -12,6 +14,8 @@ export function TopBar({ onOpenInspector }: { onOpenInspector?: () => void }) {
   const { t } = useTranslation();
   const name = useProjectStore((s) => s.name);
   const dirty = useProjectStore((s) => s.dirty);
+  const paintDirty = usePaintStore((s) => !!s.draft?.engine.dirty);
+  const animationDirty = useAnimationStore((s) => s.dirty);
   const busy = useProjectFlow((s) => s.busy);
 
   return (
@@ -29,7 +33,7 @@ export function TopBar({ onOpenInspector }: { onOpenInspector?: () => void }) {
         <span>{t("topBar.workspace")}</span>
         <Icon icon={ChevronRight} size={14} />
         <span className={styles.projectName}>{name ?? t("topBar.untitled")}</span>
-        {dirty && (
+        {(dirty || paintDirty || animationDirty) && (
           <span className={styles.dirtyDot} role="status" aria-label={t("topBar.unsaved")} title={t("topBar.unsaved")} />
         )}
       </nav>

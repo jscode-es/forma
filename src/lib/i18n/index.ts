@@ -9,8 +9,7 @@ export type LocalePreference = Locale | "system";
 
 export const LOCALE_NAMES: Record<Locale, string> = { en: "English", es: "Español" };
 
-export function detectLocale(): Locale {
-  const languages = typeof navigator === "undefined" ? [] : navigator.languages;
+export function detectLocale(languages: readonly string[] = typeof navigator === "undefined" ? [] : navigator.languages): Locale {
   for (const lang of languages) {
     const base = lang.toLowerCase().split("-")[0] as Locale;
     if (LOCALES.includes(base)) return base;
@@ -18,8 +17,8 @@ export function detectLocale(): Locale {
   return "en";
 }
 
-export function resolveLocale(pref: LocalePreference): Locale {
-  return pref === "system" ? detectLocale() : pref;
+export function resolveLocale(pref: LocalePreference, languages?: readonly string[]): Locale {
+  return pref === "system" ? detectLocale(languages) : pref;
 }
 
 i18n.use(initReactI18next).init({

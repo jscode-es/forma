@@ -1,4 +1,5 @@
 export { EngineControl } from "./components/engine-control";
+export { TextureControl } from "./components/texture-control";
 export { JobsPanel } from "./components/jobs-panel";
 export { ProcessPanel } from "./components/process-panel";
 export { useJobsSync } from "./hooks/use-jobs-sync";
@@ -9,6 +10,11 @@ export {
   errorMessage,
   generateImages,
   generateModel,
+  enqueueMeshTask,
+  enqueueRigTask,
+  enqueueVideoMotion,
+  type MeshTask,
+  textureModel,
   localized,
   optimizeModel,
   refreshEngines,

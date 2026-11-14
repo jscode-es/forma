@@ -20,11 +20,16 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@kivora/nextjs";
-import { ArrowRight, ImageIcon, Play, Search, Settings, SlidersHorizontal, Sparkles } from "lucide-react";
+import { Play, Search, Settings, SlidersHorizontal, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { ACTIVE, EngineControl, generateImages, generateModel, useJobsStore } from "@/feature/jobs";
+import { ACTIVE, EngineControl, generateModel, TextureControl, useJobsStore } from "@/feature/jobs";
+import { MaterialControl } from "@/feature/materials";
+import { PaintControl, usePaintStore } from "@/feature/paint";
+import { RigControl, RigEditorControl, RigWeightsControl } from "@/feature/rigging";
+import { AnimationLibraryControl, AnimationEditorControl, AnimationRetargetControl, AnimationVideoControl, useAnimationStore } from "@/feature/animation";
+import { MeshInspectControl, RetopologyControl, UvControl, NormalsControl } from "@/feature/mesh-tools";
 import { useModelsStore } from "@/feature/models";
-import { PromptControl, PromptHistory } from "@/feature/prompt";
+import { ReferenceProjection, ReferenceReview } from "@/feature/references";
 import { ExportControl, LodExportControl, OptimizeControl } from "@/feature/versions";
 import { DEFAULT_QUALITY_STEPS, useProjectStore, type Quality } from "@/stores/project-store";
 import { currentTab, useWorkspaceStore, type InspectorTab } from "@/stores/workspace-store";
@@ -173,65 +178,38 @@ function GenerateFooter() {
   );
 }
 
-function ReferenceFooter() {
-  const { t } = useTranslation();
-  const prompt = useProjectStore((s) => s.prompt.trim());
-  const sessionId = useProjectStore((s) => s.sessionId);
-  const engineId = useProjectStore((s) => s.imageEngine.id);
-  const engine = useJobsStore((s) => s.engines.find((e) => e.id === engineId && e.tasks.includes("text-to-image")));
-  const job = useJobsStore((s) => s.jobs.find((j) => ACTIVE.has(j.status) && j.task === "text-to-image"));
-  const picked = useJobsStore((s) => s.candidates?.sessionId === sessionId && s.candidates.picked !== null);
-  const error = useJobsStore((s) => s.enqueueError);
-  const ready = Boolean(engine?.available) && prompt.length > 0 && !job;
-  const hint = error
-    ? t(`errors.${error}`, { defaultValue: error })
-    : job
-      ? t("prompt.generating", { percent: Math.round(job.progress * 100) })
-      : !engine?.available
-        ? t("prompt.noEngine")
-        : !prompt
-          ? t("prompt.writeHint")
-          : picked
-            ? t("prompt.pickedHint")
-            : t("prompt.readyHint");
-
-  return (
-    <div className={styles.inspectorFooter}>
-      <Button size="lg" disabled={!ready} onClick={() => generateImages()}>
-        <Icon icon={ImageIcon} size={16} />
-        {t("prompt.generate")}
-      </Button>
-      {picked && !job && (
-        <Button variant="outline" onClick={() => useWorkspaceStore.getState().setSection("create3d")}>
-          {t("prompt.continue")}
-          <Icon icon={ArrowRight} size={15} />
-        </Button>
-      )}
-      <span className={styles.hint} style={{ textAlign: "center", color: error ? "var(--color-destructive)" : undefined }}>
-        {hint}
-      </span>
-    </div>
-  );
-}
-
 function AnimationFooter() {
   const { t } = useTranslation();
   return (
     <div className={styles.inspectorFooter}>
-      <Button size="lg" disabled>
+      <Button size="lg" onClick={() => { useWorkspaceStore.getState().setInspectorTab("clips"); useWorkspaceStore.getState().setDockTab("timeline"); }}>
         <Icon icon={Play} size={16} />
         {t("inspector.createAnimation")}
       </Button>
       <span className={styles.hint} style={{ textAlign: "center" }}>
-        {t("common.availableIn", { phase: 15 })}
+        {t("animation.editorHint")}
       </span>
     </div>
   );
 }
 
 const SECTIONS: SectionDef[] = [
-  { tab: "text", id: "prompt", action: <ManageModelsButton />, content: <PromptControl /> },
-  { tab: "text", id: "promptHistory", content: <PromptHistory /> },
+  { tab: "create", id: "retopology", content: <RetopologyControl /> },
+  { tab: "model", id: "retopology", content: <RetopologyControl /> },
+  { tab: "model", id: "inspect", content: <MeshInspectControl /> },
+  { tab: "finish", id: "texture", content: <TextureControl /> },
+  { tab: "finish", id: "materials", content: <MaterialControl /> },
+  { tab: "finish", id: "uv", content: <UvControl /> },
+  { tab: "finish", id: "normals", content: <NormalsControl /> },
+  { tab: "finish", id: "paint", content: <PaintControl /> },
+  { tab: "rig", id: "rig", content: <><RigControl /><RigEditorControl /></> },
+  { tab: "rig", id: "weights", content: <RigWeightsControl /> },
+  { tab: "clips", id: "presets", content: <AnimationLibraryControl /> },
+  { tab: "clips", id: "timeline", content: <AnimationEditorControl /> },
+  { tab: "retarget", id: "retarget", content: <AnimationRetargetControl /> },
+  { tab: "capture", id: "video", content: <AnimationVideoControl /> },
+  { tab: "edit", id: "proportions", content: <ReferenceReview /> },
+  { tab: "edit", id: "projection", content: <ReferenceProjection /> },
   {
     tab: "create",
     id: "engine",
@@ -254,6 +232,8 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
   const tabs = SECTION_TABS[section];
   const name = useProjectStore((s) => s.name);
   const dirty = useProjectStore((s) => s.dirty);
+  const paintDirty = usePaintStore((s) => !!s.draft?.engine.dirty);
+  const animationDirty = useAnimationStore((s) => s.dirty);
   const [query, setQuery] = useState("");
 
   const needle = query.trim().toLowerCase();
@@ -267,7 +247,7 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
         <Icon icon={SlidersHorizontal} size={16} />
         <h2 className={styles.panelTitle}>{t("inspector.title")}</h2>
         <span className={styles.spacer} />
-        <Badge variant="secondary">{dirty ? t("inspector.unsaved") : t("inspector.draft")}</Badge>
+        <Badge variant="secondary">{dirty || paintDirty || animationDirty ? t("inspector.unsaved") : t("inspector.draft")}</Badge>
       </div>
 
       <div className={styles.scroll}>
@@ -366,7 +346,6 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
         </div>
       </div>
 
-      {section === "createReference" && <ReferenceFooter />}
       {section === "create3d" && <GenerateFooter />}
       {section === "createAnimation" && <AnimationFooter />}
     </aside>

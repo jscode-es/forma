@@ -15,3 +15,5 @@ next-env.d.ts
 fixtures/models/
 test-results/
 playwright-report/
+__pycache__/
+*.py[cod]

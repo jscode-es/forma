@@ -1,6 +1,13 @@
 import type { FormaApi } from "../../electron/contract";
 
 export type {
+  AnimationBone,
+  AnimationClipData,
+  AnimationTrack,
+  AnimationKey,
+  AnimationLibraryItem,
+  VideoSource,
+  BlenderInfo,
   EngineInfo,
   EngineParameter,
   EngineSelection,
@@ -25,6 +32,7 @@ export type {
   Quality,
   QualitySteps,
   ReferenceImage,
+  ReferenceView,
   SceneModel,
   SystemInfo,
   Variant,

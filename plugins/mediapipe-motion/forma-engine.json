@@ -1,0 +1,29 @@
+{
+  "id": "mediapipe-motion",
+  "name": "MediaPipe local motion",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "description": { "en": "Estimate in-place humanoid motion from a local video with Pose Landmarker Lite on CPU.", "es": "Estima movimiento humanoide en el sitio desde un vídeo local con Pose Landmarker Lite en CPU." },
+  "tasks": ["video-to-motion"],
+  "runtime": { "type": "python", "entry": "main.py" },
+  "timeoutSeconds": 300,
+  "requirements": { "vramGb": 0, "cuda": false },
+  "inputs": { "models": { "min": 1, "max": 1 }, "videos": { "min": 1, "max": 1 }, "images": { "min": 0, "max": 0 } },
+  "weights": [{
+    "id": "mediapipe-pose-lite",
+    "name": "Pose Landmarker Lite",
+    "license": {
+      "id": "Apache-2.0",
+      "name": "Apache License 2.0",
+      "url": "https://storage.googleapis.com/mediapipe-assets/Model%20Card%20BlazePose%20GHUM%203D.pdf",
+      "summary": { "en": "Google BlazePose GHUM 3D, Apache-2.0. Local pose estimates; no video uploads.", "es": "Google BlazePose GHUM 3D, Apache-2.0. Estimación local de poses; no sube vídeos." }
+    },
+    "source": { "type": "mediapipe", "repo": "pose_landmarker/pose_landmarker_lite", "revision": "1" },
+    "files": [{ "path": "pose_landmarker_lite.task", "size": 5777746, "sha256": "59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a" }]
+  }],
+  "parameters": [
+    { "id": "fps", "type": "integer", "label": { "en": "Output FPS", "es": "FPS de salida" }, "min": 5, "max": 30, "default": 15 },
+    { "id": "maxSeconds", "type": "integer", "label": { "en": "Maximum seconds", "es": "Segundos máximos" }, "min": 1, "max": 30, "default": 10 },
+    { "id": "confidence", "type": "number", "label": { "en": "Minimum confidence", "es": "Confianza mínima" }, "min": 0.1, "max": 0.95, "step": 0.05, "default": 0.5 }
+  ]
+}

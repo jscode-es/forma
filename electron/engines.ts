@@ -5,6 +5,7 @@ import type { EngineInfo, ParameterValue } from "./contract";
 import { getHardware } from "./hardware";
 import { engineManifest, type EngineManifest } from "./schemas";
 import { missingRequiredWeights } from "./weights";
+import { getBlender } from "./blender";
 
 export type InstalledEngine = { info: EngineInfo; manifest: EngineManifest; dir: string };
 
@@ -69,6 +70,7 @@ export async function listEngines(): Promise<InstalledEngine[]> {
 
       const { info, manifest, dir } = engine;
       if (!fs.existsSync(path.join(dir, manifest.runtime.entry))) info.problem = "entry-missing";
+      else if (manifest.runtime.type === "blender" && !(await getBlender())) info.problem = "blender-missing";
       else if (manifest.runtime.type === "python" && !hardware.python && !fs.existsSync(enginePython(dir) ?? "")) info.problem = "python-missing";
       else if (manifest.requirements.cuda && !hardware.cuda) info.problem = "cuda-missing";
       else if (hardware.vramMb !== null && manifest.requirements.vramGb * 1024 > hardware.vramMb) info.problem = "vram-insufficient";

@@ -82,6 +82,13 @@ const MIGRATIONS: Migration[] = [
       CREATE INDEX jobs_status ON jobs(status);
     `);
   },
+  (db) => {
+    db.exec(`CREATE TABLE animation_clips (
+      id TEXT PRIMARY KEY, name TEXT NOT NULL, clip TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+      updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+    )`);
+  },
 ];
 
 let db: DatabaseSync;

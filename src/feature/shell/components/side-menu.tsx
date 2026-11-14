@@ -4,13 +4,12 @@ import { Button, Icon } from "@kivora/nextjs";
 import { Box, Boxes, CircleHelp, LibraryBig, Settings, Upload } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useModelsStore } from "@/feature/models";
-import { ReferencePanel } from "@/feature/references";
 import { useViewerStore } from "@/feature/viewport";
 import { displayedVariant, useProjectStore, variantName } from "@/stores/project-store";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import styles from "../shell.module.css";
 import { SECTIONS } from "../sections";
-import { HelpHint } from "./help-hint";
+import { ReferenceWorkspace } from "./reference-workspace";
 
 export type ShellDialog = "library" | "help" | "settings";
 
@@ -66,6 +65,8 @@ export function SideMenu({ onOpenDialog }: { onOpenDialog: (dialog: ShellDialog)
             ))}
           </nav>
 
+          <ReferenceWorkspace />
+
           <section className={styles.block} aria-labelledby="scene-title">
             <div className={styles.blockHeader}>
               <span id="scene-title">{t("scene.title")}</span>
@@ -89,15 +90,7 @@ export function SideMenu({ onOpenDialog }: { onOpenDialog: (dialog: ShellDialog)
             </p>
           </section>
 
-          <section className={styles.block} aria-labelledby="references-title">
-            <div className={styles.blockHeader}>
-              <span id="references-title" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                {t("references.title")}
-                <HelpHint text={t("references.help")} />
-              </span>
-            </div>
-            <ReferencePanel />
-          </section>
+
         </div>
       </div>
 

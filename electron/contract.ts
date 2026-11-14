@@ -2,6 +2,13 @@ export type Quality = "fast" | "balanced" | "high";
 
 export type ParameterValue = number | boolean | string;
 
+export type AnimationBone = { name: string; parent: string | null; translation: [number, number, number]; rotation: [number, number, number, number]; scale: [number, number, number] };
+export type AnimationKey = { frame: number; value: number[] };
+export type AnimationTrack = { bone: string; path: "translation" | "rotation" | "scale"; interpolation: "LINEAR" | "STEP"; keys: AnimationKey[] };
+export type AnimationClipData = { version: 1; name: string; fps: number; durationFrames: number; bones: AnimationBone[]; tracks: AnimationTrack[] };
+export type AnimationLibraryItem = { id: string; name: string; createdAt: string; updatedAt: string };
+export type VideoSource = { stagingId: string; name: string };
+
 export type EngineSelection = { id: string | null; parameters: Record<string, ParameterValue> };
 
 export type QualitySteps = Record<Quality, number>;
@@ -13,6 +20,8 @@ export type ProjectSettings = {
   heightMeters: number;
   engine: EngineSelection;
   imageEngine: EngineSelection;
+  textureEngine: EngineSelection;
+  textureReferenceId: string | null;
 };
 
 export type SceneModel =
@@ -22,8 +31,11 @@ export type SceneModel =
 
 export type ImageSource = { type: "staged"; stagingId: string } | { type: "asset"; assetId: string };
 
+export type ReferenceView = "front" | "back" | "left" | "right" | "top";
+
 export type ReferenceImage = {
   id: string;
+  view: ReferenceView;
   name: string;
   width: number;
   height: number;
@@ -41,7 +53,7 @@ export type PromptEntry = {
   createdAt: string;
 };
 
-export type VariantOrigin = "default" | "import" | "generation" | "optimize";
+export type VariantOrigin = "default" | "import" | "generation" | "optimize" | "texture" | "material" | "retopology" | "uv" | "normals" | "paint" | "rig" | "animation";
 
 export type Variant = {
   id: string;
@@ -79,6 +91,7 @@ export type SystemInfo = {
   platform: string;
   gpu: string | null;
   dataDir: string;
+  languages: string[];
 };
 
 export type HardwareInfo = {
@@ -90,9 +103,16 @@ export type HardwareInfo = {
   python: { path: string; version: string } | null;
 };
 
+export type BlenderInfo = { path: string; version: string };
+
 export type LocalizedText = { en: string; es?: string };
 
 export type EngineTask =
+  | "video-to-motion"
+  | "mesh-inspect"
+  | "retopology"
+  | "uv-unwrap"
+  | "normals"
   | "image-to-3d"
   | "text-to-3d"
   | "text-to-image"
@@ -118,14 +138,14 @@ export type EngineInfo = {
   tasks: EngineTask[];
   parameters: EngineParameter[];
   requirements: { vramGb: number; cuda: boolean; python: boolean };
-  inputs: { images: { min: number; max: number }; models: { min: number; max: number } };
+  inputs: { images: { min: number; max: number }; models: { min: number; max: number }; views: ReferenceView[]; videos?: { min: number; max: number } };
   builtin: boolean;
   demo: boolean;
   available: boolean;
   problem: string | null;
 };
 
-export type WeightsSource = { type: "huggingface" | "github"; repo: string; revision: string };
+export type WeightsSource = { type: "huggingface" | "github" | "mediapipe"; repo: string; revision: string };
 
 export type LicenseInfo = { id: string; name: string; url: string; summary: LocalizedText };
 
@@ -189,6 +209,7 @@ export type JobInfo = {
 };
 
 export type JobRequest = {
+  videos?: VideoSource[];
   engineId: string;
   task: EngineTask;
   projectId: string | null;
@@ -196,9 +217,17 @@ export type JobRequest = {
   images: ImageSource[];
   models: SceneModel[];
   prompt?: string | null;
+  views?: ReferenceView[];
 };
 
 export type IpcChannels = {
+  "animations:list": { args: []; result: AnimationLibraryItem[] };
+  "animations:read": { args: [string]; result: AnimationClipData };
+  "animations:save": { args: [string | null, AnimationClipData]; result: AnimationLibraryItem };
+  "animations:delete": { args: [string]; result: void };
+  "animations:import": { args: []; result: AnimationLibraryItem | null };
+  "animations:export": { args: [string]; result: ExportResult | null };
+  "videos:import": { args: []; result: VideoSource | null };
   "projects:list": { args: []; result: ProjectSummary[] };
   "projects:create": { args: [ProjectInput]; result: Project };
   "projects:update": { args: [string, ProjectInput]; result: Project };
@@ -212,7 +241,9 @@ export type IpcChannels = {
   "models:stage-bytes": { args: [Uint8Array, string]; result: SceneModel };
   "models:export": { args: [ModelSource | null, Uint8Array | null, string]; result: ExportResult | null };
   "references:import": { args: []; result: ReferenceImage | null };
+  "references:import-bytes": { args: [Uint8Array, string]; result: ReferenceImage };
   "references:read": { args: [ImageSource, string | null]; result: Uint8Array };
+  "references:stage-bytes": { args: [Uint8Array]; result: ImageSource };
   "engines:list": { args: []; result: EngineInfo[] };
   "plugins:list": { args: []; result: PluginState[] };
   "plugins:install": { args: [string, string | null]; result: void };
@@ -236,7 +267,10 @@ export type IpcChannels = {
   "jobs:stage-reference": { args: [string, string]; result: ReferenceImage };
   "jobs:stage-file": { args: [string, string]; result: SceneModel };
   "jobs:read-file": { args: [string, string]; result: Uint8Array };
+  "jobs:export-file": { args: [string, string]; result: ExportResult | null };
   "system:info": { args: []; result: SystemInfo };
+  "system:blender": { args: [boolean]; result: BlenderInfo | null };
+  "system:choose-blender": { args: []; result: BlenderInfo | null };
   "system:hardware": { args: [boolean]; result: HardwareInfo };
   "system:open-data-dir": { args: []; result: void };
   "app:set-dirty": { args: [boolean]; result: void };
@@ -253,6 +287,15 @@ export type IpcEvents = {
 };
 
 export type FormaApi = {
+  animations: {
+    list: () => Promise<AnimationLibraryItem[]>;
+    read: (id: string) => Promise<AnimationClipData>;
+    save: (id: string | null, clip: AnimationClipData) => Promise<AnimationLibraryItem>;
+    delete: (id: string) => Promise<void>;
+    import: () => Promise<AnimationLibraryItem | null>;
+    export: (id: string) => Promise<ExportResult | null>;
+  };
+  videos: { import: () => Promise<VideoSource | null> };
   projects: {
     list: () => Promise<ProjectSummary[]>;
     create: (input: ProjectInput) => Promise<Project>;
@@ -270,8 +313,10 @@ export type FormaApi = {
     export: (source: ModelSource | null, bytes: Uint8Array | null, name: string) => Promise<ExportResult | null>;
   };
   references: {
+    importBytes: (bytes: Uint8Array, name: string) => Promise<ReferenceImage>;
     import: () => Promise<ReferenceImage | null>;
     read: (source: ImageSource, projectId: string | null) => Promise<Uint8Array>;
+    stageBytes: (bytes: Uint8Array) => Promise<ImageSource>;
   };
   engines: {
     list: () => Promise<EngineInfo[]>;
@@ -305,9 +350,12 @@ export type FormaApi = {
     stageReference: (id: string, path: string) => Promise<ReferenceImage>;
     stageFile: (id: string, path: string) => Promise<SceneModel>;
     readFile: (id: string, path: string) => Promise<Uint8Array>;
+    exportFile: (id: string, path: string) => Promise<ExportResult | null>;
     onUpdate: (callback: (job: JobInfo) => void) => () => void;
   };
   system: {
+    blender: (refresh: boolean) => Promise<BlenderInfo | null>;
+    chooseBlender: () => Promise<BlenderInfo | null>;
     info: () => Promise<SystemInfo>;
     hardware: (refresh: boolean) => Promise<HardwareInfo>;
     openDataDir: () => Promise<void>;

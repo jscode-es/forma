@@ -1,13 +1,24 @@
 import { create } from "zustand";
-import type { EngineInfo, EngineTask, HardwareInfo, JobInfo, LocalizedText, SceneModel } from "@/lib/forma";
-import { activeImage, activeVariant, useProjectStore } from "@/stores/project-store";
+import i18n from "@/lib/i18n";
+import { recordMeshReport, recordUvTemplate } from "@/feature/mesh-tools";
+import type { EngineInfo, EngineTask, HardwareInfo, ImageSource, JobInfo, LocalizedText, ReferenceView, SceneModel, VideoSource } from "@/lib/forma";
+import { acceptVideoMotion, refreshAnimationLibrary, useAnimationStore, readAnimationModel, validateAnimationClip } from "@/feature/animation";
+import { activeImage, activeVariant, displayedVariant, mainReference, useProjectStore } from "@/stores/project-store";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { scaleGlbToHeight } from "./scale";
+import { parseMeshReport } from "./mesh-report";
+
+export type MeshTask = Extract<EngineTask, "mesh-inspect" | "retopology" | "uv-unwrap" | "normals">;
+const MESH_ORIGINS = { retopology: "retopology", "uv-unwrap": "uv", normals: "normals" } as const;
 
 type Target =
   | { kind: "model"; engineName: string }
   | { kind: "optimize"; budget: number }
   | { kind: "prepared"; referenceId: string }
+  | { kind: "texture"; engineName: string; parentId: string }
+  | { kind: "rig"; parentId: string; sourceLabel: string }
+  | { kind: "motion"; parentId: string; sourceLabel: string }
+  | { kind: "mesh"; task: MeshTask; parentIds: string[]; sourceLabel: string }
   | { kind: "candidates"; prompt: string; engineId: string };
 type Pending = Target & { sessionId: string };
 
@@ -74,15 +85,31 @@ async function enqueue(
   target: Target,
   models: SceneModel[] = [],
   prompt: string | null = null,
+  videos: VideoSource[] = [],
 ) {
   const api = window.forma!;
   const project = useProjectStore.getState();
-  const reference = project.references[0];
-  const images =
-    task !== "text-to-image" && engine.inputs.images.max > 0 && reference
-      ? [task === "remove-background" ? reference.original : activeImage(reference)]
-      : [];
-  const job = await api.jobs.enqueue({ engineId: engine.id, task, projectId: project.id, parameters, images, models, prompt });
+  let images: ImageSource[] = [];
+  let views: ReferenceView[] = [];
+  if (task === "remove-background" && target.kind === "prepared") {
+    const reference = project.references.find((r) => r.id === target.referenceId);
+    images = reference ? [reference.original] : [];
+  } else if (task === "image-to-3d" && engine.inputs.views.length > 0) {
+    const references = engine.inputs.views.flatMap((view) => {
+      const reference = project.references.find((r) => r.view === view);
+      return reference ? [reference] : [];
+    }).slice(0, engine.inputs.images.max);
+    images = references.map(activeImage);
+    views = references.map((r) => r.view);
+  } else if (task === "texture") {
+    const reference = project.references.find((r) => r.id === project.textureReferenceId);
+    images = reference ? [activeImage(reference)] : [];
+    views = reference && engine.inputs.views.length > 0 ? [reference.view] : [];
+  } else if (task !== "text-to-image" && engine.inputs.images.max > 0) {
+    const reference = mainReference(project.references);
+    images = reference ? [activeImage(reference)] : [];
+  }
+  const job = await api.jobs.enqueue({ engineId: engine.id, task, projectId: project.id, parameters, images, models, prompt, views, videos });
   upsertJob(job);
   useJobsStore.setState((s) => ({
     selectedId: job.id,
@@ -177,6 +204,71 @@ export async function optimizeModel(parameters: { budget: number; lod1: number; 
   }
 }
 
+export async function textureModel() {
+  const project = useProjectStore.getState();
+  const source = activeVariant(project);
+  const engine = useJobsStore.getState().engines.find((e) => e.id === project.textureEngine.id && e.tasks.includes("texture"));
+  if (!window.forma || !engine || source.model.type === "default-cube") return;
+  if (!project.references.some((r) => r.id === project.textureReferenceId)) {
+    useJobsStore.setState({ enqueueError: "reference-required" });
+    return;
+  }
+  project.retainVariant(source.id);
+  try {
+    await enqueue("texture", engine, project.textureEngine.parameters, { kind: "texture", engineName: engine.name, parentId: source.id }, [source.model]);
+  } catch (error) {
+    if (useProjectStore.getState().sessionId === project.sessionId) useProjectStore.getState().releaseVariant(source.id);
+    useJobsStore.setState({ enqueueError: errorMessage(error) });
+  }
+}
+
+export async function enqueueMeshTask(task: MeshTask, parameters: JobInfo["parameters"], highVariantId?: string): Promise<void> {
+  const project = useProjectStore.getState();
+  const source = activeVariant(project);
+  const engine = engineFor(task);
+  if (!window.forma || !engine) return;
+  const high = highVariantId ? project.variants.find((v) => v.id === highVariantId) : undefined;
+  if (source.model.type === "default-cube" || (task === "normals" && parameters.mode === "bake" && (!high || high.id === source.id || high.model.type === "default-cube"))) {
+    useJobsStore.setState({ enqueueError: "model-required" });
+    return;
+  }
+  const parents = [source.id, ...(task === "normals" && parameters.mode === "bake" && high ? [high.id] : [])];
+  parents.forEach(project.retainVariant);
+  try {
+    await enqueue(task, engine, parameters, { kind: "mesh", task, parentIds: parents, sourceLabel: source.label }, [source.model, ...(parents[1] && high ? [high.model] : [])]);
+  } catch (error) {
+    if (useProjectStore.getState().sessionId === project.sessionId) parents.forEach((id) => useProjectStore.getState().releaseVariant(id));
+    useJobsStore.setState({ enqueueError: errorMessage(error) });
+  }
+}
+
+export async function enqueueRigTask(parameters: JobInfo["parameters"]): Promise<void> {
+  const project = useProjectStore.getState();
+  const source = displayedVariant(project);
+  const engine = useJobsStore.getState().engines.find((entry) => entry.id === "forma-blender-rig" && entry.available);
+  if (!window.forma || !engine || source.model.type === "default-cube") return;
+  project.retainVariant(source.id);
+  try {
+    await enqueue("rig", engine, parameters, { kind: "rig", parentId: source.id, sourceLabel: source.label }, [source.model]);
+  } catch (error) {
+    if (useProjectStore.getState().sessionId === project.sessionId) useProjectStore.getState().releaseVariant(source.id);
+    useJobsStore.setState({ enqueueError: errorMessage(error) });
+  }
+}
+
+export async function enqueueVideoMotion(video: VideoSource) {
+  const project = useProjectStore.getState();
+  const source = displayedVariant(project);
+  const engine = useJobsStore.getState().engines.find((entry) => entry.tasks.includes("video-to-motion") && entry.available);
+  if (!window.forma || !engine || source.model.type === "default-cube") return;
+  project.retainVariant(source.id);
+  try { await enqueue("video-to-motion", engine, {}, { kind: "motion", parentId: source.id, sourceLabel: source.label }, [source.model], null, [video]); }
+  catch (error) {
+    if (useProjectStore.getState().sessionId === project.sessionId) useProjectStore.getState().releaseVariant(source.id);
+    useJobsStore.setState({ enqueueError: errorMessage(error) });
+  }
+}
+
 export async function applyFinishedJob(job: JobInfo) {
   const { pending } = useJobsStore.getState();
   const target = pending[job.id];
@@ -187,6 +279,85 @@ export async function applyFinishedJob(job: JobInfo) {
 
   const project = useProjectStore.getState();
   if (target.sessionId !== project.sessionId) return;
+  if (target.kind === "motion") {
+    try {
+      if (job.status === "failed") { useJobsStore.setState({ selectedId: job.id }); useWorkspaceStore.getState().setDockTab("process"); }
+      if (job.status !== "succeeded") return;
+      const file = job.results.find((entry) => entry.kind === "animation-clip");
+      if (!file) throw new Error("animation.invalidClip");
+      const bytes = await window.forma!.jobs.readFile(job.id, file.path);
+      if (bytes.byteLength > 4 * 1024 * 1024) throw new Error("animation.invalidClip");
+      const clip = validateAnimationClip(JSON.parse(new TextDecoder().decode(bytes)));
+      await window.forma!.animations.save(null, clip);
+      await refreshAnimationLibrary();
+      const model = await window.forma!.jobs.readFile(job.id, "in/model-0.glb");
+      if (useProjectStore.getState().sessionId !== target.sessionId) return;
+      if (useAnimationStore.getState().dirty) { useJobsStore.setState({ enqueueError: "animation.pendingDraft" }); return; }
+      acceptVideoMotion(clip, { bytes: model, ...readAnimationModel(model), sessionId: target.sessionId, variantId: target.parentId, label: target.sourceLabel });
+    } finally {
+      if (useProjectStore.getState().sessionId === target.sessionId) useProjectStore.getState().releaseVariant(target.parentId);
+    }
+    return;
+  }
+  if (target.kind === "rig") {
+    try {
+      if (job.status === "failed") {
+        useJobsStore.setState({ selectedId: job.id });
+        useWorkspaceStore.getState().setDockTab("process");
+      }
+      if (job.status !== "succeeded") return;
+      const model = await window.forma!.jobs.stageResult(job.id);
+      const current = useProjectStore.getState();
+      if (current.sessionId !== target.sessionId) return;
+      current.addVariant({ label: i18n.t(job.parameters.mode === "edit" ? "rigging.editedVariant" : "rigging.variant", { name: target.sourceLabel }), origin: "rig", engineId: job.engineId, model, lods: [], params: job.parameters }, false, target.parentId);
+    } finally {
+      if (useProjectStore.getState().sessionId === target.sessionId) useProjectStore.getState().releaseVariant(target.parentId);
+    }
+    return;
+  }
+  if (target.kind === "mesh") {
+    try {
+      if (job.status === "failed") {
+        useJobsStore.setState({ selectedId: job.id });
+        useWorkspaceStore.getState().setDockTab("process");
+      }
+      if (job.status !== "succeeded") return;
+      const file = job.results.find((item) => item.kind === "mesh-report");
+      if (!file) throw new Error("mesh-report-invalid");
+      const report = parseMeshReport(await window.forma!.jobs.readFile(job.id, file.path), target.task);
+      const model = target.task === "mesh-inspect" ? null : await window.forma!.jobs.stageResult(job.id);
+      const current = useProjectStore.getState();
+      if (current.sessionId !== target.sessionId) return;
+      recordMeshReport(target.parentIds[0], { sessionId: target.sessionId, jobId: job.id, report });
+      let resultVariantId: string | undefined;
+      if (model && target.task !== "mesh-inspect") {
+        const origin = MESH_ORIGINS[target.task];
+        current.addVariant({ label: i18n.t(`mesh.variant.${origin}`, { name: target.sourceLabel }), origin, engineId: job.engineId, model, lods: [], params: { ...job.parameters, ...(target.parentIds[1] ? { highVariantId: target.parentIds[1] } : {}) } }, false, target.parentIds[0]);
+        resultVariantId = useProjectStore.getState().previewVariantId ?? undefined;
+      }
+      const template = job.results.find((item) => item.kind === "uv-template");
+      if (template) recordUvTemplate({ sessionId: target.sessionId, jobId: job.id, path: template.path, variantId: target.parentIds[0], resultVariantId });
+    } finally {
+      if (useProjectStore.getState().sessionId === target.sessionId) target.parentIds.forEach((id) => useProjectStore.getState().releaseVariant(id));
+    }
+    return;
+  }
+  if (target.kind === "texture") {
+    try {
+      if (job.status === "failed") {
+        useJobsStore.setState({ selectedId: job.id });
+        useWorkspaceStore.getState().setDockTab("process");
+      }
+      if (job.status !== "succeeded") return;
+      const model = await window.forma!.jobs.stageResult(job.id);
+      const current = useProjectStore.getState();
+      if (current.sessionId !== target.sessionId) return;
+      current.addVariant({ label: target.engineName, origin: "texture", engineId: job.engineId, model, lods: [], params: job.parameters }, false, target.parentId);
+    } finally {
+      if (useProjectStore.getState().sessionId === target.sessionId) useProjectStore.getState().releaseVariant(target.parentId);
+    }
+    return;
+  }
   if (job.status === "failed") {
     useJobsStore.setState({ selectedId: job.id });
     useWorkspaceStore.getState().setDockTab("process");
