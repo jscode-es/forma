@@ -35,11 +35,18 @@ src/app/       Next.js routes and layout
 src/feature/   feature modules (UI, logic and types per feature)
 src/hooks/     shared React hooks
 src/providers/ React context providers (Kivora, etc.)
-src/stores/    client state stores
-src/lib/    shared types and helpers
+src/stores/    Zustand stores (settings: language and theme)
+src/lib/       shared types, helpers and i18n (locales)
 docs/       architecture and roadmap
 ```
 
 ## Licensing
 
 By contributing you agree your work is released under the [MIT license](LICENSE). Only submit code and assets you have the right to share. Respect the licenses of any AI model you integrate and document them.
+
+## Translations and settings
+
+- Every user-facing string goes through `react-i18next`: `const { t } = useTranslation(); t("projects.create")`. Never hardcode UI text.
+- Locale files live in `src/lib/i18n/locales/` (`en.json` is the source of truth and defines the key types; `es.json` must have the same keys).
+- To add a language: create `<code>.json` with the same keys, then register it in `src/lib/i18n/index.ts` (`LOCALES`, `LOCALE_NAMES`, `resources`).
+- The language is detected from the OS/browser (`navigator.languages`), falling back to English. The user can override it, and theme (system/light/dark), in the settings toggles; both persist in `localStorage` via the Zustand store in `src/stores/settings-store.ts`.

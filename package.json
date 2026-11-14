@@ -41,5 +41,10 @@
     "wait-on": "^9.5.1"
   },
   "homepage": "https://github.com/jscode-es/forma#readme",
-  "bugs": "https://github.com/jscode-es/forma/issues"
+  "bugs": "https://github.com/jscode-es/forma/issues",
+  "dependencies": {
+    "i18next": "^27.1.1",
+    "react-i18next": "^18.0.1",
+    "zustand": "^5.1.0"
+  }
 }

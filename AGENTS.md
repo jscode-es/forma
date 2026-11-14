@@ -13,3 +13,8 @@ Forma: Electron + Next.js (static export) + `node:sqlite`. UI library: Kivora (h
 - Procedures: `.claude/skills/*/SKILL.md` (`kivora-ui`, `add-ipc-channel`, `new-feature`). Read the matching one before starting.
 - Reviewers: `.claude/agents/electron-security-reviewer.md` describes the checklist for any change in `electron/`.
 - Background: `.claude/reference/` (`kivora.md`, `domain.md`).
+
+## i18n, theme and state
+
+- No hardcoded UI strings: use `useTranslation()` and add keys to both `src/lib/i18n/locales/en.json` and `es.json`.
+- Client state uses Zustand stores in `src/stores/`. Language and theme preferences: `src/stores/settings-store.ts`.

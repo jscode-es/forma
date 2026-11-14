@@ -1,0 +1,21 @@
+{
+  "app": {
+    "tagline": "Estudio de IA local: modelos 3D, rigging, animación y pintura."
+  },
+  "projects": {
+    "newTitle": "Nuevo proyecto",
+    "newDescription": "Los proyectos se guardan en local con SQLite.",
+    "namePlaceholder": "Nombre del proyecto",
+    "nameLabel": "Nombre del proyecto",
+    "create": "Crear",
+    "emptyTitle": "Aún no hay proyectos",
+    "emptyDescription": "Crea tu primer proyecto para empezar a generar."
+  },
+  "settings": {
+    "language": "Idioma",
+    "theme": "Tema",
+    "system": "Sistema",
+    "light": "Claro",
+    "dark": "Oscuro"
+  }
+}
