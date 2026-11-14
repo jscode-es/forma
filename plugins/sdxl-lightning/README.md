@@ -20,7 +20,7 @@ From the command line (contributors):
 npm run plugin:install -- sdxl-lightning --accept-license
 ```
 
-Then, in Create 3D → Create → Prompt, select "SDXL-Lightning" as the image engine.
+Then, in Create reference → From text → Prompt, select "SDXL-Lightning" as the image engine.
 
 ## Parameters
 

@@ -104,7 +104,7 @@ Target: the interface structure of the design reference, without engines.
 
 ## Phase 9 · Text to 3D
 
-- [x] Prompt input with text-to-image step (SDXL-Lightning plugin), then image-to-3D
+- [x] Create reference section: prompt with text-to-image step (SDXL-Lightning plugin), then image-to-3D
 - [x] Image candidates to pick from before generating
 - [x] Prompt history and seeds saved with the project
 
