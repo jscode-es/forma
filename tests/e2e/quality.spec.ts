@@ -9,7 +9,8 @@ test("has no serious accessibility violations in the main views", async () => {
     const views: [string, () => Promise<unknown>][] = [
       ["studio", async () => undefined],
       ["model tab", () => page.getByRole("tab", { name: "Model", exact: true }).click()],
-      ["export tab", () => page.getByRole("tab", { name: "Export", exact: true }).click()],
+      ["create animation", () => page.getByRole("button", { name: "Create animation", exact: true }).click()],
+      ["export", () => page.getByRole("button", { name: "Export", exact: true }).click()],
       ["models dialog", () => page.getByRole("button", { name: "Models", exact: true }).click()],
     ];
     for (const [name, open] of views) {

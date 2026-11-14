@@ -41,7 +41,7 @@ test("generates with the demo engine, applies and saves the project", async () =
 test("exports the active version and verifies its checksum", async () => {
   const target = path.join(dataDir, "export.glb");
   await stubSaveDialog(app, target);
-  await page.getByRole("tab", { name: "Export", exact: true }).click();
+  await page.getByRole("button", { name: "Export", exact: true }).click();
   await page.getByRole("button", { name: "Export GLB", exact: true }).last().click();
   await expect(page.getByText(/verified/)).toBeVisible();
 
@@ -59,6 +59,7 @@ test("optimizes an imported model into a new version with a LOD", async () => {
   await page.getByRole("button", { name: "Import GLB", exact: true }).click();
   await expect(page.getByLabel("Model statistics")).toContainText("682 triangles");
 
+  await page.getByRole("button", { name: "Create 3D", exact: true }).click();
   await page.getByRole("tab", { name: "Model", exact: true }).click();
   await page.locator("#optimize-budget").fill("300");
   await page.locator("#optimize-lod1").fill("150");

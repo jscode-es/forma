@@ -110,8 +110,12 @@
       "model": "Model",
       "finish": "Finish",
       "edit": "Edit",
-      "animation": "Animation",
-      "export": "Export"
+      "capture": "Capture",
+      "rig": "Skeleton",
+      "clips": "Clips",
+      "retarget": "Character",
+      "files": "Files",
+      "interchange": "Interchange"
     },
     "sections": {
       "engine": {
@@ -189,10 +193,31 @@
       "interchange": {
         "title": "Blender, Unity and Godot",
         "help": "Packages validated for other tools."
+      },
+      "textMotion": {
+        "title": "Motion from text",
+        "help": "Describes a movement and creates a draft clip with an optional provider."
+      },
+      "weights": {
+        "title": "Skin weights",
+        "help": "Reviews and adjusts how each bone deforms the mesh."
+      },
+      "presets": {
+        "title": "Preset animations",
+        "help": "Idle, walk and run clips ready to apply."
+      },
+      "timeline": {
+        "title": "Key editor",
+        "help": "Edits bone rotations frame by frame on the timeline."
+      },
+      "retarget": {
+        "title": "Apply to a character",
+        "help": "Maps the bones of a rigged character and applies the clip to it."
       }
     },
     "generateReady": "The job runs locally and appears in the job queue.",
-    "generateQueued": "A job of this engine is already in the queue."
+    "generateQueued": "A job of this engine is already in the queue.",
+    "createAnimation": "Create animation"
   },
   "quality": {
     "fast": "Fast",

@@ -20,15 +20,15 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@kivora/nextjs";
-import { Search, Settings, SlidersHorizontal, Sparkles } from "lucide-react";
+import { Play, Search, Settings, SlidersHorizontal, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ACTIVE, EngineControl, generateModel, useJobsStore } from "@/feature/jobs";
 import { useModelsStore } from "@/feature/models";
 import { ExportControl, LodExportControl, OptimizeControl } from "@/feature/versions";
 import { DEFAULT_QUALITY_STEPS, useProjectStore, type Quality } from "@/stores/project-store";
-import { useWorkspaceStore, type InspectorTab } from "@/stores/workspace-store";
+import { currentTab, useWorkspaceStore, type InspectorTab } from "@/stores/workspace-store";
 import styles from "../shell.module.css";
-import { INSPECTOR_TABS, PLANNED_SECTIONS, type SectionKey } from "../sections";
+import { PLANNED_SECTIONS, SECTION_TABS, type SectionKey } from "../sections";
 import { HelpHint } from "./help-hint";
 
 type SectionDef = { tab: InspectorTab; id: SectionKey; phase?: number; content?: ReactNode; action?: ReactNode };
@@ -172,6 +172,21 @@ function GenerateFooter() {
   );
 }
 
+function AnimationFooter() {
+  const { t } = useTranslation();
+  return (
+    <div className={styles.inspectorFooter}>
+      <Button size="lg" disabled>
+        <Icon icon={Play} size={16} />
+        {t("inspector.createAnimation")}
+      </Button>
+      <span className={styles.hint} style={{ textAlign: "center" }}>
+        {t("common.availableIn", { phase: 15 })}
+      </span>
+    </div>
+  );
+}
+
 const SECTIONS: SectionDef[] = [
   {
     tab: "create",
@@ -181,23 +196,25 @@ const SECTIONS: SectionDef[] = [
   },
   { tab: "create", id: "quality", action: <QualityStepsButton />, content: <QualityControl /> },
   { tab: "model", id: "optimize", content: <OptimizeControl /> },
-  { tab: "export", id: "glb", content: <ExportControl /> },
-  { tab: "export", id: "lod", content: <LodExportControl /> },
+  { tab: "files", id: "glb", content: <ExportControl /> },
+  { tab: "files", id: "lod", content: <LodExportControl /> },
   { tab: "create", id: "scale", content: <ScaleControl /> },
-  ...INSPECTOR_TABS.flatMap((tab) => PLANNED_SECTIONS[tab].map((s) => ({ tab, ...s }))),
+  ...(Object.keys(PLANNED_SECTIONS) as InspectorTab[]).flatMap((tab) => PLANNED_SECTIONS[tab].map((s) => ({ tab, ...s }))),
 ];
 
 export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
   const { t } = useTranslation();
-  const tab = useWorkspaceStore((s) => s.inspectorTab);
+  const section = useWorkspaceStore((s) => s.section);
+  const tab = useWorkspaceStore(currentTab);
   const setTab = useWorkspaceStore((s) => s.setInspectorTab);
+  const tabs = SECTION_TABS[section];
   const name = useProjectStore((s) => s.name);
   const dirty = useProjectStore((s) => s.dirty);
   const [query, setQuery] = useState("");
 
   const needle = query.trim().toLowerCase();
   const visible = needle
-    ? SECTIONS.filter((s) => t(`inspector.sections.${s.id}.title`).toLowerCase().includes(needle))
+    ? SECTIONS.filter((s) => tabs.includes(s.tab) && t(`inspector.sections.${s.id}.title`).toLowerCase().includes(needle))
     : SECTIONS.filter((s) => s.tab === tab);
 
   return (
@@ -229,8 +246,13 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
           </InputGroup>
 
           {!needle && (
-            <div className={styles.inspectorTabs} role="tablist" aria-label={t("inspector.title")}>
-              {INSPECTOR_TABS.map((id, index) => (
+            <div
+              className={styles.inspectorTabs}
+              role="tablist"
+              aria-label={t(`nav.${section}`)}
+              style={{ gridTemplateColumns: `repeat(${tabs.length}, 1fr)` }}
+            >
+              {tabs.map((id, index) => (
                 <button
                   key={id}
                   type="button"
@@ -240,13 +262,13 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
                   tabIndex={tab === id ? 0 : -1}
                   onKeyDown={(e) => {
                     const keys: Record<string, number> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
-                    let next = keys[e.key] !== undefined ? (index + keys[e.key] + INSPECTOR_TABS.length) % INSPECTOR_TABS.length : -1;
+                    let next = keys[e.key] !== undefined ? (index + keys[e.key] + tabs.length) % tabs.length : -1;
                     if (e.key === "Home") next = 0;
-                    if (e.key === "End") next = INSPECTOR_TABS.length - 1;
+                    if (e.key === "End") next = tabs.length - 1;
                     if (next < 0) return;
                     e.preventDefault();
-                    setTab(INSPECTOR_TABS[next]);
-                    document.getElementById(`inspector-tab-${INSPECTOR_TABS[next]}`)?.focus();
+                    setTab(tabs[next]);
+                    document.getElementById(`inspector-tab-${tabs[next]}`)?.focus();
                   }}
                   aria-selected={tab === id}
                   className={`${styles.inspectorTab} ${tab === id ? styles.inspectorTabActive : ""}`}
@@ -300,7 +322,8 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
         </div>
       </div>
 
-      {tab === "create" && !needle && <GenerateFooter />}
+      {section === "create3d" && <GenerateFooter />}
+      {section === "createAnimation" && <AnimationFooter />}
     </aside>
   );
 }

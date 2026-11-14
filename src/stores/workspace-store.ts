@@ -2,19 +2,29 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 export type SectionId = "create3d" | "createAnimation" | "export";
-export type InspectorTab = "create" | "model" | "finish" | "edit" | "animation" | "export";
+export type InspectorTab =
+  | "create"
+  | "model"
+  | "finish"
+  | "edit"
+  | "capture"
+  | "rig"
+  | "clips"
+  | "retarget"
+  | "files"
+  | "interchange";
 export type DockTab = "session" | "jobs" | "process" | "timeline";
 export type ViewMode = "material" | "solid" | "wireframe";
 
-const SECTION_TAB: Record<SectionId, InspectorTab> = {
+const DEFAULT_TABS: Record<SectionId, InspectorTab> = {
   create3d: "create",
-  createAnimation: "animation",
-  export: "export",
+  createAnimation: "capture",
+  export: "files",
 };
 
 type WorkspaceState = {
   section: SectionId;
-  inspectorTab: InspectorTab;
+  tabs: Record<SectionId, InspectorTab>;
   dockTab: DockTab;
   viewMode: ViewMode;
   showGrid: boolean;
@@ -29,26 +39,29 @@ export const useWorkspaceStore = create<WorkspaceState>()(
   persist(
     (set) => ({
       section: "create3d",
-      inspectorTab: "create",
+      tabs: DEFAULT_TABS,
       dockTab: "session",
       viewMode: "material",
       showGrid: true,
-      setSection: (section) => set({ section, inspectorTab: SECTION_TAB[section] }),
-      setInspectorTab: (inspectorTab) => set({ inspectorTab }),
+      setSection: (section) => set({ section }),
+      setInspectorTab: (tab) => set((s) => ({ tabs: { ...s.tabs, [s.section]: tab } })),
       setDockTab: (dockTab) => set({ dockTab }),
       setViewMode: (viewMode) => set({ viewMode }),
       setShowGrid: (showGrid) => set({ showGrid }),
     }),
     {
       name: "forma-workspace",
+      version: 1,
       skipHydration: true,
-      partialize: ({ section, inspectorTab, dockTab, viewMode, showGrid }) => ({
-        section,
-        inspectorTab,
-        dockTab,
-        viewMode,
-        showGrid,
-      }),
+      migrate: (persisted) => {
+        const { inspectorTab: _old, ...rest } = (persisted ?? {}) as Record<string, unknown>;
+        return { ...rest, tabs: DEFAULT_TABS } as unknown as WorkspaceState;
+      },
+      partialize: ({ section, tabs, dockTab, viewMode, showGrid }) => ({ section, tabs, dockTab, viewMode, showGrid }),
     },
   ),
 );
+
+export function currentTab(s: Pick<WorkspaceState, "section" | "tabs">): InspectorTab {
+  return s.tabs[s.section] ?? DEFAULT_TABS[s.section];
+}

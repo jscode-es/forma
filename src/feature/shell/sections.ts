@@ -10,7 +10,11 @@ export const SECTIONS: { id: SectionId; icon: LucideIcon }[] = [
   { id: "export", icon: Download },
 ];
 
-export const INSPECTOR_TABS: InspectorTab[] = ["create", "model", "finish", "edit", "animation", "export"];
+export const SECTION_TABS: Record<SectionId, InspectorTab[]> = {
+  create3d: ["create", "model", "finish", "edit"],
+  createAnimation: ["capture", "rig", "clips", "retarget"],
+  export: ["files", "interchange"],
+};
 
 export type PlannedSection = { id: SectionKey; phase: number };
 
@@ -31,12 +35,20 @@ export const PLANNED_SECTIONS: Record<InspectorTab, PlannedSection[]> = {
     { id: "proportions", phase: 10 },
     { id: "projection", phase: 10 },
   ],
-  animation: [
-    { id: "rig", phase: 14 },
-    { id: "clips", phase: 15 },
+  capture: [
     { id: "video", phase: 15 },
+    { id: "textMotion", phase: 15 },
   ],
-  export: [
-    { id: "interchange", phase: 17 },
+  rig: [
+    { id: "rig", phase: 14 },
+    { id: "weights", phase: 14 },
   ],
+  clips: [
+    { id: "presets", phase: 15 },
+    { id: "clips", phase: 15 },
+    { id: "timeline", phase: 15 },
+  ],
+  retarget: [{ id: "retarget", phase: 15 }],
+  files: [],
+  interchange: [{ id: "interchange", phase: 17 }],
 };
