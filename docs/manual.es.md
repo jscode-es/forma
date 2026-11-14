@@ -13,7 +13,7 @@ Descarga el instalador de tu sistema desde la [página de versiones](https://git
 | Zona | Qué hace |
 | --- | --- |
 | Barra superior | Nombre del proyecto, indicador de cambios sin guardar (punto morado), Nuevo, Guardar proyecto (Ctrl+S) |
-| Menú izquierdo | Crear 3D, Crear animación, Exportar; el objeto de la escena; la imagen de referencia; Biblioteca, Modelos, Ayuda y Ajustes |
+| Menú izquierdo | Crear referencia, Crear 3D, Crear animación, Exportar; el objeto de la escena; la imagen de referencia; Biblioteca, Modelos, Ayuda y Ajustes |
 | Visor | La vista 3D. Arrastra para orbitar, rueda para acercar, botón derecho para desplazar. Vistas Material, Sólido y Malla, cámaras predefinidas, encuadre y cuadrícula |
 | Panel inferior | Versiones, Cola de trabajos, Proceso (entradas, parámetros, archivos y registro de cada trabajo) y Línea de tiempo |
 | Inspector | Cambia según la sección del menú izquierdo. Crear 3D: Crear, Modelo, Acabado, Edición. Crear animación: Captura, Esqueleto, Clips, Personaje. Exportar: Archivos, Intercambio. El buscador busca dentro de la sección actual; las flechas del teclado cambian de pestaña |
@@ -49,10 +49,10 @@ En una RTX 5070 (12 GB), Hunyuan3D 2.0 tarda unos 2 minutos con 30 pasos.
 ## Crear un modelo desde texto
 
 1. Activa un motor de imagen, como **SDXL-Lightning**, en **Modelos → Motores**.
-2. En **Crear 3D → Crear → Prompt**, describe un objeto y elige el motor de imagen. *Imágenes* fija cuántas candidatas obtienes y *Semilla* las hace reproducibles; la candidata *n* usa semilla + *n*.
-3. Pulsa **Generar imágenes** (o Ctrl+Enter en el prompt). Las candidatas aparecen bajo el botón.
+2. En **Crear referencia → Desde texto → Prompt**, describe un objeto y elige el motor de imagen. *Imágenes* fija cuántas candidatas obtienes y *Semilla* las hace reproducibles; la candidata *n* usa semilla + *n*.
+3. Pulsa **Generar imágenes** (o Ctrl+Enter en el prompt). Las candidatas aparecen bajo el prompt.
 4. Pulsa la candidata que te guste: se convierte en la referencia, con su prompt y su semilla.
-5. Sigue como en [Crear un modelo desde una imagen](#crear-un-modelo-desde-una-imagen), desde el paso 3.
+5. Pulsa **Continuar en Crear 3D** y sigue como en [Crear un modelo desde una imagen](#crear-un-modelo-desde-una-imagen), desde el paso 3.
 
 El **Historial de prompts** guarda todos los prompts del proyecto con los ajustes del motor y la semilla. **Reutilizar** recupera el prompt y los ajustes para repetirlo o variarlo.
 

@@ -13,7 +13,7 @@ Download the installer for your system from the [releases page](https://github.c
 | Area | What it does |
 | --- | --- |
 | Top bar | Project name, unsaved indicator (purple dot), New, Save project (Ctrl+S) |
-| Left menu | Create 3D, Create animation, Export; the scene object; the reference image; Library, Models, Help and Settings |
+| Left menu | Create reference, Create 3D, Create animation, Export; the scene object; the reference image; Library, Models, Help and Settings |
 | Viewport | The 3D view. Drag to orbit, wheel to zoom, right button to pan. Material, Solid and Wireframe views, camera presets, frame and grid |
 | Bottom dock | Versions, Job queue, Process (inputs, parameters, files and log of each job) and Timeline |
 | Inspector | Changes with the left menu section. Create 3D: Create, Model, Finish, Edit. Create animation: Capture, Skeleton, Clips, Character. Export: Files, Interchange. Search looks inside the current section; arrow keys move between tabs |
@@ -49,10 +49,10 @@ On an RTX 5070 (12 GB), Hunyuan3D 2.0 needs about 2 minutes at 30 steps.
 ## Create a model from text
 
 1. Activate an image engine, such as **SDXL-Lightning**, in **Models → Engines**.
-2. In **Create 3D → Create → Prompt**, describe one object and choose the image engine. *Images* sets how many candidates you get and *Seed* makes them reproducible; candidate *n* uses seed + *n*.
-3. Click **Generate images** (or press Ctrl+Enter in the prompt). The candidates appear under the button.
+2. In **Create reference → From text → Prompt**, describe one object and choose the image engine. *Images* sets how many candidates you get and *Seed* makes them reproducible; candidate *n* uses seed + *n*.
+3. Click **Generate images** (or press Ctrl+Enter in the prompt). The candidates appear under the prompt.
 4. Click the candidate you like: it becomes the reference, with its prompt and seed.
-5. Continue as in [Create a model from an image](#create-a-model-from-an-image), from step 3.
+5. Click **Continue in Create 3D** and go on as in [Create a model from an image](#create-a-model-from-an-image), from step 3.
 
 **Prompt history** keeps every prompt of the project with its engine settings and seed. **Reuse** puts the prompt and settings back so you can repeat or vary it.
 

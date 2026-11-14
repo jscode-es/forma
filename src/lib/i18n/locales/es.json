@@ -24,6 +24,7 @@
     "models": "Modelos"
   },
   "nav": {
+    "createReference": "Crear referencia",
     "create3d": "Crear 3D",
     "createAnimation": "Crear animación",
     "export": "Exportar"
@@ -106,6 +107,8 @@
     "generate": "Generar modelo",
     "generateHint": "Elige un motor disponible.",
     "tabs": {
+      "text": "Desde texto",
+      "views": "Vistas",
       "create": "Crear",
       "model": "Modelo",
       "finish": "Acabado",
@@ -221,6 +224,14 @@
       "promptHistory": {
         "title": "Historial de prompts",
         "help": "Prompts usados en este proyecto con sus semillas. Reutiliza uno para repetirlo o variarlo."
+      },
+      "multiView": {
+        "title": "Varias vistas",
+        "help": "Referencias frontal, trasera, izquierda y derecha del mismo objeto para motores multivista."
+      },
+      "referenceReview": {
+        "title": "Revisión de referencias",
+        "help": "Comprueba la escala y la silueta de las referencias y ajusta sus alturas sin estirarlas."
       }
     },
     "generateReady": "El trabajo se ejecuta en local y aparece en la cola.",
@@ -510,7 +521,7 @@
     "generating": "Generando imágenes… {{percent}}%",
     "candidates": "Candidatas",
     "pickHint": "Elige una imagen para usarla como referencia del 3D.",
-    "pickedHint": "Referencia lista: pulsa Generar para crear el modelo 3D.",
+    "pickedHint": "Referencia lista. Continúa en Crear 3D para generar el modelo.",
     "use": "Usar la imagen con semilla {{seed}}",
     "useImage": "Usar la imagen {{index}}",
     "picked": "Referencia",
@@ -521,6 +532,9 @@
     "seed": "semilla {{seed}}",
     "images": "{{count}} imágenes",
     "fromPrompt": "Generada desde un prompt",
-    "fromPromptSeed": "Generada desde un prompt · semilla {{seed}}"
+    "fromPromptSeed": "Generada desde un prompt · semilla {{seed}}",
+    "writeHint": "Escribe un prompt que describa el objeto.",
+    "readyHint": "Ctrl+Enter en el prompt también genera.",
+    "continue": "Continuar en Crear 3D"
   }
 }

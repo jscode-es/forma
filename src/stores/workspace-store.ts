@@ -1,8 +1,10 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type SectionId = "create3d" | "createAnimation" | "export";
+export type SectionId = "createReference" | "create3d" | "createAnimation" | "export";
 export type InspectorTab =
+  | "text"
+  | "views"
   | "create"
   | "model"
   | "finish"
@@ -17,6 +19,7 @@ export type DockTab = "session" | "jobs" | "process" | "timeline";
 export type ViewMode = "material" | "solid" | "wireframe";
 
 const DEFAULT_TABS: Record<SectionId, InspectorTab> = {
+  createReference: "text",
   create3d: "create",
   createAnimation: "capture",
   export: "files",

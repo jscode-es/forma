@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Button, Icon, Textarea } from "@kivora/nextjs";
-import { Check, ImageIcon, RotateCcw } from "lucide-react";
+import { Check, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ACTIVE, EngineControl, generateImages, pickCandidate, useJobsStore, type Candidates } from "@/feature/jobs";
 import { useBlobUrl } from "@/hooks/use-blob-url";
@@ -67,10 +67,6 @@ export function PromptControl() {
         />
       </div>
       <EngineControl task="text-to-image" />
-      <Button variant="secondary" disabled={!ready} onClick={() => generateImages()}>
-        <Icon icon={ImageIcon} size={15} />
-        {job ? t("prompt.generating", { percent: Math.round(job.progress * 100) }) : t("prompt.generate")}
-      </Button>
       {candidates && candidates.files.length > 0 && (
         <div className={styles.field}>
           <span className={styles.subtitle}>{t("prompt.candidates")}</span>
@@ -79,7 +75,7 @@ export function PromptControl() {
               <Candidate key={file.path} candidates={candidates} file={file} index={index} />
             ))}
           </div>
-          <span className={styles.hint}>{candidates.picked ? t("prompt.pickedHint") : t("prompt.pickHint")}</span>
+          {!candidates.picked && <span className={styles.hint}>{t("prompt.pickHint")}</span>}
         </div>
       )}
     </div>

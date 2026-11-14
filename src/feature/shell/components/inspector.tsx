@@ -20,9 +20,9 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@kivora/nextjs";
-import { Play, Search, Settings, SlidersHorizontal, Sparkles } from "lucide-react";
+import { ArrowRight, ImageIcon, Play, Search, Settings, SlidersHorizontal, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { ACTIVE, EngineControl, generateModel, useJobsStore } from "@/feature/jobs";
+import { ACTIVE, EngineControl, generateImages, generateModel, useJobsStore } from "@/feature/jobs";
 import { useModelsStore } from "@/feature/models";
 import { PromptControl, PromptHistory } from "@/feature/prompt";
 import { ExportControl, LodExportControl, OptimizeControl } from "@/feature/versions";
@@ -173,6 +173,47 @@ function GenerateFooter() {
   );
 }
 
+function ReferenceFooter() {
+  const { t } = useTranslation();
+  const prompt = useProjectStore((s) => s.prompt.trim());
+  const sessionId = useProjectStore((s) => s.sessionId);
+  const engineId = useProjectStore((s) => s.imageEngine.id);
+  const engine = useJobsStore((s) => s.engines.find((e) => e.id === engineId && e.tasks.includes("text-to-image")));
+  const job = useJobsStore((s) => s.jobs.find((j) => ACTIVE.has(j.status) && j.task === "text-to-image"));
+  const picked = useJobsStore((s) => s.candidates?.sessionId === sessionId && s.candidates.picked !== null);
+  const error = useJobsStore((s) => s.enqueueError);
+  const ready = Boolean(engine?.available) && prompt.length > 0 && !job;
+  const hint = error
+    ? t(`errors.${error}`, { defaultValue: error })
+    : job
+      ? t("prompt.generating", { percent: Math.round(job.progress * 100) })
+      : !engine?.available
+        ? t("prompt.noEngine")
+        : !prompt
+          ? t("prompt.writeHint")
+          : picked
+            ? t("prompt.pickedHint")
+            : t("prompt.readyHint");
+
+  return (
+    <div className={styles.inspectorFooter}>
+      <Button size="lg" disabled={!ready} onClick={() => generateImages()}>
+        <Icon icon={ImageIcon} size={16} />
+        {t("prompt.generate")}
+      </Button>
+      {picked && !job && (
+        <Button variant="outline" onClick={() => useWorkspaceStore.getState().setSection("create3d")}>
+          {t("prompt.continue")}
+          <Icon icon={ArrowRight} size={15} />
+        </Button>
+      )}
+      <span className={styles.hint} style={{ textAlign: "center", color: error ? "var(--color-destructive)" : undefined }}>
+        {hint}
+      </span>
+    </div>
+  );
+}
+
 function AnimationFooter() {
   const { t } = useTranslation();
   return (
@@ -189,7 +230,8 @@ function AnimationFooter() {
 }
 
 const SECTIONS: SectionDef[] = [
-  { tab: "create", id: "prompt", action: <ManageModelsButton />, content: <PromptControl /> },
+  { tab: "text", id: "prompt", action: <ManageModelsButton />, content: <PromptControl /> },
+  { tab: "text", id: "promptHistory", content: <PromptHistory /> },
   {
     tab: "create",
     id: "engine",
@@ -201,7 +243,6 @@ const SECTIONS: SectionDef[] = [
   { tab: "files", id: "glb", content: <ExportControl /> },
   { tab: "files", id: "lod", content: <LodExportControl /> },
   { tab: "create", id: "scale", content: <ScaleControl /> },
-  { tab: "create", id: "promptHistory", content: <PromptHistory /> },
   ...(Object.keys(PLANNED_SECTIONS) as InspectorTab[]).flatMap((tab) => PLANNED_SECTIONS[tab].map((s) => ({ tab, ...s }))),
 ];
 
@@ -325,6 +366,7 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
         </div>
       </div>
 
+      {section === "createReference" && <ReferenceFooter />}
       {section === "create3d" && <GenerateFooter />}
       {section === "createAnimation" && <AnimationFooter />}
     </aside>

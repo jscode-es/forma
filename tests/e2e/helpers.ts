@@ -37,8 +37,9 @@ export async function stubSaveDialog(app: ElectronApplication, file: string) {
 }
 
 export async function chooseEngine(page: Page, name: string, field = "Generation engine") {
-  await page.getByRole("button", { name: "Create 3D", exact: true }).click();
-  await page.getByRole("tab", { name: "Create", exact: true }).click();
+  const [section, tab] = field === "Image engine" ? ["Create reference", "From text"] : ["Create 3D", "Create"];
+  await page.getByRole("button", { name: section, exact: true }).click();
+  await page.getByRole("tab", { name: tab, exact: true }).click();
   await page.getByRole("combobox", { name: field }).focus();
   await page.keyboard.press("ArrowDown");
   await page.getByRole("option", { name: new RegExp(name) }).click();

@@ -24,6 +24,7 @@
     "models": "Models"
   },
   "nav": {
+    "createReference": "Create reference",
     "create3d": "Create 3D",
     "createAnimation": "Create animation",
     "export": "Export"
@@ -106,6 +107,8 @@
     "generate": "Generate model",
     "generateHint": "Choose an available engine.",
     "tabs": {
+      "text": "From text",
+      "views": "Views",
       "create": "Create",
       "model": "Model",
       "finish": "Finish",
@@ -221,6 +224,14 @@
       "promptHistory": {
         "title": "Prompt history",
         "help": "Prompts used in this project with their seeds. Reuse one to repeat or vary it."
+      },
+      "multiView": {
+        "title": "Multiple views",
+        "help": "Front, back, left and right references of the same object for multi-view engines."
+      },
+      "referenceReview": {
+        "title": "Reference review",
+        "help": "Checks scale and silhouette of the references and matches their heights without stretching."
       }
     },
     "generateReady": "The job runs locally and appears in the job queue.",
@@ -510,7 +521,7 @@
     "generating": "Generating images… {{percent}}%",
     "candidates": "Candidates",
     "pickHint": "Pick an image to use it as the reference for 3D.",
-    "pickedHint": "Reference ready: press Generate to create the 3D model.",
+    "pickedHint": "Reference ready. Continue in Create 3D to generate the model.",
     "use": "Use the image with seed {{seed}}",
     "useImage": "Use image {{index}}",
     "picked": "Reference",
@@ -521,6 +532,9 @@
     "seed": "seed {{seed}}",
     "images": "{{count}} images",
     "fromPrompt": "Generated from a prompt",
-    "fromPromptSeed": "Generated from a prompt · seed {{seed}}"
+    "fromPromptSeed": "Generated from a prompt · seed {{seed}}",
+    "writeHint": "Write a prompt to describe the object.",
+    "readyHint": "Ctrl+Enter in the prompt also generates.",
+    "continue": "Continue in Create 3D"
   }
 }
