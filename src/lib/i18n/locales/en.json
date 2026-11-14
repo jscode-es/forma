@@ -1,36 +1,156 @@
 {
+  "common": {
+    "help": "Help",
+    "close": "Close",
+    "cancel": "Cancel",
+    "phase": "Phase {{phase}}",
+    "availableIn": "Available in phase {{phase}}"
+  },
+  "topBar": {
+    "studio": "3D studio",
+    "workspace": "Personal space",
+    "project": "Project",
+    "untitled": "Untitled",
+    "unsaved": "Unsaved changes",
+    "new": "New",
+    "save": "Save project",
+    "discardTitle": "Discard changes?",
+    "discardDescription": "The current session has unsaved changes. Starting a new project will discard them.",
+    "discard": "Discard and start new"
+  },
+  "menu": {
+    "eyebrow": "Local 3D studio",
+    "title": "Your workspace",
+    "library": "Library",
+    "help": "Help",
+    "settings": "Settings"
+  },
   "nav": {
     "create3d": "Create 3D",
-    "createAnimation": "Create animation"
+    "createAnimation": "Create animation",
+    "export": "Export"
+  },
+  "scene": {
+    "title": "Scene",
+    "noModel": "No model",
+    "empty": "Generate a model or open a project."
+  },
+  "references": {
+    "title": "References",
+    "help": "Images that guide the generation. One image is enough; several views of the same object improve the result.",
+    "dropTitle": "Your next idea starts here",
+    "dropHint": "PNG, JPG, WebP · up to 20 MB"
   },
   "viewport": {
-    "create3d": {
-      "title": "3D viewport",
-      "description": "Generated models will appear here."
+    "preview": "Preview",
+    "mode": "View mode",
+    "solid": "Solid",
+    "wireframe": "Wireframe",
+    "eyebrow": "Ideas take shape",
+    "title": "Everything starts with an image.",
+    "description": "Import a reference to prepare your first object."
+  },
+  "dock": {
+    "session": {
+      "label": "Session",
+      "title": "A new session, every possibility",
+      "description": "The references of your work will gather here."
     },
-    "createAnimation": {
-      "title": "Animation preview",
-      "description": "Animated models will play here."
+    "jobs": {
+      "label": "Job queue",
+      "title": "No jobs yet",
+      "description": "Generations and operations run here one at a time."
+    },
+    "process": {
+      "label": "Process",
+      "title": "No trace yet",
+      "description": "Inputs, intermediate steps and parameters of each job."
+    },
+    "timeline": {
+      "label": "Timeline",
+      "title": "No animation",
+      "description": "Keys and tracks of the active clip."
     }
   },
-  "config": {
-    "prompt": "Prompt",
-    "generate": "Generate",
-    "preferences": "Preferences",
-    "create3d": {
-      "title": "Create 3D",
-      "promptPlaceholder": "Describe the model you want to generate"
+  "inspector": {
+    "title": "Configuration",
+    "draft": "Draft",
+    "unsaved": "Unsaved",
+    "activeObject": "Active object",
+    "search": "Search tool...",
+    "noResults": "No tools match your search.",
+    "generate": "Generate model",
+    "generateHint": "Requires an installed engine.",
+    "tabs": {
+      "create": "Create",
+      "model": "Model",
+      "finish": "Finish",
+      "edit": "Edit",
+      "animation": "Animation",
+      "export": "Export"
     },
-    "createAnimation": {
-      "title": "Create animation",
-      "promptPlaceholder": "Describe the animation you want to generate"
+    "sections": {
+      "engine": { "title": "Generation engine", "help": "Local model that turns references into a 3D object." },
+      "quality": { "title": "Quality", "help": "Fast, balanced and high use 15, 30 and 50 steps." },
+      "scale": { "title": "Physical scale", "help": "Scales the result uniformly to a real height in meters." },
+      "retopology": { "title": "Automatic retopology", "help": "Rebuilds a clean mesh with new UVs and transfers the color." },
+      "optimize": { "title": "Optimize and LOD", "help": "Reduces triangles to a budget and creates up to three levels of detail." },
+      "inspect": { "title": "Inspect mesh", "help": "Finds open borders, non-manifold edges and disconnected parts." },
+      "texture": { "title": "AI texture", "help": "Generates color and PBR maps for the model." },
+      "materials": { "title": "Materials", "help": "Edits base color, roughness, metalness, normal and AO maps." },
+      "paint": { "title": "Paint 3D", "help": "Paints, clones and restores color directly on the surface." },
+      "uv": { "title": "UV", "help": "Unwraps and packs UVs and exports a template." },
+      "normals": { "title": "Normals", "help": "Recalculates normals and bakes them from a detailed source." },
+      "proportions": { "title": "Adjust proportions", "help": "Compares the silhouette with the references and corrects it." },
+      "projection": { "title": "Reference projection", "help": "Projects references with explicit cameras to fix details." },
+      "rig": { "title": "Skeleton", "help": "Creates and edits a humanoid skeleton with weights." },
+      "clips": { "title": "Clips", "help": "Library of animations to play, edit and export." },
+      "video": { "title": "Motion from video", "help": "Captures body movement from a local video." },
+      "glb": { "title": "Export GLB", "help": "Writes the active version as a self-contained GLB." },
+      "lod": { "title": "Levels of detail", "help": "Exports each LOD as a separate file." },
+      "interchange": { "title": "Blender, Unity and Godot", "help": "Packages validated for other tools." }
     }
+  },
+  "quality": {
+    "fast": "Fast",
+    "balanced": "Balanced",
+    "high": "High"
+  },
+  "scale": {
+    "apply": "Apply physical scale",
+    "height": "Height (m)"
+  },
+  "engine": {
+    "none": "No engines installed",
+    "noneHint": "Engines are installed from the model manager."
+  },
+  "status": {
+    "noGpu": "GPU not detected",
+    "noEngines": "No engines installed",
+    "local": "Everything runs on this computer"
+  },
+  "library": {
+    "title": "Library",
+    "description": "Saved projects and animations.",
+    "emptyTitle": "No saved projects"
+  },
+  "help": {
+    "title": "Help",
+    "description": "Documentation and community.",
+    "docs": "Documentation",
+    "phases": "Development phases",
+    "issue": "Report a problem or suggest an idea"
   },
   "settings": {
+    "title": "Settings",
+    "description": "Preferences of this computer.",
     "language": "Language",
     "theme": "Theme",
     "system": "System",
     "light": "Light",
-    "dark": "Dark"
+    "dark": "Dark",
+    "dataDir": "Data folder",
+    "dataDirHint": "Projects, models and the database are stored here.",
+    "openDataDir": "Open folder"
   }
 }

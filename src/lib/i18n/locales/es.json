@@ -1,36 +1,156 @@
 {
+  "common": {
+    "help": "Ayuda",
+    "close": "Cerrar",
+    "cancel": "Cancelar",
+    "phase": "Fase {{phase}}",
+    "availableIn": "Disponible en la fase {{phase}}"
+  },
+  "topBar": {
+    "studio": "Estudio 3D",
+    "workspace": "Espacio personal",
+    "project": "Proyecto",
+    "untitled": "Sin título",
+    "unsaved": "Cambios sin guardar",
+    "new": "Nuevo",
+    "save": "Guardar proyecto",
+    "discardTitle": "¿Descartar los cambios?",
+    "discardDescription": "La sesión actual tiene cambios sin guardar. Si empiezas un proyecto nuevo, se perderán.",
+    "discard": "Descartar y empezar"
+  },
+  "menu": {
+    "eyebrow": "Estudio 3D local",
+    "title": "Tu espacio de trabajo",
+    "library": "Biblioteca",
+    "help": "Ayuda",
+    "settings": "Ajustes"
+  },
   "nav": {
     "create3d": "Crear 3D",
-    "createAnimation": "Crear animación"
+    "createAnimation": "Crear animación",
+    "export": "Exportar"
+  },
+  "scene": {
+    "title": "Escena",
+    "noModel": "Sin modelo",
+    "empty": "Genera un modelo o abre un proyecto."
+  },
+  "references": {
+    "title": "Referencias",
+    "help": "Imágenes que guían la generación. Basta con una; varias vistas del mismo objeto mejoran el resultado.",
+    "dropTitle": "Tu próxima idea empieza aquí",
+    "dropHint": "PNG, JPG, WebP · hasta 20 MB"
   },
   "viewport": {
-    "create3d": {
-      "title": "Visor 3D",
-      "description": "Los modelos generados aparecerán aquí."
+    "preview": "Previsualización",
+    "mode": "Modo de vista",
+    "solid": "Sólido",
+    "wireframe": "Malla",
+    "eyebrow": "Las ideas toman forma",
+    "title": "Todo empieza con una imagen.",
+    "description": "Importa una referencia para preparar tu primer objeto."
+  },
+  "dock": {
+    "session": {
+      "label": "Sesión",
+      "title": "Una nueva sesión, todas las posibilidades",
+      "description": "Las referencias de tu trabajo se reunirán aquí."
     },
-    "createAnimation": {
-      "title": "Vista previa de animación",
-      "description": "Los modelos animados se reproducirán aquí."
+    "jobs": {
+      "label": "Cola de trabajos",
+      "title": "Aún no hay trabajos",
+      "description": "Las generaciones y operaciones se ejecutan aquí de una en una."
+    },
+    "process": {
+      "label": "Proceso",
+      "title": "Aún no hay trazas",
+      "description": "Entradas, pasos intermedios y parámetros de cada trabajo."
+    },
+    "timeline": {
+      "label": "Línea de tiempo",
+      "title": "Sin animación",
+      "description": "Claves y pistas del clip activo."
     }
   },
-  "config": {
-    "prompt": "Prompt",
-    "generate": "Generar",
-    "preferences": "Preferencias",
-    "create3d": {
-      "title": "Crear 3D",
-      "promptPlaceholder": "Describe el modelo que quieres generar"
+  "inspector": {
+    "title": "Configuración",
+    "draft": "Borrador",
+    "unsaved": "Sin guardar",
+    "activeObject": "Objeto activo",
+    "search": "Buscar herramienta...",
+    "noResults": "Ninguna herramienta coincide con la búsqueda.",
+    "generate": "Generar modelo",
+    "generateHint": "Necesita un motor instalado.",
+    "tabs": {
+      "create": "Crear",
+      "model": "Modelo",
+      "finish": "Acabado",
+      "edit": "Edición",
+      "animation": "Animación",
+      "export": "Exportar"
     },
-    "createAnimation": {
-      "title": "Crear animación",
-      "promptPlaceholder": "Describe la animación que quieres generar"
+    "sections": {
+      "engine": { "title": "Motor de generación", "help": "Modelo local que convierte las referencias en un objeto 3D." },
+      "quality": { "title": "Calidad", "help": "Rápida, equilibrada y alta usan 15, 30 y 50 pasos." },
+      "scale": { "title": "Escala física", "help": "Escala el resultado de forma uniforme a una altura real en metros." },
+      "retopology": { "title": "Retopología automática", "help": "Reconstruye una malla limpia con UV nuevas y transfiere el color." },
+      "optimize": { "title": "Optimizar y LOD", "help": "Reduce los triángulos a un presupuesto y crea hasta tres niveles de detalle." },
+      "inspect": { "title": "Inspeccionar malla", "help": "Detecta bordes abiertos, aristas no manifold y piezas separadas." },
+      "texture": { "title": "Textura con IA", "help": "Genera el color y los mapas PBR del modelo." },
+      "materials": { "title": "Materiales", "help": "Edita color base, rugosidad, metalicidad, normales y AO." },
+      "paint": { "title": "Pintar 3D", "help": "Pinta, clona y restaura el color directamente sobre la superficie." },
+      "uv": { "title": "UV", "help": "Despliega y empaqueta las UV y exporta una plantilla." },
+      "normals": { "title": "Normales", "help": "Recalcula normales y las hornea desde una fuente detallada." },
+      "proportions": { "title": "Ajustar proporciones", "help": "Compara la silueta con las referencias y la corrige." },
+      "projection": { "title": "Proyección de referencias", "help": "Proyecta referencias con cámaras explícitas para corregir detalles." },
+      "rig": { "title": "Esqueleto", "help": "Crea y edita un esqueleto humanoide con pesos." },
+      "clips": { "title": "Clips", "help": "Biblioteca de animaciones para reproducir, editar y exportar." },
+      "video": { "title": "Movimiento desde vídeo", "help": "Captura el movimiento corporal desde un vídeo local." },
+      "glb": { "title": "Exportar GLB", "help": "Guarda la versión activa como un GLB autocontenido." },
+      "lod": { "title": "Niveles de detalle", "help": "Exporta cada LOD como un archivo separado." },
+      "interchange": { "title": "Blender, Unity y Godot", "help": "Paquetes validados para otras herramientas." }
     }
+  },
+  "quality": {
+    "fast": "Rápida",
+    "balanced": "Equilibrada",
+    "high": "Alta"
+  },
+  "scale": {
+    "apply": "Aplicar escala física",
+    "height": "Altura (m)"
+  },
+  "engine": {
+    "none": "No hay motores instalados",
+    "noneHint": "Los motores se instalan desde el gestor de modelos."
+  },
+  "status": {
+    "noGpu": "GPU no detectada",
+    "noEngines": "Sin motores instalados",
+    "local": "Todo se procesa en este equipo"
+  },
+  "library": {
+    "title": "Biblioteca",
+    "description": "Proyectos y animaciones guardados.",
+    "emptyTitle": "No hay proyectos guardados"
+  },
+  "help": {
+    "title": "Ayuda",
+    "description": "Documentación y comunidad.",
+    "docs": "Documentación",
+    "phases": "Fases de desarrollo",
+    "issue": "Informar de un problema o proponer una idea"
   },
   "settings": {
+    "title": "Ajustes",
+    "description": "Preferencias de este equipo.",
     "language": "Idioma",
     "theme": "Tema",
     "system": "Sistema",
     "light": "Claro",
-    "dark": "Oscuro"
+    "dark": "Oscuro",
+    "dataDir": "Carpeta de datos",
+    "dataDirHint": "Aquí se guardan los proyectos, los modelos y la base de datos.",
+    "openDataDir": "Abrir carpeta"
   }
 }

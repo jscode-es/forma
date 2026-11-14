@@ -5,6 +5,7 @@ import { KivoraProvider } from "@kivora/nextjs";
 import { Splash } from "@/feature/shell";
 import i18n, { resolveLocale } from "@/lib/i18n";
 import { useSettingsStore } from "@/stores/settings-store";
+import { useWorkspaceStore } from "@/stores/workspace-store";
 
 const MIN_SPLASH_MS = 800;
 
@@ -18,7 +19,7 @@ export default function AppProviders({ children }: { children: ReactNode }) {
     (async () => {
       await Promise.all([
         (async () => {
-          await useSettingsStore.persist.rehydrate();
+          await Promise.all([useSettingsStore.persist.rehydrate(), useWorkspaceStore.persist.rehydrate()]);
           await i18n.changeLanguage(resolveLocale(useSettingsStore.getState().locale));
           document.documentElement.lang = i18n.language;
         })(),

@@ -1,9 +1,48 @@
 @import "@kivora/nextjs/styles.css";
 
+:root {
+  --color-primary: oklch(52% 0.2 290);
+  --color-primary-foreground: oklch(98.5% 0 0);
+  --color-ring: oklch(60% 0.18 290);
+  --forma-accent: oklch(52% 0.2 290);
+  --forma-accent-soft: oklch(52% 0.2 290 / 0.1);
+  --forma-accent-border: oklch(52% 0.2 290 / 0.35);
+  --forma-panel: oklch(98.5% 0 0);
+  --forma-viewport: oklch(95% 0.003 285);
+  --forma-grid: oklch(0% 0 0 / 0.06);
+}
+
+.dark {
+  --color-background: oklch(19% 0.004 285);
+  --color-foreground: oklch(96% 0.003 285);
+  --color-card: oklch(22% 0.004 285);
+  --color-card-foreground: oklch(96% 0.003 285);
+  --color-popover: oklch(23% 0.005 285);
+  --color-popover-foreground: oklch(96% 0.003 285);
+  --color-primary: oklch(78% 0.11 290);
+  --color-primary-foreground: oklch(20% 0.03 290);
+  --color-secondary: oklch(27% 0.005 285);
+  --color-secondary-foreground: oklch(96% 0.003 285);
+  --color-muted: oklch(26% 0.004 285);
+  --color-muted-foreground: oklch(68% 0.008 285);
+  --color-accent: oklch(28% 0.006 285);
+  --color-accent-foreground: oklch(96% 0.003 285);
+  --color-border: oklch(100% 0 0 / 0.08);
+  --color-input: oklch(100% 0 0 / 0.12);
+  --color-ring: oklch(70% 0.12 290);
+  --forma-accent: oklch(78% 0.11 290);
+  --forma-accent-soft: oklch(78% 0.11 290 / 0.12);
+  --forma-accent-border: oklch(78% 0.11 290 / 0.4);
+  --forma-panel: oklch(21% 0.004 285);
+  --forma-viewport: oklch(17% 0.004 285);
+  --forma-grid: oklch(100% 0 0 / 0.05);
+}
+
 html,
 body {
   height: 100%;
   margin: 0;
+  overflow: hidden;
   background: var(--color-background);
   color: var(--color-foreground);
 }

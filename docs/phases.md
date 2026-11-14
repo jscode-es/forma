@@ -26,18 +26,18 @@ Forma is built in phases. Each phase delivers something usable and reviewable, h
 - [x] CI, Conventional Commits, release-please, installers for Windows, macOS and Linux
 - [x] App icon, community files, agent configuration
 
-## Phase 1 · Studio layout
+## Phase 1 · Studio layout (done)
 
 Target: the interface structure of the design reference, without engines.
 
-- [ ] Top bar: logo, workspace and project name, unsaved indicator, new, save
-- [ ] Left menu: Create 3D, Create animation, Export; scene tree; references; library, help and settings entries
-- [ ] Viewport header: preview label, solid/wireframe toggle
-- [ ] Bottom dock tabs: Session, Job queue, Process, Timeline
-- [ ] Right inspector tabs: Create, Model, Finish, Edit, Animation, Export; tool search; collapsible sections with help popovers
-- [ ] Status bar: hardware, engines state, version
-- [ ] Persist panel sizes and active tabs; responsive behavior for narrow windows
-- [ ] Settings dialog (language, theme, paths)
+- [x] Top bar: logo, workspace and project name, unsaved indicator, new, save
+- [x] Left menu: Create 3D, Create animation, Export; scene tree; references; library, help and settings entries
+- [x] Viewport header: preview label, solid/wireframe toggle
+- [x] Bottom dock tabs: Session, Job queue, Process, Timeline
+- [x] Right inspector tabs: Create, Model, Finish, Edit, Animation, Export; tool search; collapsible sections with help popovers
+- [x] Status bar: hardware, engines state, version
+- [x] Persist panel sizes and active tabs; responsive behavior for narrow windows
+- [x] Settings dialog (language, theme, paths)
 
 ## Phase 2 · Projects and persistence
 

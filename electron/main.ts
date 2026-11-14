@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, net, protocol, shell } from "electron";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { createProject, listProjects, openDb } from "./db";
+import { getSystemInfo, openDataDir } from "./system";
 
 const isDev = process.env.FORMA_DEV === "1";
 const outDir = path.join(__dirname, "..", "out");
@@ -45,6 +46,8 @@ app.whenReady().then(() => {
     if (typeof name !== "string") throw new Error("Invalid name");
     return createProject(name);
   });
+  ipcMain.handle("system:info", () => getSystemInfo());
+  ipcMain.handle("system:open-data-dir", () => openDataDir());
 
   protocol.handle("app", (req) => {
     const { pathname } = new URL(req.url);
