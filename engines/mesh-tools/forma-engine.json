@@ -4,17 +4,131 @@
   "version": "1.0.0",
   "license": "MIT",
   "description": {
-    "en": "Reduces triangles to a budget and creates levels of detail, keeping UVs and materials (meshoptimizer and glTF Transform).",
-    "es": "Reduce los triángulos a un presupuesto y crea niveles de detalle conservando UV y materiales (meshoptimizer y glTF Transform)."
+    "en": "Reduces triangles to a budget, creates levels of detail and prepares validated export packages for Blender, Unity and Godot (meshoptimizer, glTF Transform, MikkTSpace and the Khronos glTF Validator).",
+    "es": "Reduce los triángulos a un presupuesto, crea niveles de detalle y prepara paquetes validados para Blender, Unity y Godot (meshoptimizer, glTF Transform, MikkTSpace y el validador glTF de Khronos)."
   },
-  "tasks": ["optimize"],
-  "runtime": { "type": "node", "entry": "main.cjs" },
+  "tasks": [
+    "optimize",
+    "export-package"
+  ],
+  "runtime": {
+    "type": "node",
+    "entry": "main.cjs"
+  },
   "timeoutSeconds": 900,
-  "inputs": { "models": { "min": 1, "max": 1 } },
+  "inputs": {
+    "models": {
+      "min": 1,
+      "max": 4
+    }
+  },
   "parameters": [
-    { "id": "budget", "type": "integer", "label": { "en": "Triangle budget", "es": "Presupuesto de triángulos" }, "min": 128, "max": 2000000, "step": 1, "default": 10000 },
-    { "id": "lod1", "type": "integer", "label": { "en": "LOD 1 triangles (0 = off)", "es": "Triángulos LOD 1 (0 = no)" }, "min": 0, "max": 2000000, "step": 1, "default": 0 },
-    { "id": "lod2", "type": "integer", "label": { "en": "LOD 2 triangles (0 = off)", "es": "Triángulos LOD 2 (0 = no)" }, "min": 0, "max": 2000000, "step": 1, "default": 0 },
-    { "id": "lod3", "type": "integer", "label": { "en": "LOD 3 triangles (0 = off)", "es": "Triángulos LOD 3 (0 = no)" }, "min": 0, "max": 2000000, "step": 1, "default": 0 }
+    {
+      "id": "budget",
+      "type": "integer",
+      "label": {
+        "en": "Triangle budget",
+        "es": "Presupuesto de triángulos"
+      },
+      "min": 128,
+      "max": 2000000,
+      "step": 1,
+      "default": 10000,
+      "tasks": [
+        "optimize"
+      ]
+    },
+    {
+      "id": "lod1",
+      "type": "integer",
+      "label": {
+        "en": "LOD 1 triangles (0 = off)",
+        "es": "Triángulos LOD 1 (0 = no)"
+      },
+      "min": 0,
+      "max": 2000000,
+      "step": 1,
+      "default": 0,
+      "tasks": [
+        "optimize"
+      ]
+    },
+    {
+      "id": "lod2",
+      "type": "integer",
+      "label": {
+        "en": "LOD 2 triangles (0 = off)",
+        "es": "Triángulos LOD 2 (0 = no)"
+      },
+      "min": 0,
+      "max": 2000000,
+      "step": 1,
+      "default": 0,
+      "tasks": [
+        "optimize"
+      ]
+    },
+    {
+      "id": "lod3",
+      "type": "integer",
+      "label": {
+        "en": "LOD 3 triangles (0 = off)",
+        "es": "Triángulos LOD 3 (0 = no)"
+      },
+      "min": 0,
+      "max": 2000000,
+      "step": 1,
+      "default": 0,
+      "tasks": [
+        "optimize"
+      ]
+    },
+    {
+      "id": "target",
+      "type": "enum",
+      "tasks": [
+        "export-package"
+      ],
+      "label": {
+        "en": "Target",
+        "es": "Destino"
+      },
+      "default": "blender",
+      "options": [
+        {
+          "value": "blender",
+          "label": {
+            "en": "Blender",
+            "es": "Blender"
+          }
+        },
+        {
+          "value": "unity",
+          "label": {
+            "en": "Unity",
+            "es": "Unity"
+          }
+        },
+        {
+          "value": "godot",
+          "label": {
+            "en": "Godot",
+            "es": "Godot"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tangents",
+      "type": "boolean",
+      "tasks": [
+        "export-package"
+      ],
+      "label": {
+        "en": "Generate MikkTSpace tangents for normal maps",
+        "es": "Generar tangentes MikkTSpace para mapas de normales"
+      },
+      "default": true
+    }
   ]
 }

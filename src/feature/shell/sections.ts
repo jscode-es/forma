@@ -30,5 +30,5 @@ export const PLANNED_SECTIONS: Record<InspectorTab, PlannedSection[]> = {
   clips: [],
   retarget: [],
   files: [],
-  interchange: [{ id: "interchange", phase: 17 }],
+  interchange: [],
 };

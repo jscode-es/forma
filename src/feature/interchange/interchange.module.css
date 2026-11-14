@@ -1,0 +1,54 @@
+.stack {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
+  overflow-wrap: anywhere;
+}
+
+.error {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-destructive);
+  overflow-wrap: anywhere;
+}
+
+.ok {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--forma-success, #3fb27f);
+  overflow-wrap: anywhere;
+}
+
+.files {
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 0.625rem;
+  display: grid;
+  gap: 0.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+}
+
+.files li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.badge {
+  color: var(--color-muted-foreground);
+  white-space: nowrap;
+}

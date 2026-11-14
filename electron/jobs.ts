@@ -5,7 +5,7 @@ import path from "node:path";
 import { createInterface } from "node:readline";
 import { app, BrowserWindow, dialog, nativeImage } from "electron";
 import { z } from "zod";
-import type { ExportResult, ImageSource, JobFile, JobInfo, JobRequest, ReferenceImage, ReferenceView, SceneModel } from "./contract";
+import type { ExportResult, ImageSource, PackageResult, JobFile, JobInfo, JobRequest, ReferenceImage, ReferenceView, SceneModel } from "./contract";
 import { getBlender } from "./blender";
 import { getDb } from "./db";
 import { enginePython, listEngines, resolveParameters, type InstalledEngine } from "./engines";
@@ -277,6 +277,33 @@ class JobRunner {
     const file = this.resolveFile(id, relative);
     if (fs.statSync(file).size > 50 * 1024 * 1024) throw new Error("File too large to preview");
     return fs.readFileSync(file);
+  }
+
+  async exportPackage(id: string, name: string): Promise<PackageResult | null> {
+    const job = toInfo(getRow(id));
+    if (job.task !== "export-package" || job.status !== "succeeded" || job.results.length === 0) throw new Error("File not found");
+    const sources = job.results.map((file) => ({ file: this.resolveFile(id, file.path), name: path.basename(file.path) }));
+    if (new Set(sources.map((source) => source.name)).size !== sources.length) throw new Error("Invalid package");
+    const window = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
+    const options = { properties: ["openDirectory" as const, "createDirectory" as const] };
+    const chosen = window ? await dialog.showOpenDialog(window, options) : await dialog.showOpenDialog(options);
+    const parent = chosen.filePaths[0];
+    if (chosen.canceled || !parent) return null;
+
+    const base = `${name.replace(/[^\w .-]+/g, "_").trim().slice(0, 80) || "model"}-${String(job.parameters.target)}`;
+    let folder = path.join(parent, base);
+    for (let index = 2; fs.existsSync(folder); index++) folder = path.join(parent, `${base}-${index}`);
+    fs.mkdirSync(folder);
+    let size = 0;
+    for (const source of sources) {
+      const data = fs.readFileSync(source.file);
+      const target = path.join(folder, source.name);
+      fs.writeFileSync(target, data);
+      const expected = createHash("sha256").update(data).digest("hex");
+      if (createHash("sha256").update(fs.readFileSync(target)).digest("hex") !== expected) throw new Error("export-verification-failed");
+      size += data.length;
+    }
+    return { path: folder, files: sources.length, size };
   }
 
   async exportFile(id: string, relative: string): Promise<ExportResult | null> {

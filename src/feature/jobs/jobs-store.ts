@@ -19,8 +19,13 @@ type Target =
   | { kind: "rig"; parentId: string; sourceLabel: string }
   | { kind: "motion"; parentId: string; sourceLabel: string }
   | { kind: "mesh"; task: MeshTask; parentIds: string[]; sourceLabel: string }
-  | { kind: "candidates"; prompt: string; engineId: string };
+  | { kind: "candidates"; prompt: string; engineId: string }
+  | { kind: "package"; variantId: string; target: PackageTarget; name: string };
 type Pending = Target & { sessionId: string };
+
+export type PackageTarget = "blender" | "unity" | "godot";
+
+export type PackageJob = { jobId: string; sessionId: string; variantId: string; target: PackageTarget; name: string };
 
 export type Candidates = {
   jobId: string;
@@ -39,6 +44,7 @@ type JobsState = {
   pending: Record<string, Pending>;
   enqueueError: string | null;
   candidates: Candidates | null;
+  lastPackage: PackageJob | null;
   select: (id: string | null) => void;
 };
 
@@ -50,6 +56,7 @@ export const useJobsStore = create<JobsState>()((set) => ({
   pending: {},
   enqueueError: null,
   candidates: null,
+  lastPackage: null,
   select: (selectedId) => set({ selectedId }),
 }));
 
@@ -199,6 +206,19 @@ export async function optimizeModel(parameters: { budget: number; lod1: number; 
   if (!window.forma || !engine || source.type === "default-cube") return;
   try {
     await enqueue("optimize", engine, parameters, { kind: "optimize", budget: parameters.budget }, [source]);
+  } catch (error) {
+    useJobsStore.setState({ enqueueError: errorMessage(error) });
+  }
+}
+
+export async function packageModel(target: PackageTarget, includeLods: boolean, tangents: boolean) {
+  const project = useProjectStore.getState();
+  const variant = activeVariant(project);
+  const engine = engineFor("export-package");
+  if (!window.forma || !engine || variant.model.type === "default-cube") return;
+  try {
+    const name = variant.label;
+    await enqueue("export-package", engine, { target, tangents }, { kind: "package", variantId: variant.id, target, name }, [variant.model, ...(includeLods ? variant.lods : [])]);
   } catch (error) {
     useJobsStore.setState({ enqueueError: errorMessage(error) });
   }
@@ -379,6 +399,11 @@ export async function applyFinishedJob(job: JobInfo) {
   if (target.kind === "prepared") {
     const prepared = await api.jobs.stageImage(job.id);
     useProjectStore.getState().updateReference(target.referenceId, { prepared, usePrepared: true });
+    return;
+  }
+
+  if (target.kind === "package") {
+    useJobsStore.setState({ lastPackage: { jobId: job.id, sessionId: target.sessionId, variantId: target.variantId, target: target.target, name: target.name } });
     return;
   }
 

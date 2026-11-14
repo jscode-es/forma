@@ -79,6 +79,7 @@ const api: FormaApi = {
     stageFile: (id, file) => invoke("jobs:stage-file", id, file),
     readFile: (id, file) => invoke("jobs:read-file", id, file),
     exportFile: (id, file) => invoke("jobs:export-file", id, file),
+    exportPackage: (id, name) => invoke("jobs:export-package", id, name),
     onUpdate: (callback) => subscribe("jobs:update", callback),
   },
   system: {

@@ -86,6 +86,8 @@ export type ProjectInput = { name: string; settings: ProjectSettings; scene: Pro
 
 export type ExportResult = { path: string; sha256: string; size: number };
 
+export type PackageResult = { path: string; files: number; size: number };
+
 export type SystemInfo = {
   version: string;
   platform: string;
@@ -109,6 +111,7 @@ export type LocalizedText = { en: string; es?: string };
 
 export type EngineTask =
   | "video-to-motion"
+  | "export-package"
   | "mesh-inspect"
   | "retopology"
   | "uv-unwrap"
@@ -270,6 +273,7 @@ export type IpcChannels = {
   "jobs:stage-file": { args: [string, string]; result: SceneModel };
   "jobs:read-file": { args: [string, string]; result: Uint8Array };
   "jobs:export-file": { args: [string, string]; result: ExportResult | null };
+  "jobs:export-package": { args: [string, string]; result: PackageResult | null };
   "system:info": { args: []; result: SystemInfo };
   "system:blender": { args: [boolean]; result: BlenderInfo | null };
   "system:choose-blender": { args: []; result: BlenderInfo | null };
@@ -354,6 +358,7 @@ export type FormaApi = {
     stageFile: (id: string, path: string) => Promise<SceneModel>;
     readFile: (id: string, path: string) => Promise<Uint8Array>;
     exportFile: (id: string, path: string) => Promise<ExportResult | null>;
+    exportPackage: (id: string, name: string) => Promise<PackageResult | null>;
     onUpdate: (callback: (job: JobInfo) => void) => () => void;
   };
   system: {
