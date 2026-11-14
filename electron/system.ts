@@ -1,11 +1,5 @@
 import { app, shell } from "electron";
-
-export type SystemInfo = {
-  version: string;
-  platform: NodeJS.Platform;
-  gpu: string | null;
-  dataDir: string;
-};
+import type { SystemInfo } from "./contract";
 
 type GpuDevice = { active?: boolean; deviceString?: string };
 type GpuInfo = { gpuDevice?: GpuDevice[]; auxAttributes?: { glRenderer?: string } };

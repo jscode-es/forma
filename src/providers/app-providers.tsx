@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { KivoraProvider } from "@kivora/nextjs";
+import { restoreLastProject } from "@/feature/projects";
 import { Splash } from "@/feature/shell";
 import i18n, { resolveLocale } from "@/lib/i18n";
 import { useSettingsStore } from "@/stores/settings-store";
@@ -20,6 +21,7 @@ export default function AppProviders({ children }: { children: ReactNode }) {
       await Promise.all([
         (async () => {
           await Promise.all([useSettingsStore.persist.rehydrate(), useWorkspaceStore.persist.rehydrate()]);
+          await restoreLastProject().catch(() => undefined);
           await i18n.changeLanguage(resolveLocale(useSettingsStore.getState().locale));
           document.documentElement.lang = i18n.language;
         })(),

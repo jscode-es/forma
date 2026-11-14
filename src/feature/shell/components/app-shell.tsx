@@ -10,6 +10,7 @@ import {
   SheetTitle,
 } from "@kivora/nextjs";
 import { useTranslation } from "react-i18next";
+import { ProjectDialogs, useProjectSession } from "@/feature/projects";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import styles from "../shell.module.css";
 import { Dock } from "./dock";
@@ -25,6 +26,7 @@ export function AppShell() {
   const narrow = useMediaQuery("(max-width: 1100px)");
   const [dialog, setDialog] = useState<ShellDialog | null>(null);
   const [inspectorOpen, setInspectorOpen] = useState(false);
+  useProjectSession();
 
   return (
     <div className={styles.app}>
@@ -74,6 +76,7 @@ export function AppShell() {
       )}
 
       <ShellDialogs open={dialog} onClose={() => setDialog(null)} />
+      <ProjectDialogs />
     </div>
   );
 }

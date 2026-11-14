@@ -1,34 +1,113 @@
 import { DatabaseSync } from "node:sqlite";
-import path from "node:path";
-import { app } from "electron";
+import { randomUUID } from "node:crypto";
 
-export type Project = { id: number; name: string; createdAt: string };
+type Migration = (db: DatabaseSync) => void;
+
+const MIGRATIONS: Migration[] = [
+  (db) => {
+    const legacy = db
+      .prepare("SELECT 1 FROM pragma_table_info('projects') WHERE name = 'id' AND type = 'INTEGER'")
+      .get();
+    if (legacy) db.exec("ALTER TABLE projects RENAME TO legacy_projects");
+
+    db.exec(`
+      CREATE TABLE projects (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        settings TEXT NOT NULL DEFAULT '{}',
+        created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+        updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+        opened_at TEXT
+      );
+      CREATE TABLE assets (
+        id TEXT PRIMARY KEY,
+        project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+        kind TEXT NOT NULL,
+        path TEXT NOT NULL,
+        sha256 TEXT NOT NULL,
+        size INTEGER NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+      );
+      CREATE TABLE variants (
+        id TEXT PRIMARY KEY,
+        project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+        parent_id TEXT REFERENCES variants(id) ON DELETE SET NULL,
+        asset_id TEXT REFERENCES assets(id) ON DELETE SET NULL,
+        label TEXT NOT NULL,
+        params TEXT NOT NULL DEFAULT '{}',
+        applied INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+      );
+      CREATE TABLE jobs (
+        id TEXT PRIMARY KEY,
+        project_id TEXT REFERENCES projects(id) ON DELETE SET NULL,
+        kind TEXT NOT NULL,
+        status TEXT NOT NULL,
+        params TEXT NOT NULL DEFAULT '{}',
+        error TEXT,
+        created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+        finished_at TEXT
+      );
+      CREATE TABLE settings (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      );
+      CREATE INDEX assets_project ON assets(project_id);
+      CREATE INDEX variants_project ON variants(project_id);
+      CREATE INDEX jobs_project ON jobs(project_id);
+    `);
+
+    if (legacy) {
+      const insert = db.prepare("INSERT INTO projects (id, name) VALUES (?, ?)");
+      for (const row of db.prepare("SELECT name FROM legacy_projects ORDER BY id").all() as { name: string }[]) {
+        insert.run(randomUUID(), row.name);
+      }
+      db.exec("DROP TABLE legacy_projects");
+    }
+  },
+];
 
 let db: DatabaseSync;
 
-export function openDb() {
-  db = new DatabaseSync(path.join(app.getPath("userData"), "forma.db"));
+export function openDb(file: string) {
+  db = new DatabaseSync(file);
   db.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;");
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS projects (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
-  `);
+  const { user_version: current } = db.prepare("PRAGMA user_version").get() as { user_version: number };
+  for (let version = current; version < MIGRATIONS.length; version++) {
+    db.exec("BEGIN");
+    try {
+      MIGRATIONS[version](db);
+      db.exec(`PRAGMA user_version = ${version + 1}`);
+      db.exec("COMMIT");
+    } catch (error) {
+      db.exec("ROLLBACK");
+      throw error;
+    }
+  }
 }
 
-export function listProjects(): Project[] {
-  return db
-    .prepare("SELECT id, name, created_at AS createdAt FROM projects ORDER BY id DESC")
-    .all() as Project[];
+export function getDb(): DatabaseSync {
+  return db;
 }
 
-export function createProject(name: string): Project {
-  const trimmed = name.trim().slice(0, 120);
-  if (!trimmed) throw new Error("Project name is required");
-  const { lastInsertRowid } = db.prepare("INSERT INTO projects (name) VALUES (?)").run(trimmed);
-  return db
-    .prepare("SELECT id, name, created_at AS createdAt FROM projects WHERE id = ?")
-    .get(lastInsertRowid) as Project;
+export function transaction<T>(fn: () => T): T {
+  db.exec("BEGIN");
+  try {
+    const result = fn();
+    db.exec("COMMIT");
+    return result;
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+}
+
+export function getSetting(key: string): string | null {
+  const row = db.prepare("SELECT value FROM settings WHERE key = ?").get(key) as { value: string } | undefined;
+  return row?.value ?? null;
+}
+
+export function setSetting(key: string, value: string | null) {
+  if (value === null) db.prepare("DELETE FROM settings WHERE key = ?").run(key);
+  else db.prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value").run(key, value);
 }
