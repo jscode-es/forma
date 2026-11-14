@@ -29,8 +29,11 @@
   },
   "scene": {
     "title": "Scene",
-    "noModel": "No model",
-    "empty": "Generate a model or open a project."
+    "cube": "Cube",
+    "objects_one": "{{count}} object",
+    "objects_other": "{{count}} objects",
+    "import": "Import GLB",
+    "importHint": "Replaces the object of the scene. It is copied into the project when you save."
   },
   "references": {
     "title": "References",
@@ -41,11 +44,24 @@
   "viewport": {
     "preview": "Preview",
     "mode": "View mode",
+    "material": "Material",
     "solid": "Solid",
     "wireframe": "Wireframe",
-    "eyebrow": "Ideas take shape",
-    "title": "Everything starts with an image.",
-    "description": "Import a reference to prepare your first object."
+    "loading": "Loading model",
+    "error": "The model could not be loaded: {{message}}",
+    "statsLabel": "Model statistics",
+    "frame": "Frame model",
+    "camera": "Camera views",
+    "grid": "Grid",
+    "hint": "Drag to orbit · Wheel to zoom · Right button to pan",
+    "presets": {
+      "perspective": "Perspective",
+      "front": "Front",
+      "back": "Back",
+      "left": "Left",
+      "right": "Right",
+      "top": "Top"
+    }
   },
   "dock": {
     "session": {
@@ -225,5 +241,11 @@
     "discard": "Discard",
     "saveAndContinue": "Save and continue",
     "errorTitle": "Something went wrong"
+  },
+  "stats": {
+    "vertices": "{{value}} vertices",
+    "triangles": "{{value}} triangles",
+    "trianglesShort": "{{value}} tris",
+    "textures": "{{value}} textures"
   }
 }

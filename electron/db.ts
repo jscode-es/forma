@@ -65,6 +65,12 @@ const MIGRATIONS: Migration[] = [
       db.exec("DROP TABLE legacy_projects");
     }
   },
+  (db) => {
+    db.exec(`
+      ALTER TABLE projects ADD COLUMN scene TEXT NOT NULL DEFAULT '{"model":{"type":"default-cube"}}';
+      ALTER TABLE assets ADD COLUMN name TEXT NOT NULL DEFAULT '';
+    `);
+  },
 ];
 
 let db: DatabaseSync;

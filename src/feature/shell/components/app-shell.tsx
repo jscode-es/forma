@@ -11,6 +11,7 @@ import {
 } from "@kivora/nextjs";
 import { useTranslation } from "react-i18next";
 import { ProjectDialogs, useProjectSession } from "@/feature/projects";
+import { Viewport } from "@/feature/viewport";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import styles from "../shell.module.css";
 import { Dock } from "./dock";
@@ -19,7 +20,6 @@ import { ShellDialogs } from "./shell-dialogs";
 import { SideMenu, type ShellDialog } from "./side-menu";
 import { StatusBar } from "./status-bar";
 import { TopBar } from "./top-bar";
-import { Viewport } from "./viewport";
 
 export function AppShell() {
   const { t } = useTranslation();

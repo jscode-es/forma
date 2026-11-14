@@ -14,7 +14,8 @@ import {
   renameProject,
   updateProject,
 } from "./projects";
-import { projectId, projectInput, projectName } from "./schemas";
+import { clearStaging, importModel, readModel } from "./models";
+import { modelSource, projectId, projectInput, projectName } from "./schemas";
 import { getSystemInfo, openDataDir } from "./system";
 
 const isDev = process.env.FORMA_DEV === "1";
@@ -72,6 +73,8 @@ function registerIpc() {
   handle("projects:rename", z.tuple([projectId, projectName]), renameProject);
   handle("projects:duplicate", z.tuple([projectId, projectName]), duplicateProject);
   handle("projects:delete", id, deleteProject);
+  handle("models:import", none, importModel);
+  handle("models:read", z.tuple([modelSource]), readModel);
   handle("system:info", none, getSystemInfo);
   handle("system:open-data-dir", none, openDataDir);
   handle("app:set-dirty", z.tuple([z.boolean()]), (value) => {
@@ -85,6 +88,7 @@ function registerIpc() {
 
 app.whenReady().then(() => {
   openDb(path.join(app.getPath("userData"), "forma.db"));
+  clearStaging();
   registerIpc();
 
   protocol.handle("app", (req) => {

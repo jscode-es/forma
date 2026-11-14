@@ -200,54 +200,17 @@
   outline: 2px solid var(--color-ring);
 }
 
-.viewportHeader {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid var(--color-border);
-  font-size: 0.8125rem;
-  background: var(--forma-panel);
-}
 
-.viewportLabel {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-}
 
-.viewportCanvas {
-  position: relative;
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  place-items: center;
-  background:
-    linear-gradient(var(--forma-grid) 1px, transparent 1px) 0 0 / 48px 48px,
-    linear-gradient(90deg, var(--forma-grid) 1px, transparent 1px) 0 0 / 48px 48px,
-    var(--forma-viewport);
-}
 
-.viewportBadge {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-}
 
-.viewportEmpty {
-  display: grid;
-  justify-items: center;
-  gap: 0.5rem;
-  text-align: center;
-  max-width: 28rem;
-  padding: 1rem;
-}
 
-.viewportTitle {
-  font-size: 1.5rem;
-  font-weight: 500;
-}
+
+
+
+
+
+
 
 .dock {
   height: 100%;

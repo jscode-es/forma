@@ -49,14 +49,14 @@ Target: the interface structure of the design reference, without engines.
 - [x] Reopen last project on start
 - [x] Typed IPC layer with input validation for every channel
 
-## Phase 3 · 3D viewport
+## Phase 3 · 3D viewport (done)
 
-- [ ] three.js viewer: orbit, zoom, pan, grid, lighting, ACES tone mapping
-- [ ] Load and display GLB; import a GLB into a project
-- [ ] Solid, wireframe and material views; camera presets and reset
-- [ ] Model stats: vertices, triangles, size, textures
-- [ ] Viewer lifecycle without leaks when switching tools or projects
-- [ ] Failure state keeps the last good model visible
+- [x] three.js viewer: orbit, zoom, pan, grid, lighting, ACES tone mapping
+- [x] Load and display GLB; import a GLB into a project
+- [x] Solid, wireframe and material views; camera presets and reset
+- [x] Model stats: vertices, triangles, size, textures
+- [x] Viewer lifecycle without leaks when switching tools or projects
+- [x] Failure state keeps the last good model visible
 
 ## Phase 4 · Engine runtime and jobs
 
