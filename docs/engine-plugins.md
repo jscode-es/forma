@@ -29,9 +29,9 @@ Forma runs every AI model as an **engine**: a folder with a manifest and an entr
 }
 ```
 
-- `id`: lowercase letters, digits and dashes. `tasks`: `image-to-3d`, `text-to-3d`, `remove-background`, `texture`, `rig`, `animation`.
-- `inputs.images`: `{ "min": 1, "max": 1 }` declares how many reference images the engine needs. Forma rejects a job outside that range and copies the images into the job folder before it starts.
-- `runtime.type`: `python` uses `<engine>/.venv` if present, then the absolute path in `<engine>/python.json` (`{ "python": "..." }`, written by the installer with `--python`), otherwise the Python found on the system (`FORMA_PYTHON` overrides it). `node` runs with Electron's bundled Node.js.
+- `id`: lowercase letters, digits and dashes. `tasks`: `image-to-3d`, `text-to-3d`, `remove-background`, `optimize`, `texture`, `rig`, `animation`.
+- `inputs.images` and `inputs.models`: `{ "min": 1, "max": 1 }` declare how many reference images or GLB models the engine needs. Forma rejects a job outside that range and copies the images into the job folder before it starts.
+- `runtime.type`: `python` uses `<engine>/.venv` if present, then the absolute path in `<engine>/python.json` (`{ "python": "..." }`, written by the installer with `--python`), otherwise the Python found on the system (`FORMA_PYTHON` overrides it). `node` runs with Electron's bundled Node.js and can `require` Forma's own dependencies (`NODE_PATH` points to the app's `node_modules`).
 - Parameters are rendered automatically in the inspector and validated (type, range, options) before a job starts. Unknown values are dropped.
 - An engine is marked unavailable when its entry file is missing, Python is missing, CUDA is required but not present, or the GPU has less VRAM than `requirements.vramGb`.
 
@@ -75,7 +75,7 @@ Forma starts one process per job: `<runtime> <entry> --job <job.json>`, with the
   "task": "image-to-3d",
   "parameters": { "steps": 30 },
   "weights": { "my-engine-dit": "<data folder>/models/my-engine-dit/<revision>" },
-  "inputs": { "images": ["<jobs>/<uuid>/in/image-0.png"] },
+  "inputs": { "images": ["<jobs>/<uuid>/in/image-0.png"], "models": ["<jobs>/<uuid>/in/model-0.glb"] },
   "outputDir": "<jobs>/<uuid>/out"
 }
 ```

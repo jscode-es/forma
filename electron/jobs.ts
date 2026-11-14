@@ -10,7 +10,7 @@ import { getDb } from "./db";
 import { enginePython, listEngines, resolveParameters, type InstalledEngine } from "./engines";
 import { findPython } from "./hardware";
 import { imageExtension, imagePath, stageImageFile } from "./images";
-import { stagingRoot } from "./models";
+import { modelPath, stageModelFile, stagingRoot } from "./models";
 import { installedWeights } from "./weights";
 
 type Row = {
@@ -152,6 +152,14 @@ class JobRunner {
     if (request.images.length < limits.min) throw new Error("reference-required");
     if (request.images.length > limits.max) throw new Error("Too many reference images");
     const sources = request.images.map((image) => imagePath(image, request.projectId));
+    const modelLimits = engine.manifest.inputs.models;
+    if (request.models.length < modelLimits.min) throw new Error("model-required");
+    if (request.models.length > modelLimits.max) throw new Error("Too many models");
+    const modelSources = request.models.map((model) => {
+      if (model.type === "staged") return modelPath({ type: "staged", stagingId: model.stagingId });
+      if (model.type === "asset" && request.projectId) return modelPath({ type: "asset", projectId: request.projectId, assetId: model.assetId });
+      throw new Error("model-required");
+    });
 
     const id = randomUUID();
     fs.mkdirSync(path.join(jobDir(id), "out"), { recursive: true });
@@ -161,7 +169,12 @@ class JobRunner {
       fs.copyFileSync(source, path.join(jobDir(id), name));
       return name;
     });
-    fs.writeFileSync(path.join(jobDir(id), "inputs.json"), JSON.stringify({ images: inputs }));
+    const models = modelSources.map((source, index) => {
+      const name = `in/model-${index}.glb`;
+      fs.copyFileSync(source, path.join(jobDir(id), name));
+      return name;
+    });
+    fs.writeFileSync(path.join(jobDir(id), "inputs.json"), JSON.stringify({ images: inputs, models }));
     getDb()
       .prepare("INSERT INTO jobs (id, engine_id, kind, project_id, status, params) VALUES (?, ?, ?, ?, 'queued', ?)")
       .run(id, engine.manifest.id, request.task, request.projectId, JSON.stringify(parameters));
@@ -183,22 +196,33 @@ class JobRunner {
 
   retry(id: string): Promise<JobInfo> {
     const row = getRow(id);
-    const images: ImageSource[] = this.inputs(id).images.map((file) => stageImageFile(path.join(jobDir(id), file)));
+    const { images: imageFiles, models: modelFiles } = this.inputs(id);
+    const images: ImageSource[] = imageFiles.map((file) => stageImageFile(path.join(jobDir(id), file)));
+    const models: SceneModel[] = modelFiles.map((file) => stageModelFile(path.join(jobDir(id), file), "Input"));
     return this.enqueue({
       engineId: row.engine_id,
       task: row.kind as JobRequest["task"],
       projectId: null,
       parameters: JSON.parse(row.params),
       images,
+      models,
     });
   }
 
-  private inputs(id: string): { images: string[] } {
+  private inputs(id: string): { images: string[]; models: string[] } {
     try {
-      return JSON.parse(fs.readFileSync(path.join(jobDir(id), "inputs.json"), "utf8"));
+      const parsed = JSON.parse(fs.readFileSync(path.join(jobDir(id), "inputs.json"), "utf8"));
+      return { images: parsed.images ?? [], models: parsed.models ?? [] };
     } catch {
-      return { images: [] };
+      return { images: [], models: [] };
     }
+  }
+
+  stageFile(id: string, relative: string): SceneModel {
+    const job = toInfo(getRow(id));
+    const file = job.results.find((r) => r.path === relative);
+    if (job.status !== "succeeded" || !file) throw new Error("File not found");
+    return stageModelFile(this.resolveFile(id, file.path), file.label || path.basename(file.path, ".glb"));
   }
 
   stageImage(id: string): ImageSource {
@@ -268,7 +292,8 @@ class JobRunner {
   private async command(engine: InstalledEngine): Promise<{ command: string; args: string[]; env: NodeJS.ProcessEnv }> {
     const entry = path.join(engine.dir, engine.manifest.runtime.entry);
     if (engine.manifest.runtime.type === "node") {
-      return { command: process.execPath, args: [entry], env: { ELECTRON_RUN_AS_NODE: "1" } };
+      const nodePath = [path.join(app.getAppPath(), "node_modules"), process.env.NODE_PATH].filter(Boolean).join(path.delimiter);
+      return { command: process.execPath, args: [entry], env: { ELECTRON_RUN_AS_NODE: "1", NODE_PATH: nodePath } };
     }
     const python = enginePython(engine.dir) ?? (await findPython())?.path;
     if (!python) throw new Error("Python not found");
@@ -286,7 +311,10 @@ class JobRunner {
       task: row.kind,
       parameters: JSON.parse(row.params),
       weights: installedWeights(engine.manifest),
-      inputs: { images: this.inputs(id).images.map((file) => path.join(dir, file)) },
+      inputs: {
+        images: this.inputs(id).images.map((file) => path.join(dir, file)),
+        models: this.inputs(id).models.map((file) => path.join(dir, file)),
+      },
       outputDir: path.join(dir, "out"),
     };
     fs.writeFileSync(path.join(dir, "job.json"), JSON.stringify(spec, null, 2));

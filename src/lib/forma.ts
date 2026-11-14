@@ -5,6 +5,7 @@ export type {
   EngineParameter,
   EngineSelection,
   EngineTask,
+  ExportResult,
   FormaApi,
   HardwareInfo,
   ImageSource,
@@ -23,6 +24,7 @@ export type {
   ReferenceImage,
   SceneModel,
   SystemInfo,
+  Variant,
   WeightsState,
 } from "../../electron/contract";
 

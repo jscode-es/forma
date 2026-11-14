@@ -1,15 +1,16 @@
 "use client";
 
 import { Badge, Icon, Tabs, TabsContent, TabsList, TabsTrigger } from "@kivora/nextjs";
-import { Clock, Folder, type LucideIcon } from "lucide-react";
+import { Clock, type LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ACTIVE, JobsPanel, ProcessPanel, useJobsStore } from "@/feature/jobs";
+import { VersionsPanel } from "@/feature/versions";
 import { useWorkspaceStore, type DockTab } from "@/stores/workspace-store";
 import styles from "../shell.module.css";
 
 const TABS: DockTab[] = ["session", "jobs", "process", "timeline"];
 
-function Placeholder({ id, icon, phase }: { id: "session" | "timeline"; icon: LucideIcon; phase?: number }) {
+function Placeholder({ id, icon, phase }: { id: "timeline"; icon: LucideIcon; phase?: number }) {
   const { t } = useTranslation();
   return (
     <div className={styles.dockEmpty}>
@@ -46,7 +47,7 @@ export function Dock() {
         ))}
       </TabsList>
       <TabsContent value="session" className={styles.dockBody}>
-        <Placeholder id="session" icon={Folder} />
+        <VersionsPanel />
       </TabsContent>
       <TabsContent value="jobs" className={styles.dockBody}>
         <JobsPanel />

@@ -10,7 +10,9 @@ export function StatusBar() {
   const { t, i18n } = useTranslation();
   const [info, setInfo] = useState<SystemInfo | null>(null);
   const hardware = useJobsStore((s) => s.hardware);
-  const available = useJobsStore((s) => s.engines.filter((e) => e.available && !e.demo).length);
+  const available = useJobsStore(
+    (s) => s.engines.filter((e) => e.available && !e.demo && e.tasks.some((t) => t === "image-to-3d" || t === "text-to-3d")).length,
+  );
   const demo = useJobsStore((s) => s.engines.some((e) => e.demo && e.available));
 
   useEffect(() => {

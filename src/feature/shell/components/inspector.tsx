@@ -21,6 +21,7 @@ import { Search, SlidersHorizontal, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ACTIVE, EngineControl, generateModel, useJobsStore } from "@/feature/jobs";
 import { useModelsStore } from "@/feature/models";
+import { ExportControl, LodExportControl, OptimizeControl } from "@/feature/versions";
 import { useProjectStore, type Quality } from "@/stores/project-store";
 import { useWorkspaceStore, type InspectorTab } from "@/stores/workspace-store";
 import styles from "../shell.module.css";
@@ -130,6 +131,9 @@ const SECTIONS: SectionDef[] = [
     ),
   },
   { tab: "create", id: "quality", content: <QualityControl /> },
+  { tab: "model", id: "optimize", content: <OptimizeControl /> },
+  { tab: "export", id: "glb", content: <ExportControl /> },
+  { tab: "export", id: "lod", content: <LodExportControl /> },
   { tab: "create", id: "scale", content: <ScaleControl /> },
   ...INSPECTOR_TABS.flatMap((tab) => PLANNED_SECTIONS[tab].map((s) => ({ tab, ...s }))),
 ];

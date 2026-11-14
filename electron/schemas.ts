@@ -7,7 +7,29 @@ export const DEFAULT_SETTINGS: ProjectSettings = {
   heightMeters: 1.8,
   engine: { id: null, parameters: {} },
 };
-export const DEFAULT_SCENE: ProjectScene = { model: { type: "default-cube" }, references: [] };
+export const DEFAULT_VARIANT_ID = "00000000-0000-4000-8000-000000000000";
+
+export function defaultScene(): ProjectScene {
+  return {
+    references: [],
+    variants: [
+      {
+        id: DEFAULT_VARIANT_ID,
+        label: "Cube",
+        origin: "default",
+        parentId: null,
+        engineId: null,
+        model: { type: "default-cube" },
+        lods: [],
+        params: {},
+        createdAt: new Date(0).toISOString(),
+        sha256: null,
+        triangles: 12,
+      },
+    ],
+    activeVariantId: DEFAULT_VARIANT_ID,
+  };
+}
 
 export const projectId = z.uuid();
 
@@ -49,7 +71,29 @@ export const referenceImage = z.object({
   usePrepared: z.boolean(),
 });
 
-export const projectScene = z.object({ model: sceneModel, references: z.array(referenceImage).max(8).default([]) });
+export const variant = z.object({
+  id: z.uuid(),
+  label: z.string().max(120),
+  origin: z.enum(["default", "import", "generation", "optimize"]),
+  parentId: z.uuid().nullable(),
+  engineId: engineId.nullable(),
+  model: sceneModel,
+  lods: z.array(sceneModel).max(3),
+  params: parameterValues,
+  createdAt: z.string().max(40),
+  sha256: z.string().regex(/^[0-9a-f]{64}$/).nullable(),
+  triangles: z.number().int().min(0).nullable(),
+});
+
+export const projectScene = z
+  .object({
+    references: z.array(referenceImage).max(8),
+    variants: z.array(variant).min(1).max(24),
+    activeVariantId: z.uuid(),
+  })
+  .refine((s) => s.variants.some((v) => v.id === s.activeVariantId), "active variant missing");
+
+const legacyScene = z.object({ model: sceneModel, references: z.array(referenceImage).max(8).default([]) });
 
 export const projectInput = z.object({ name: projectName, settings: projectSettings, scene: projectScene });
 
@@ -58,7 +102,7 @@ export const modelSource = z.discriminatedUnion("type", [
   z.object({ type: z.literal("asset"), projectId: z.uuid(), assetId: z.uuid() }),
 ]);
 
-export const engineTask = z.enum(["image-to-3d", "text-to-3d", "remove-background", "texture", "rig", "animation"]);
+export const engineTask = z.enum(["image-to-3d", "text-to-3d", "remove-background", "optimize", "texture", "rig", "animation"]);
 
 export const jobRequest = z.object({
   engineId,
@@ -66,6 +110,7 @@ export const jobRequest = z.object({
   projectId: z.uuid().nullable(),
   parameters: parameterValues,
   images: z.array(imageSource).max(8),
+  models: z.array(sceneModel).max(4),
 });
 
 const localizedText = z.object({ en: z.string().min(1).max(200), es: z.string().max(200).optional() });
@@ -89,8 +134,11 @@ export const engineManifest = z.object({
     .default({ vramGb: 0, cuda: false }),
   demo: z.boolean().default(false),
   inputs: z
-    .object({ images: z.object({ min: z.number().int().min(0).max(8), max: z.number().int().min(0).max(8) }) })
-    .default({ images: { min: 0, max: 0 } }),
+    .object({
+      images: z.object({ min: z.number().int().min(0).max(8), max: z.number().int().min(0).max(8) }).default({ min: 0, max: 0 }),
+      models: z.object({ min: z.number().int().min(0).max(4), max: z.number().int().min(0).max(4) }).default({ min: 0, max: 0 }),
+    })
+    .default({ images: { min: 0, max: 0 }, models: { min: 0, max: 0 } }),
   weights: z
     .array(
       z.object({
@@ -164,9 +212,30 @@ export function parseStoredSettings(raw: string): ProjectSettings {
 }
 
 export function parseStoredScene(raw: string): ProjectScene {
-  const scene = parseJson(raw, projectScene, DEFAULT_SCENE);
-  return {
-    model: scene.model.type === "staged" ? DEFAULT_SCENE.model : scene.model,
-    references: scene.references.filter((r) => r.original.type === "asset" && r.prepared?.type !== "staged"),
-  };
+  let data: unknown;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    return defaultScene();
+  }
+  const references = (refs: z.infer<typeof referenceImage>[]) =>
+    refs.filter((r) => r.original.type === "asset" && r.prepared?.type !== "staged");
+
+  const current = projectScene.safeParse(data);
+  if (current.success) {
+    const variants = current.data.variants.filter((v) => v.model.type !== "staged");
+    const active = variants.some((v) => v.id === current.data.activeVariantId) ? current.data.activeVariantId : variants[0]?.id;
+    if (!active) return defaultScene();
+    return { references: references(current.data.references), variants, activeVariantId: active };
+  }
+
+  const legacy = legacyScene.safeParse(data);
+  if (!legacy.success) return defaultScene();
+  const scene = defaultScene();
+  const model = legacy.data.model;
+  if (model.type === "asset") {
+    scene.variants[0] = { ...scene.variants[0], label: model.name, origin: "import", model, triangles: null };
+  }
+  scene.references = references(legacy.data.references);
+  return scene;
 }

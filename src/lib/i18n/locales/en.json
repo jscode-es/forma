@@ -75,7 +75,7 @@
   },
   "dock": {
     "session": {
-      "label": "Session",
+      "label": "Versions",
       "title": "A new session, every possibility",
       "description": "The references of your work will gather here."
     },
@@ -305,13 +305,21 @@
       "exporting": "Exporting",
       "loading": "Loading model",
       "cleaning": "Cleaning mesh",
-      "removing-background": "Removing background"
+      "removing-background": "Removing background",
+      "optimizing": "Optimizing",
+      "lod": "Creating LODs"
     },
     "error": {
       "interrupted": "Interrupted: the app was closed while it ran",
       "timeout": "Time limit exceeded",
       "no-result": "The engine finished without a result",
-      "reference-required": "This engine needs a reference image"
+      "reference-required": "This engine needs a reference image",
+      "budget-not-met": "The budget cannot be reached without damaging the mesh",
+      "uv-lost": "The UVs would be lost",
+      "materials-lost": "Materials or textures would be lost",
+      "unsupported-rigged": "Models with skeleton or morph targets are not supported yet",
+      "model-required": "This task needs a model",
+      "verification-failed": "The written file does not match"
     }
   },
   "models": {
@@ -356,6 +364,51 @@
     "image-unsupported": "Unsupported image: use PNG, JPG or WebP",
     "image-too-small": "The image is smaller than 64 px",
     "image-too-many-pixels": "The image exceeds 16 megapixels",
-    "reference-required": "This engine needs a reference image"
+    "reference-required": "This engine needs a reference image",
+    "export-verification-failed": "The exported file does not match the version"
+  },
+  "versions": {
+    "title": "Versions",
+    "activeLabel": "Active: {{name}}",
+    "previewLabel": "Preview: {{name}}",
+    "compare": "Compare",
+    "compareHint": "Show the active version in the same view",
+    "discard": "Discard",
+    "close": "Close preview",
+    "apply": "Apply",
+    "preview": "Preview",
+    "delete": "Delete version",
+    "active": "Active",
+    "previewing": "Previewing",
+    "builtin": "Built-in",
+    "unsaved": "Not saved yet",
+    "lods_one": "{{count}} LOD",
+    "lods_other": "{{count}} LODs",
+    "origin": {
+      "default": "Default",
+      "import": "Imported",
+      "generation": "Generated",
+      "optimize": "Optimized"
+    }
+  },
+  "optimize": {
+    "source": "Source: active version {{name}} · {{triangles}} triangles",
+    "budget": "Triangle budget",
+    "lod1": "LOD 1 (0 = none)",
+    "lod2": "LOD 2 (0 = none)",
+    "lod3": "LOD 3 (0 = none)",
+    "invalid": "Budgets start at 128 and each LOD must be smaller than the previous level.",
+    "needsModel": "Import or generate a model to optimize it.",
+    "run": "Optimize into a new version",
+    "running": "Optimizing...",
+    "hint": "The original is kept. UVs and materials are preserved and every file is verified; if a budget cannot be reached without damaging the mesh, nothing is published."
+  },
+  "export": {
+    "activeVersion": "Exports the active version: {{name}}",
+    "previewNotExported": "The version in preview is not exported until you apply it.",
+    "glb": "Export GLB",
+    "lod": "Export LOD {{index}} {{name}}",
+    "noLods": "The active version has no LODs. Create them from Model → Optimize and LOD.",
+    "done": "Saved to {{path}} · SHA-256 {{sha}} verified"
   }
 }

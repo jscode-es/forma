@@ -17,7 +17,6 @@ export type PlannedSection = { id: SectionKey; phase: number };
 export const PLANNED_SECTIONS: Record<InspectorTab, PlannedSection[]> = {
   create: [{ id: "retopology", phase: 12 }],
   model: [
-    { id: "optimize", phase: 7 },
     { id: "retopology", phase: 12 },
     { id: "inspect", phase: 12 },
   ],
@@ -38,8 +37,6 @@ export const PLANNED_SECTIONS: Record<InspectorTab, PlannedSection[]> = {
     { id: "video", phase: 15 },
   ],
   export: [
-    { id: "glb", phase: 7 },
-    { id: "lod", phase: 7 },
     { id: "interchange", phase: 17 },
   ],
 };
