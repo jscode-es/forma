@@ -245,6 +245,48 @@ class MeshEngineTests(unittest.TestCase):
         self.assertGreater(report["details"]["normalVariation"], 0.01)
         self.assertEqual(report["details"]["bakeEngine"], "CYCLES_CPU")
 
+    def test_occlusion_bake_adds_map_without_touching_original_data(self):
+        bpy.ops.mesh.primitive_plane_add(size=4)
+        bpy.ops.mesh.primitive_cube_add(size=1, location=(0, 0, 0.5))
+        bpy.ops.object.select_all(action="SELECT")
+        bpy.ops.object.join()
+        bpy.ops.object.mode_set(mode="EDIT")
+        bpy.ops.mesh.select_all(action="SELECT")
+        bpy.ops.uv.smart_project()
+        bpy.ops.object.mode_set(mode="OBJECT")
+        source = self.save("occlusion.glb")
+        original = self.engine.read_glb(source)
+        output, report, files = self.job("ambient-occlusion", [source], {"resolution": "512", "samples": 16})
+        doc = self.engine.read_glb(output / "model.glb")
+        self.assertEqual(doc["accessors"], original["accessors"])
+        self.assertEqual(doc["bufferViews"][:len(original["bufferViews"])], original["bufferViews"])
+        source_bytes = Path(source).read_bytes()
+        result_bytes = (output / "model.glb").read_bytes()
+        source_bin = source_bytes[20 + int.from_bytes(source_bytes[12:16], "little") + 8:]
+        result_bin = result_bytes[20 + int.from_bytes(result_bytes[12:16], "little") + 8:]
+        self.assertEqual(result_bin[:len(source_bin.rstrip(b"\0"))], source_bin.rstrip(b"\0"))
+        occlusion = doc["materials"][0]["occlusionTexture"]
+        self.assertEqual(occlusion["texCoord"], 0)
+        texture = doc["textures"][occlusion["index"]]
+        self.assertEqual(texture["extras"]["formaMapSources"]["ao"], "baked")
+        self.assertEqual(doc["images"][texture["source"]]["mimeType"], "image/png")
+        self.assertGreater(report["details"]["coverage"], 0.05)
+        self.assertLess(report["details"]["minOcclusion"], 0.6)
+        self.assertIn({"path": "occlusion.png", "label": "Ambient occlusion", "kind": "image"}, files)
+
+    def test_occlusion_bake_ignores_other_scene_objects(self):
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=1)
+        source = self.save("sphere.glb")
+        bpy.ops.mesh.primitive_cube_add(size=2)
+        _, report, _ = self.job("ambient-occlusion", [source], {"resolution": "512", "samples": 16})
+        self.assertGreater(report["details"]["meanOcclusion"], 0.95)
+
+    def test_occlusion_bake_requires_uvs(self):
+        bpy.ops.mesh.primitive_cube_add()
+        bpy.context.object.data.uv_layers.remove(bpy.context.object.data.uv_layers[0])
+        with self.assertRaisesRegex(ValueError, "occlusion-uv-required"):
+            self.job("ambient-occlusion", [self.save()])
+
 
 if __name__ == "__main__":
     result = unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(MeshEngineTests))

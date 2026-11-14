@@ -1,3 +1,4 @@
+import array
 import contextlib
 import json
 import math
@@ -236,6 +237,118 @@ def bake_normals(low, high, resolution, output):
     return {"bakeEngine": "CYCLES_CPU", "normalSpace": "TANGENT", "normalVariation": variation, "sampleSurfaceCoverage": hits / len(samples)}
 
 
+def bake_occlusion(objects, resolution, samples, output):
+    meshes = [obj for obj in objects if obj.data.polygons]
+    if len(meshes) != 1:
+        raise ValueError("occlusion-single-mesh-required")
+    target = meshes[0]
+    if not target.data.uv_layers:
+        raise ValueError("occlusion-uv-required")
+    target.data.uv_layers.active_index = 0
+    extent = max(target.dimensions) or 1.0
+    scene = bpy.context.scene
+    for obj in scene.objects:
+        obj.hide_render = obj != target
+    scene.render.engine = "CYCLES"
+    scene.cycles.device = "CPU"
+    scene.cycles.samples = samples
+    if scene.world is None:
+        scene.world = bpy.data.worlds.new("Forma world")
+    scene.world.light_settings.distance = extent * 0.5
+    image = bpy.data.images.new("Forma occlusion", width=resolution, height=resolution, alpha=False)
+    image.colorspace_settings.name = "Non-Color"
+    if not target.data.materials:
+        target.data.materials.append(bpy.data.materials.new("Forma material"))
+    for index, material in enumerate(target.data.materials):
+        if material is None:
+            material = bpy.data.materials.new(f"Forma material {index}")
+            target.data.materials[index] = material
+        material.use_nodes = True
+        node = material.node_tree.nodes.new("ShaderNodeTexImage")
+        node.image = image
+        material.node_tree.nodes.active = node
+    select([target])
+    status = bpy.ops.object.bake(type="AO", margin=8, use_clear=True)
+    if "FINISHED" not in status:
+        raise ValueError("occlusion-bake-failed")
+    pixels = array.array("f", bytes(4 * len(image.pixels)))
+    image.pixels.foreach_get(pixels)
+    covered = [pixels[i] for i in range(0, len(pixels), 4) if pixels[i] > 0.004]
+    if not covered:
+        raise ValueError("occlusion-bake-empty")
+    image.filepath_raw = str(output / "occlusion.png")
+    image.file_format = "PNG"
+    image.save()
+    return {
+        "bakeEngine": "CYCLES_CPU",
+        "samples": samples,
+        "distance": round(extent * 0.5, 6),
+        "coverage": len(covered) / (len(pixels) // 4),
+        "meanOcclusion": sum(covered) / len(covered),
+        "minOcclusion": min(covered),
+    }
+
+
+def write_glb(path, document, binary):
+    payload = json.dumps(document, separators=(",", ":")).encode("utf-8")
+    payload += b" " * (-len(payload) % 4)
+    binary += b"\0" * (-len(binary) % 4)
+    chunks = struct.pack("<II", len(payload), 0x4E4F534A) + payload
+    if binary:
+        chunks += struct.pack("<II", len(binary), 0x004E4942) + binary
+    path.write_bytes(struct.pack("<4sII", b"glTF", 2, 12 + len(chunks)) + chunks)
+
+
+def add_occlusion(source, image, output):
+    data = Path(source).read_bytes()
+    json_length = struct.unpack_from("<I", data, 12)[0]
+    document = json.loads(data[20:20 + json_length])
+    rest = data[20 + json_length:]
+    binary = b""
+    if rest:
+        bin_length, bin_type = struct.unpack_from("<II", rest, 0)
+        if bin_type != 0x004E4942 or bin_length > len(rest) - 8:
+            raise ValueError("invalid-glb")
+        binary = rest[8:8 + bin_length]
+    buffers = document.setdefault("buffers", [])
+    if any("uri" in buffer for buffer in buffers):
+        raise ValueError("embedded-buffer-required")
+    if not buffers:
+        buffers.append({"byteLength": 0})
+    binary += b"\0" * (-len(binary) % 4)
+    png = Path(image).read_bytes()
+    views = document.setdefault("bufferViews", [])
+    views.append({"buffer": 0, "byteOffset": len(binary), "byteLength": len(png)})
+    binary += png
+    binary += b"\0" * (-len(binary) % 4)
+    buffers[0]["byteLength"] = len(binary)
+    images = document.setdefault("images", [])
+    images.append({"bufferView": len(views) - 1, "mimeType": "image/png", "name": "Forma occlusion"})
+    textures = document.setdefault("textures", [])
+    textures.append({"source": len(images) - 1, "extras": {"formaMapSources": {"ao": "baked"}}})
+    materials = document.setdefault("materials", [])
+    used = set()
+    for mesh in document.get("meshes", []):
+        for primitive in mesh["primitives"]:
+            if "TEXCOORD_0" not in primitive.get("attributes", {}):
+                raise ValueError("occlusion-uv-required")
+            if "material" not in primitive:
+                materials.append({"name": "Forma material", "pbrMetallicRoughness": {}})
+                primitive["material"] = len(materials) - 1
+            used.add(primitive["material"])
+    replaced = any("occlusionTexture" in materials[index] for index in used)
+    for index in used:
+        materials[index]["occlusionTexture"] = {"index": len(textures) - 1, "texCoord": 0}
+    write_glb(output / "model.glb", document, binary)
+    accessors = document["accessors"]
+    triangles = sum(
+        accessors[p["indices"] if "indices" in p else p["attributes"]["POSITION"]]["count"] // 3
+        for m in document["meshes"]
+        for p in m["primitives"]
+    )
+    return triangles, replaced
+
+
 def export_model(objects, output, budget=None, bake=False):
     select(objects)
     bpy.ops.export_scene.gltf(filepath=str(output / "model.glb"), export_format="GLB", use_selection=True, export_animations=False, export_skins=False, export_morph=False, export_tangents=True)
@@ -263,7 +376,7 @@ def export_model(objects, output, budget=None, bake=False):
 
 def run_job(job):
     task = job.get("task")
-    if task not in {"mesh-inspect", "retopology", "uv-unwrap", "normals"}:
+    if task not in {"mesh-inspect", "retopology", "uv-unwrap", "normals", "ambient-occlusion"}:
         raise ValueError("unsupported-task")
     models = job.get("inputs", {}).get("models", [])
     if not 1 <= len(models) <= 2:
@@ -281,12 +394,15 @@ def run_job(job):
     if str(resolution) not in {"512", "1024", "2048", "4096"}:
         raise ValueError("invalid-resolution")
     resolution = int(resolution)
+    samples = params.get("samples", 64)
+    if type(samples) is not int or not 8 <= samples <= 512:
+        raise ValueError("invalid-occlusion-samples")
     budget = params.get("faceBudget", 10000)
     if type(budget) is not int or not 128 <= budget <= 2000000:
         raise ValueError("invalid-face-budget")
     output = Path(job["outputDir"])
     output.mkdir(parents=True, exist_ok=True)
-    meshes, _ = load_model(models[0], task != "mesh-inspect")
+    meshes, _ = load_model(models[0], task not in {"mesh-inspect", "ambient-occlusion"})
     source = inspect_meshes(meshes)
     report = {"version": 1, "task": task, "source": source, "warnings": [], "details": {}}
     files = []
@@ -313,7 +429,17 @@ def run_job(job):
             recalculate(meshes)
             report["details"] = {"method": "recalculate-outside"}
             report["warnings"] = ["custom-normals-recalculated"]
-    if task != "mesh-inspect":
+    elif task == "ambient-occlusion":
+        send({"type": "progress", "value": 0.3, "stage": "baking"})
+        report["details"] = bake_occlusion(meshes, resolution, samples, output)
+        report["details"]["resolution"] = resolution
+        triangles, replaced = add_occlusion(models[0], output / "occlusion.png", output)
+        report["warnings"] = ["occlusion-map-replaced"] if replaced else []
+        report["result"] = inspect_meshes(meshes)
+        report["result"]["triangles"] = triangles
+        files.append({"path": "model.glb", "label": task, "kind": "model"})
+        files.append({"path": "occlusion.png", "label": "Ambient occlusion", "kind": "image"})
+    if task not in {"mesh-inspect", "ambient-occlusion"}:
         send({"type": "progress", "value": 0.85, "stage": "exporting"})
         triangles = export_model(meshes, output, budget if task == "retopology" else None, bake)
         report["result"] = inspect_meshes(meshes)

@@ -8,7 +8,7 @@ import { activeVariant, useProjectStore } from "@/stores/project-store";
 import { useMeshToolsStore, type MeshTopology } from "../store";
 import styles from "../mesh-tools.module.css";
 
-const TASKS = new Set(["mesh-inspect", "retopology", "uv-unwrap", "normals"]);
+const TASKS = new Set(["mesh-inspect", "retopology", "uv-unwrap", "normals", "ambient-occlusion"]);
 const TOPOLOGY: (keyof MeshTopology)[] = ["vertices", "edges", "faces", "triangles", "degenerateFaces", "boundaryEdges", "nonManifoldEdges", "components"];
 
 function useMeshContext() {
@@ -169,6 +169,26 @@ export function NormalsControl() {
       <span className={styles.hint}>{t("mesh.bakeHint")}</span>
     </>}
     <Button disabled={!ready || (mode === "bake" && !highValid)} onClick={() => void enqueueMeshTask("normals", { mode, resolution }, mode === "bake" ? highVariantId! : undefined)}>{t(busy ? "mesh.running" : "mesh.normals")}</Button>
+    <span className={styles.hint}>{t("mesh.previewHint")}</span>
+  </MeshFrame>;
+}
+
+export function OcclusionControl() {
+  const { t } = useTranslation();
+  const samplesId = useId();
+  const { busy, ready } = useMeshContext();
+  const resolution = useMeshToolsStore((state) => state.resolution);
+  const samples = useMeshToolsStore((state) => state.occlusionSamples);
+  return <MeshFrame>
+    <ResolutionControl disabled={busy} />
+    <Label htmlFor={samplesId}>{t("mesh.occlusionSamples")}</Label>
+    <Input id={samplesId} type="number" min={8} max={512} step={8} value={samples} disabled={busy}
+      onChange={(event) => {
+        const value = Number(event.target.value);
+        if (Number.isInteger(value) && value >= 8 && value <= 512) useMeshToolsStore.getState().setDraft({ occlusionSamples: value });
+      }} />
+    <span className={styles.hint}>{t("mesh.occlusionHint")}</span>
+    <Button disabled={!ready} onClick={() => void enqueueMeshTask("ambient-occlusion", { resolution, samples })}>{t(busy ? "mesh.running" : "mesh.occlusion")}</Button>
     <span className={styles.hint}>{t("mesh.previewHint")}</span>
   </MeshFrame>;
 }

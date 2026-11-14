@@ -113,3 +113,20 @@ test("recalculates normals and bakes a detailed source into a new variant", asyn
   await expect(page.getByText(/^Preview:.*normals$/)).toBeVisible();
   expect(sha256(fixture)).toBe(originalHash);
 });
+
+test("bakes ambient occlusion into a preview without changing the mesh", async () => {
+  await page.getByRole("button", { name: "Ambient occlusion", exact: true }).click();
+  await page.getByLabel("Samples", { exact: true }).fill("16");
+  await page.getByRole("button", { name: "Preview ambient occlusion", exact: true }).click();
+  const job = await waitForJob(page, "ambient-occlusion");
+  const json = await page.evaluate(async (job) => {
+    const bytes = await window.forma!.jobs.readFile(job.id, job.results.find((f) => f.kind === "model")!.path);
+    const length = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(12, true);
+    return JSON.parse(new TextDecoder().decode(bytes.slice(20, 20 + length)));
+  }, job);
+  const occlusion = json.materials.find((m: { occlusionTexture?: { index: number } }) => m.occlusionTexture).occlusionTexture;
+  expect(json.textures[occlusion.index].extras.formaMapSources.ao).toBe("baked");
+  expect(job.results.some((file) => file.kind === "image")).toBe(true);
+  await expect(page.getByText(/^Preview:.*AO$/)).toBeVisible();
+  expect(sha256(fixture)).toBe(originalHash);
+});

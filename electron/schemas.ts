@@ -106,7 +106,7 @@ export const promptEntry = z.object({
 export const variant = z.object({
   id: z.uuid(),
   label: z.string().max(120),
-  origin: z.enum(["default", "import", "generation", "optimize", "texture", "material", "retopology", "uv", "normals", "paint", "rig", "animation"]),
+  origin: z.enum(["default", "import", "generation", "optimize", "texture", "material", "retopology", "uv", "normals", "occlusion", "paint", "rig", "animation"]),
   parentId: z.uuid().nullable(),
   engineId: engineId.nullable(),
   model: sceneModel,
@@ -135,7 +135,7 @@ export const modelSource = z.discriminatedUnion("type", [
   z.object({ type: z.literal("asset"), projectId: z.uuid(), assetId: z.uuid() }),
 ]);
 
-export const engineTask = z.enum(["image-to-3d", "text-to-3d", "text-to-image", "remove-background", "optimize", "texture", "rig", "animation", "mesh-inspect", "retopology", "uv-unwrap", "normals", "video-to-motion"]);
+export const engineTask = z.enum(["image-to-3d", "text-to-3d", "text-to-image", "remove-background", "optimize", "texture", "rig", "animation", "mesh-inspect", "retopology", "uv-unwrap", "normals", "ambient-occlusion", "video-to-motion"]);
 
 export const jobRequest = z.object({
   videos: z.array(z.object({ stagingId: z.uuid(), name: z.string().min(1).max(120) })).max(1).default([]),

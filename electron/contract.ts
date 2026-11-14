@@ -53,7 +53,7 @@ export type PromptEntry = {
   createdAt: string;
 };
 
-export type VariantOrigin = "default" | "import" | "generation" | "optimize" | "texture" | "material" | "retopology" | "uv" | "normals" | "paint" | "rig" | "animation";
+export type VariantOrigin = "default" | "import" | "generation" | "optimize" | "texture" | "material" | "retopology" | "uv" | "normals" | "occlusion" | "paint" | "rig" | "animation";
 
 export type Variant = {
   id: string;
@@ -113,6 +113,7 @@ export type EngineTask =
   | "retopology"
   | "uv-unwrap"
   | "normals"
+  | "ambient-occlusion"
   | "image-to-3d"
   | "text-to-3d"
   | "text-to-image"
