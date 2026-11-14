@@ -43,6 +43,21 @@ export async function chooseEngine(page: Page, name: string) {
   await page.getByRole("option", { name: new RegExp(name) }).click();
 }
 
+export async function waitForJob(page: Page, task: string) {
+  await expect
+    .poll(async () => page.evaluate(async (t) => (await window.forma!.jobs.list()).find((j) => j.task === t)?.status ?? "none", task), {
+      timeout: 60_000,
+    })
+    .toMatch(/succeeded|failed|cancelled/);
+  const job = await page.evaluate(async (t) => (await window.forma!.jobs.list()).find((j) => j.task === t)!, task);
+  if (job.status !== "succeeded") {
+    const log = await page.evaluate((id) => window.forma!.jobs.logs(id), job.id);
+    throw new Error(`${task} job ${job.status}: ${job.error}
+${log}`);
+  }
+  return job;
+}
+
 export async function quit(app: ElectronApplication) {
   const closed = app.waitForEvent("close");
   await app.evaluate(({ app: electronApp }) => electronApp.exit(0)).catch(() => undefined);

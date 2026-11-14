@@ -1,7 +1,7 @@
 import { expect, test, type ElectronApplication, type Page } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
-import { chooseEngine, FIXTURES, launch, sha256, stubOpenDialog, stubSaveDialog, tempDataDir } from "./helpers";
+import { chooseEngine, FIXTURES, launch, sha256, stubOpenDialog, stubSaveDialog, tempDataDir, waitForJob } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
 
@@ -25,6 +25,7 @@ test("starts with the default cube as the active version", async () => {
 test("generates with the demo engine, applies and saves the project", async () => {
   await chooseEngine(page, "Forma demo");
   await page.getByRole("button", { name: "Generate model", exact: true }).click();
+  await waitForJob(page, "image-to-3d");
 
   await expect(page.getByText("Preview: Forma demo")).toBeVisible();
   await expect(page.getByLabel("Model statistics")).toContainText("8 triangles");
@@ -62,6 +63,7 @@ test("optimizes an imported model into a new version with a LOD", async () => {
   await page.locator("#optimize-budget").fill("300");
   await page.locator("#optimize-lod1").fill("150");
   await page.getByRole("button", { name: "Optimize into a new version", exact: true }).click();
+  await waitForJob(page, "optimize");
 
   await expect(page.getByText("Preview: Avocado · 300")).toBeVisible();
   const triangles = Number((await page.getByLabel("Model statistics").innerText()).match(/([\d,]+) triangles/)![1].replace(/,/g, ""));
