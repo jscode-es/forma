@@ -10,10 +10,10 @@ npm run typecheck && npm run lint && npm run build
 
 ## Workflow
 
-1. Open an issue (or comment on one) before starting large changes.
-2. Fork, create a branch from `main`: `feat/...`, `fix/...`, `docs/...`.
+1. Open an issue (or comment on one) before starting large changes. See [docs/releasing.md](docs/releasing.md) for the branch model.
+2. Fork, create a branch from `dev`: `feat/...`, `fix/...`, `docs/...`.
 3. Keep PRs focused and small. Describe what changed and why.
-4. CI must pass.
+4. Open the PR against `dev`. The PR title must be a Conventional Commit. CI must pass.
 
 ## Commits
 
@@ -31,7 +31,11 @@ npm run typecheck && npm run lint && npm run build
 
 ```
 electron/   main process, preload, SQLite
-src/app/    Next.js renderer (Kivora UI)
+src/app/       Next.js routes and layout
+src/feature/   feature modules (UI, logic and types per feature)
+src/hooks/     shared React hooks
+src/providers/ React context providers (Kivora, etc.)
+src/stores/    client state stores
 src/lib/    shared types and helpers
 docs/       architecture and roadmap
 ```
