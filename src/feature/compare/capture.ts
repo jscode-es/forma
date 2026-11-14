@@ -31,8 +31,8 @@ export type CaptureEntry = { object: Object3D; title: string; lines: string[] };
 export type SheetText = { title: string; subtitle: string };
 
 const CELL = 320;
-const LABEL = 280;
-const HEADER = 76;
+const LABEL = 300;
+const HEADER = 100;
 const FOV = 30;
 const BACKGROUND = "#232328";
 const FOREGROUND = "#ececf1";

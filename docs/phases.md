@@ -102,20 +102,22 @@ Target: the interface structure of the design reference, without engines.
 - [x] User manual and engine installation guides (English and Spanish)
 - [ ] Signed installers and a reproducible release checklist (checklist and signing pipeline ready; certificates pending)
 
-## Phase 9 · Text to 3D
+## Phase 9 · Text to 3D (done)
 
 - [x] Create reference section: prompt with text-to-image step (SDXL-Lightning plugin), then image-to-3D
 - [x] Image candidates to pick from before generating
 - [x] Prompt history and seeds saved with the project
 
-## Phase 10 · Multi-view and reference review
+Verified on an RTX 5070 (12 GB) in the app: SDXL-Lightning produced four 1024 px candidates of a ceramic penguin figurine in 54 s; the picked candidate became the reference and Hunyuan3D 2.0 turned it into a 660,656-triangle model in 154 s.
+
+## Phase 10 · Multi-view and reference review (done)
 
 - [x] Front, back, left, right (and optional top) references
-- [ ] Multi-view engine (Hunyuan 2 MV) and view assignment
+- [x] Multi-view engine (Hunyuan 2 MV) and view assignment
 - [x] Reference review: scale and silhouette warnings, height matching without stretching
 - [x] Alignment and projection tools with explicit cameras
 
-The Hunyuan3D 2 MV plugin and view assignment are implemented with pinned code and checksummed weights. Electron multi-view generation, persistence and alignment are exercised with the demo engine; the Python wrapper has isolated contract tests. The engine checkbox remains open until a real GPU inference run validates the new MV plugin. Projection is a session-only orthographic reference overlay; it does not paint or alter the mesh.
+The Hunyuan3D 2 MV plugin and view assignment are implemented with pinned code and checksummed weights. Electron multi-view generation, persistence and alignment are exercised with the demo engine; the Python wrapper has isolated contract tests. A real run on an RTX 5070 (12 GB) generated the penguin reference with Hunyuan3D 2 MV in 150 s (702,090 triangles) through the app. Projection is a session-only orthographic reference overlay; it does not paint or alter the mesh.
 
 ## Phase 11 · Texturing and PBR (done)
 
@@ -169,7 +171,9 @@ The independent SQLite library imports/exports validated portable clips. Local T
 - [x] Public plugin guide and template (`plugin:new`, `plugin:check`, `plugin:weights`, CI validation)
 - [ ] Additional engines as community plugins (TRELLIS family, Pixal3D, gaussian splats)
 - [ ] WSL/Linux engine environments
-- [ ] Engine comparison with common captures
+- [x] Engine comparison with common captures
+
+**Compare versions** renders up to six versions with the same four cameras, lighting and framing into a PNG sheet with engine, topology, size, materials, file size and parameters. Verified with real Hunyuan3D 2.0, Hunyuan3D 2 MV and Paint 2.1 results of the same SDXL-Lightning reference.
 
 ## Phase 17 · Interchange and distribution
 

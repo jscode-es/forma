@@ -41,5 +41,5 @@ test("renders two engine results with the same cameras and saves the sheet", asy
   await expect(dialog.getByText(/Saved to/)).toBeVisible();
   const png = fs.readFileSync(target);
   expect(png.subarray(1, 4).toString()).toBe("PNG");
-  expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([280 + 4 * 320, 76 + 2 * 320]);
+  expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([300 + 4 * 320, 100 + 2 * 320]);
 });

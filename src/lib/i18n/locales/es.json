@@ -296,7 +296,7 @@
     "reference": "Referencia de textura",
     "run": "Texturizar en una nueva versión",
     "running": "Texturizando...",
-    "hint": "Usa la versión activa y la referencia seleccionada. La generación real requiere un motor compatible instalado; todavía no se ha validado ningún motor para Windows con 12 GB."
+    "hint": "Usa la versión activa y la referencia seleccionada. Necesita un motor de texturas instalado, como Hunyuan3D Paint 2.1 PBR (Modelos → Motores)."
   },
   "engine": {
     "none": "No hay motores instalados",
@@ -958,7 +958,7 @@
     "fileName": "Comparativa {{name}}",
     "triangles": "{{value}} triángulos · {{vertices}} vértices",
     "size": "{{x}} × {{y}} × {{z}} m",
-    "materials": "{{materials}} materiales · {{textures}} texturas",
+    "materials": "Materiales: {{materials}} · texturas: {{textures}}",
     "file": "GLB {{value}} MB",
     "views": {
       "front": "Frontal",

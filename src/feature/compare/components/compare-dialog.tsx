@@ -99,8 +99,7 @@ function CompareContent() {
             t("compare.size", { x: decimal.format(stats.size.x), y: decimal.format(stats.size.y), z: decimal.format(stats.size.z) }),
             t("compare.materials", { materials: stats.materials, textures: stats.textures }),
             ...(bytes ? [t("compare.file", { value: megabytes.format(bytes.byteLength / 1048576) })] : []),
-            ...(params.length ? [params.slice(0, 3).join(" · ")] : []),
-            ...(params.length > 3 ? [params.slice(3).join(" · ")] : []),
+            ...[0, 2, 4].filter((start) => start < params.length).map((start) => params.slice(start, start + 2).join(" · ")),
             ...(engine ? [localized({ en: engine.license }, i18n.language)] : []),
           ],
         });

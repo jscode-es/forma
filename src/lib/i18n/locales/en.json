@@ -296,7 +296,7 @@
     "reference": "Texture reference",
     "run": "Texture into a new version",
     "running": "Texturing...",
-    "hint": "Uses the active version and the selected reference. Real generation requires a compatible installed engine; no 12 GB Windows engine has been validated yet."
+    "hint": "Uses the active version and the selected reference. Needs an installed texture engine, such as Hunyuan3D Paint 2.1 PBR (Models → Engines)."
   },
   "engine": {
     "none": "No engines installed",
@@ -958,7 +958,7 @@
     "fileName": "{{name}} comparison",
     "triangles": "{{value}} triangles · {{vertices}} vertices",
     "size": "{{x}} × {{y}} × {{z}} m",
-    "materials": "{{materials}} materials · {{textures}} textures",
+    "materials": "Materials {{materials}} · textures {{textures}}",
     "file": "GLB {{value}} MB",
     "views": {
       "front": "Front",
