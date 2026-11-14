@@ -32,6 +32,8 @@ export function ViewportCanvas({ className }: { className?: string }) {
   useEffect(() => {
     const viewer = new Viewer(containerRef.current!);
     viewerRef.current = viewer;
+    // A new viewer starts empty (React may remount it), so the model must load again.
+    lastGood.current = null;
     return () => {
       viewer.dispose();
       viewerRef.current = null;
