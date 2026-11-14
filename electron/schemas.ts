@@ -266,7 +266,17 @@ export const installSpec = z.object({
   requirements: z.string().regex(/^[\w.-]+$/),
   files: z.array(z.string().regex(/^[\w.-]+$/)).min(1),
   vendor: z
-    .array(z.object({ repo: z.url({ protocol: /^https$/ }), commit: z.string().regex(/^[0-9a-f]{40}$/), dir: z.string().regex(/^[\w./-]+$/) }))
+    .array(
+      z.object({
+        repo: z.url({ protocol: /^https$/ }),
+        commit: z.string().regex(/^[0-9a-f]{40}$/),
+        dir: z.string().regex(/^[\w./-]+$/),
+        paths: z
+          .array(z.string().regex(/^[\w.-]+(\/[\w.-]+)*$/).refine((p) => !p.split("/").includes(".."), "paths must stay inside the repository"))
+          .min(1)
+          .optional(),
+      }),
+    )
     .default([]),
   licenseNotice: z.object({ en: z.string().min(1).max(2000), es: z.string().max(2000).optional() }).optional(),
   build: z
