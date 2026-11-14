@@ -296,7 +296,7 @@
     "reference": "Texture reference",
     "run": "Texture into a new version",
     "running": "Texturing...",
-    "hint": "Uses the active version and the selected reference. Real generation requires a compatible installed engine; no 12 GB Windows engine has been validated yet."
+    "hint": "Uses the active version and the selected reference. Needs an installed texture engine, such as Hunyuan3D Paint 2.1 PBR (Models → Engines)."
   },
   "engine": {
     "none": "No engines installed",
@@ -941,5 +941,30 @@
     "unsupportedInterpolation": "Only linear and step interpolation are supported.",
     "invalidMapping": "Map all source bones to distinct target bones.",
     "unsupportedPreset": "This preset requires a compatible humanoid skeleton."
+  },
+  "compare": {
+    "open": "Compare versions",
+    "title": "Compare versions",
+    "description": "Renders the selected versions with the same cameras, lighting and framing, side by side, to compare engines and settings.",
+    "choose": "Versions (up to {{max}})",
+    "render": "Render comparison",
+    "rendering": "Rendering…",
+    "save": "Save PNG",
+    "empty": "Select at least two versions and render the comparison.",
+    "imageAlt": "Comparison of {{count}} versions from four cameras",
+    "saved": "Saved to {{path}}",
+    "sheetTitle": "{{name}} · version comparison",
+    "sheetSubtitle": "Same cameras, lighting and framing · each model fitted to its frame · {{date}} · Forma",
+    "fileName": "{{name}} comparison",
+    "triangles": "{{value}} triangles · {{vertices}} vertices",
+    "size": "{{x}} × {{y}} × {{z}} m",
+    "materials": "Materials {{materials}} · textures {{textures}}",
+    "file": "GLB {{value}} MB",
+    "views": {
+      "front": "Front",
+      "threeQuarter": "Three-quarter",
+      "side": "Side",
+      "back": "Back"
+    }
   }
 }

@@ -76,6 +76,8 @@ Every result is a new version. Generated and optimized results open in **Preview
 
 The **Versions** tab lists all versions with origin, triangles, parameters and SHA-256 after saving. You can preview and apply any of them. Importing a GLB (scene block → **Import GLB**) creates an active version directly.
 
+**Compare versions** (top of the **Versions** tab) renders up to six versions with the same four cameras (front, three-quarter, side and back), the same lighting and the same framing, one row per version, next to its engine, triangles, size, materials, file size and main parameters. Each model is fitted to its frame, so compare shapes and detail; the sizes are listed in meters. **Save PNG** exports the sheet through the native dialog. Generate the same reference with several engines or settings to choose the best one.
+
 ## Materials and textures
 
 In **Create 3D > Finish > Materials**, select a material to inspect its factors and embedded albedo, metallic, roughness, normal and AO maps. Import replaces a map in a new preview version; models need the indicated UV channel. Map origin is shown when known. **Preview changes** edits color, metalness, roughness and opacity. **Isolate material** affects only the viewport; **Compare** switches to the active version. Apply the preview before exporting it.

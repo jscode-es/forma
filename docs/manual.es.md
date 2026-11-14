@@ -76,6 +76,8 @@ Cada resultado es una versión nueva. Lo generado y lo optimizado se abre en **V
 
 La pestaña **Versiones** lista todas las versiones con origen, triángulos, parámetros y SHA-256 una vez guardadas. Puedes previsualizar y aplicar cualquiera. Importar un GLB (bloque Escena → **Importar GLB**) crea directamente una versión activa.
 
+**Comparar versiones** (arriba de la pestaña **Versiones**) renderiza hasta seis versiones con las mismas cuatro cámaras (frontal, tres cuartos, lateral y trasera), la misma iluminación y el mismo encuadre, una fila por versión, junto a su motor, triángulos, tamaño, materiales, peso del archivo y parámetros principales. Cada modelo se ajusta a su marco, así que compara formas y detalle; los tamaños aparecen en metros. **Guardar PNG** exporta la hoja con el diálogo nativo. Genera la misma referencia con varios motores o ajustes para elegir el mejor.
+
 ## Materiales y texturas
 
 En **Crear 3D > Acabado > Materiales**, selecciona un material para consultar sus factores y mapas integrados de albedo, metalicidad, rugosidad, normales y AO. Importar sustituye un mapa en una nueva vista previa; la malla necesita el canal UV indicado. Se muestra la procedencia del mapa cuando se conoce. **Previsualizar cambios** edita color, metalicidad, rugosidad y opacidad. **Aislar material** solo afecta al visor; **Comparar** muestra la versión activa. Aplica la vista previa antes de exportarla.

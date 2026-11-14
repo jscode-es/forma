@@ -89,3 +89,13 @@
   font-size: 0.75rem;
   color: var(--color-destructive);
 }
+
+.panel {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+}

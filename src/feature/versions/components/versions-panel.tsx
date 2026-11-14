@@ -3,6 +3,7 @@
 import { Badge, Button, Icon } from "@kivora/nextjs";
 import { Check, Eye, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { CompareButton } from "@/feature/compare";
 import { useProjectStore, variantName } from "@/stores/project-store";
 import styles from "../versions.module.css";
 
@@ -17,6 +18,10 @@ export function VersionsPanel() {
   const number = new Intl.NumberFormat(i18n.language);
 
   return (
+    <div className={styles.panel}>
+    <div className={styles.toolbar}>
+      <CompareButton />
+    </div>
     <ol className={styles.list} aria-label={t("versions.title")}>
       {[...variants].reverse().map((v) => {
         const active = v.id === activeId;
@@ -71,5 +76,6 @@ export function VersionsPanel() {
         );
       })}
     </ol>
+    </div>
   );
 }

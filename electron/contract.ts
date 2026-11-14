@@ -228,6 +228,7 @@ export type IpcChannels = {
   "animations:delete": { args: [string]; result: void };
   "animations:import": { args: []; result: AnimationLibraryItem | null };
   "animations:export": { args: [string]; result: ExportResult | null };
+  "captures:save": { args: [Uint8Array, string]; result: ExportResult | null };
   "videos:import": { args: []; result: VideoSource | null };
   "projects:list": { args: []; result: ProjectSummary[] };
   "projects:create": { args: [ProjectInput]; result: Project };
@@ -297,6 +298,7 @@ export type FormaApi = {
     export: (id: string) => Promise<ExportResult | null>;
   };
   videos: { import: () => Promise<VideoSource | null> };
+  captures: { save: (bytes: Uint8Array, name: string) => Promise<ExportResult | null> };
   projects: {
     list: () => Promise<ProjectSummary[]>;
     create: (input: ProjectInput) => Promise<Project>;

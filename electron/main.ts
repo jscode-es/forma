@@ -6,6 +6,7 @@ import { openDb } from "./db";
 import { animationClip } from "./animation-schema";
 import { listAnimations, readAnimation, saveAnimation, deleteAnimation, importAnimation, exportAnimation } from "./animations";
 import { importVideo } from "./videos";
+import { saveCapture } from "./captures";
 import { chooseBlender, getBlender } from "./blender";
 import { listEngines } from "./engines";
 import { getHardware } from "./hardware";
@@ -83,6 +84,7 @@ function registerIpc() {
   handle("animations:delete", id, deleteAnimation);
   handle("animations:import", none, importAnimation);
   handle("animations:export", id, exportAnimation);
+  handle("captures:save", z.tuple([z.instanceof(Uint8Array).refine((bytes) => bytes.byteLength > 0 && bytes.byteLength <= 64 * 1024 * 1024), z.string().min(1).max(120)]), saveCapture);
   handle("videos:import", none, importVideo);
 
   handle("projects:list", none, listProjects);
