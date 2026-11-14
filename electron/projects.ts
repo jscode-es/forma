@@ -2,8 +2,9 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { app } from "electron";
-import type { Project, ProjectInput, ProjectScene, ProjectSummary } from "./contract";
+import type { ImageSource, Project, ProjectInput, ProjectScene, ProjectSummary } from "./contract";
 import { getDb, getSetting, setSetting, transaction } from "./db";
+import { commitImage } from "./images";
 import { assertProjectAsset, commitStagedModel } from "./models";
 import { parseStoredScene, parseStoredSettings, projectId } from "./schemas";
 
@@ -30,10 +31,15 @@ function toProject(row: Row): Project {
 }
 
 function resolveScene(projectId: string, scene: ProjectScene): ProjectScene {
-  const { model } = scene;
-  if (model.type === "staged") return { model: commitStagedModel(projectId, model) };
-  if (model.type === "asset") assertProjectAsset(projectId, model.assetId);
-  return scene;
+  let { model } = scene;
+  if (model.type === "staged") model = commitStagedModel(projectId, model);
+  else if (model.type === "asset") assertProjectAsset(projectId, model.assetId);
+  const references = scene.references.map((r) => ({
+    ...r,
+    original: commitImage(projectId, r.original, r.name),
+    prepared: r.prepared ? commitImage(projectId, r.prepared, `${r.name} (prepared)`) : null,
+  }));
+  return { model, references };
 }
 
 function getRow(id: string): Row {
@@ -130,6 +136,13 @@ export function duplicateProject(id: string, name: string): ProjectSummary {
     if (scene.model.type === "asset") {
       scene.model = { ...scene.model, assetId: assetIds.get(scene.model.assetId) ?? scene.model.assetId };
     }
+    const remap = (source: ImageSource): ImageSource =>
+      source.type === "asset" ? { type: "asset", assetId: assetIds.get(source.assetId) ?? source.assetId } : source;
+    scene.references = scene.references.map((r) => ({
+      ...r,
+      original: remap(r.original),
+      prepared: r.prepared ? remap(r.prepared) : null,
+    }));
     db.prepare("UPDATE projects SET scene = ? WHERE id = ?").run(JSON.stringify(scene), copyId);
 
     const from = projectDir(id);

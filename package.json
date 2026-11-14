@@ -19,7 +19,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit && tsc -p electron --noEmit",
     "prepare": "husky",
-    "fixtures": "node scripts/fetch-fixtures.mjs"
+    "fixtures": "node scripts/fetch-fixtures.mjs",
+    "plugin:install": "node scripts/install-plugin.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",

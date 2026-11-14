@@ -54,6 +54,16 @@ export async function importModel(): Promise<SceneModel | null> {
   return { type: "staged", stagingId, name };
 }
 
+export function stageModelBytes(bytes: Uint8Array, name: string): SceneModel {
+  const buffer = Buffer.from(bytes);
+  if (buffer.length > MAX_MODEL_BYTES) throw new Error("The model is larger than 512 MB");
+  if (buffer.toString("ascii", 0, 4) !== "glTF" || buffer.readUInt32LE(4) !== 2) throw new Error("The data is not a glTF 2.0 binary");
+  const stagingId = randomUUID();
+  fs.mkdirSync(stagingRoot(), { recursive: true });
+  fs.writeFileSync(stagedFile(stagingId), buffer);
+  return { type: "staged", stagingId, name: name.slice(0, 120) || "Model" };
+}
+
 export function readModel(source: ModelSource): Uint8Array {
   if (source.type === "staged") return fs.readFileSync(stagedFile(source.stagingId));
   const row = getDb()

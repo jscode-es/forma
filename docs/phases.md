@@ -78,13 +78,13 @@ Target: the interface structure of the design reference, without engines.
 
 ## Phase 6 · Image to 3D (first engine)
 
-- [ ] Reference image import with validation (PNG, JPG, WebP, size limits)
-- [ ] Background removal step (BiRefNet) with preview
-- [ ] First engine plugin: Hunyuan3D 2.0 geometry
-- [ ] Quality profiles, seed and engine-specific settings saved with the project
-- [ ] Generation with real progress, result shown in the viewport, GLB stored in the project
-- [ ] Physical scale (height in meters)
-- [ ] Generation trace: inputs, intermediates and parameters per job
+- [x] Reference image import with validation (PNG, JPG, WebP, size limits)
+- [x] Background removal step (BiRefNet) with preview
+- [ ] First engine plugin: Hunyuan3D 2.0 geometry (plugin written; pending a verified run on a user installation)
+- [x] Quality profiles, seed and engine-specific settings saved with the project
+- [x] Generation with real progress, result shown in the viewport, GLB stored in the project
+- [x] Physical scale (height in meters)
+- [x] Generation trace: inputs, intermediates and parameters per job
 
 ## Phase 7 · Variants and export
 

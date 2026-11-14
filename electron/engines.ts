@@ -43,6 +43,7 @@ function readEngine(dir: string, builtin: boolean): InstalledEngine | null {
       tasks: manifest.tasks,
       parameters: manifest.parameters,
       requirements: { ...manifest.requirements, python: manifest.runtime.type === "python" },
+      inputs: manifest.inputs,
       builtin,
       demo: manifest.demo,
       available: true,
@@ -78,7 +79,13 @@ export async function listEngines(): Promise<InstalledEngine[]> {
 
 export function enginePython(dir: string): string | null {
   const candidate = process.platform === "win32" ? path.join(dir, ".venv", "Scripts", "python.exe") : path.join(dir, ".venv", "bin", "python");
-  return fs.existsSync(candidate) ? candidate : null;
+  if (fs.existsSync(candidate)) return candidate;
+  try {
+    const { python } = JSON.parse(fs.readFileSync(path.join(dir, "python.json"), "utf8")) as { python?: unknown };
+    return typeof python === "string" && path.isAbsolute(python) && fs.existsSync(python) ? python : null;
+  } catch {
+    return null;
+  }
 }
 
 export function resolveParameters(manifest: EngineManifest, values: Record<string, ParameterValue>) {

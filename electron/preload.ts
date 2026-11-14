@@ -27,6 +27,11 @@ const api: FormaApi = {
   models: {
     import: () => invoke("models:import"),
     read: (source) => invoke("models:read", source),
+    stageBytes: (bytes, name) => invoke("models:stage-bytes", bytes, name),
+  },
+  references: {
+    import: () => invoke("references:import"),
+    read: (source, projectId) => invoke("references:read", source, projectId),
   },
   engines: {
     list: () => invoke("engines:list"),
@@ -48,6 +53,8 @@ const api: FormaApi = {
     retry: (id) => invoke("jobs:retry", id),
     logs: (id) => invoke("jobs:logs", id),
     stageResult: (id) => invoke("jobs:stage-result", id),
+    stageImage: (id) => invoke("jobs:stage-image", id),
+    readFile: (id, file) => invoke("jobs:read-file", id, file),
     onUpdate: (callback) => subscribe("jobs:update", callback),
   },
   system: {

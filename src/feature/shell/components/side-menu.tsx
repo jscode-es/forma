@@ -1,9 +1,10 @@
 "use client";
 
-import { Badge, Button, Icon } from "@kivora/nextjs";
-import { Box, Boxes, CircleHelp, ImagePlus, LibraryBig, Settings, Upload } from "lucide-react";
+import { Button, Icon } from "@kivora/nextjs";
+import { Box, Boxes, CircleHelp, LibraryBig, Settings, Upload } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useModelsStore } from "@/feature/models";
+import { ReferencePanel } from "@/feature/references";
 import { useViewerStore } from "@/feature/viewport";
 import { useProjectStore } from "@/stores/project-store";
 import { useWorkspaceStore } from "@/stores/workspace-store";
@@ -90,15 +91,8 @@ export function SideMenu({ onOpenDialog }: { onOpenDialog: (dialog: ShellDialog)
                 {t("references.title")}
                 <HelpHint text={t("references.help")} />
               </span>
-              <Badge variant="outline">{t("common.phase", { phase: 6 })}</Badge>
             </div>
-            <div className={styles.dropzone}>
-              <span className={styles.iconTile}>
-                <Icon icon={ImagePlus} size={20} />
-              </span>
-              <strong style={{ fontSize: "0.875rem" }}>{t("references.dropTitle")}</strong>
-              <span className={styles.hint}>{t("references.dropHint")}</span>
-            </div>
+            <ReferencePanel />
           </section>
         </div>
       </div>
