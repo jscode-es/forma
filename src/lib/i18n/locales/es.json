@@ -941,5 +941,30 @@
     "unsupportedInterpolation": "Solo se admite interpolaci?n lineal y escalonada.",
     "invalidMapping": "Asigna todos los huesos de origen a huesos de destino distintos.",
     "unsupportedPreset": "Este preset requiere un esqueleto humanoide compatible."
+  },
+  "compare": {
+    "open": "Comparar versiones",
+    "title": "Comparar versiones",
+    "description": "Renderiza las versiones elegidas con las mismas cámaras, iluminación y encuadre, una junto a otra, para comparar motores y ajustes.",
+    "choose": "Versiones (hasta {{max}})",
+    "render": "Renderizar comparativa",
+    "rendering": "Renderizando…",
+    "save": "Guardar PNG",
+    "empty": "Elige al menos dos versiones y renderiza la comparativa.",
+    "imageAlt": "Comparativa de {{count}} versiones desde cuatro cámaras",
+    "saved": "Guardada en {{path}}",
+    "sheetTitle": "{{name}} · comparativa de versiones",
+    "sheetSubtitle": "Mismas cámaras, iluminación y encuadre · cada modelo ajustado a su marco · {{date}} · Forma",
+    "fileName": "Comparativa {{name}}",
+    "triangles": "{{value}} triángulos · {{vertices}} vértices",
+    "size": "{{x}} × {{y}} × {{z}} m",
+    "materials": "{{materials}} materiales · {{textures}} texturas",
+    "file": "GLB {{value}} MB",
+    "views": {
+      "front": "Frontal",
+      "threeQuarter": "Tres cuartos",
+      "side": "Lateral",
+      "back": "Trasera"
+    }
   }
 }

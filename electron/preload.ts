@@ -23,6 +23,7 @@ const api: FormaApi = {
     export: (id) => invoke("animations:export", id),
   },
   videos: { import: () => invoke("videos:import") },
+  captures: { save: (bytes, name) => invoke("captures:save", bytes, name) },
   projects: {
     list: () => invoke("projects:list"),
     create: (input) => invoke("projects:create", input),
