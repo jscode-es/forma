@@ -2,8 +2,11 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { KivoraProvider } from "@kivora/nextjs";
+import { Splash } from "@/feature/shell";
 import i18n, { resolveLocale } from "@/lib/i18n";
 import { useSettingsStore } from "@/stores/settings-store";
+
+const MIN_SPLASH_MS = 800;
 
 export default function AppProviders({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
@@ -13,9 +16,14 @@ export default function AppProviders({ children }: { children: ReactNode }) {
   useEffect(() => {
     let active = true;
     (async () => {
-      await useSettingsStore.persist.rehydrate();
-      await i18n.changeLanguage(resolveLocale(useSettingsStore.getState().locale));
-      document.documentElement.lang = i18n.language;
+      await Promise.all([
+        (async () => {
+          await useSettingsStore.persist.rehydrate();
+          await i18n.changeLanguage(resolveLocale(useSettingsStore.getState().locale));
+          document.documentElement.lang = i18n.language;
+        })(),
+        new Promise((r) => setTimeout(r, MIN_SPLASH_MS)),
+      ]);
       if (active) setReady(true);
     })();
     return () => {
@@ -36,7 +44,5 @@ export default function AppProviders({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("languagechange", apply);
   }, [ready, locale]);
 
-  if (!ready) return null;
-
-  return <KivoraProvider colorMode={theme}>{children}</KivoraProvider>;
+  return <KivoraProvider colorMode={theme}>{ready ? children : <Splash />}</KivoraProvider>;
 }
