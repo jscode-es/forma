@@ -38,5 +38,4 @@ npm run dist          # installers for the current OS in release/
 ## Not configured yet
 
 - Code signing and notarization (macOS builds are unsigned; Windows builds are not signed). Add the certificates as repository secrets and remove `identity: null` from `electron-builder.yml`.
-- App icons: place `icon.ico`, `icon.icns` and `icon.png` (512x512+) in `build/`.
 - Auto-update.
