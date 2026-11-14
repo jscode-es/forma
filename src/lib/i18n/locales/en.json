@@ -213,7 +213,8 @@
       "cuda-missing": "CUDA not available",
       "vram-insufficient": "Not enough VRAM",
       "weights-missing": "Required weights not downloaded"
-    }
+    },
+    "activateHint": "Activate an engine in Models."
   },
   "status": {
     "noGpu": "GPU not detected",
@@ -410,5 +411,53 @@
     "lod": "Export LOD {{index}} {{name}}",
     "noLods": "The active version has no LODs. Create them from Model → Optimize and LOD.",
     "done": "Saved to {{path}} · SHA-256 {{sha}} verified"
+  },
+  "plugins": {
+    "title": "Engines",
+    "activate": "Activate",
+    "update": "Update",
+    "cancel": "Cancel",
+    "uninstall": "Uninstall engine",
+    "confirmUninstall": "Uninstall",
+    "activateTitle": "Activate {{name}}",
+    "requirements": "Requirements",
+    "reqGpu": "NVIDIA GPU with CUDA and at least {{vram}} GB of VRAM",
+    "reqTools": "Python {{python}} and Git installed on this computer",
+    "reqDisk": "About {{size}} GB of free disk (environment and weights)",
+    "licenses": "Licenses",
+    "existingPython": "Use an existing Python environment (advanced)",
+    "existingPythonHint": "Choose the python executable of an environment that already has the required packages. Forma will not install anything in it.",
+    "choosePython": "Choose python executable",
+    "accept": "I have read and accept these licenses",
+    "acceptAndActivate": "Accept and activate",
+    "status": {
+      "available": "Available",
+      "installing": "Activating",
+      "installed": "Active",
+      "outdated": "Update available",
+      "failed": "Failed"
+    },
+    "stage": {
+      "preparing": "Preparing",
+      "checking": "Checking requirements",
+      "copying": "Copying engine files",
+      "code": "Downloading the engine code",
+      "python": "Creating the Python environment",
+      "dependencies": "Installing dependencies (several GB, can take a while)",
+      "pip:collecting": "Resolving dependencies",
+      "pip:downloading": "Downloading dependencies",
+      "pip:installing-collected-packages": "Installing dependencies",
+      "pip:successfully-installed": "Dependencies installed",
+      "verifying": "Verifying the installation"
+    },
+    "error": {
+      "git-missing": "Git is not installed. Install it from git-scm.com and try again.",
+      "python-missing": "Python 3.11 is not installed. Install it from python.org and try again.",
+      "python-invalid": "The chosen Python executable does not exist."
+    },
+    "warn": {
+      "cuda": "CUDA was not detected on this computer.",
+      "vram": "This GPU has less than {{required}} GB of VRAM."
+    }
   }
 }

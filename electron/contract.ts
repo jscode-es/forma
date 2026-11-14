@@ -128,6 +128,22 @@ export type WeightsState = {
   latestRevision: string | null;
 };
 
+export type PluginState = {
+  id: string;
+  name: string;
+  version: string;
+  description: LocalizedText;
+  license: string;
+  licenseNotice: LocalizedText | null;
+  weights: { id: string; name: string; license: LicenseInfo }[];
+  requirements: { vramGb: number; cuda: boolean; python: string; diskGb: number };
+  status: "available" | "installing" | "installed" | "outdated" | "failed";
+  stage: string | null;
+  progress: number | null;
+  error: string | null;
+  log: string[];
+};
+
 export type JobStatus = "queued" | "running" | "succeeded" | "failed" | "cancelled";
 
 export type JobFile = { path: string; label: string; kind: string };
@@ -174,6 +190,11 @@ export type IpcChannels = {
   "references:import": { args: []; result: ReferenceImage | null };
   "references:read": { args: [ImageSource, string | null]; result: Uint8Array };
   "engines:list": { args: []; result: EngineInfo[] };
+  "plugins:list": { args: []; result: PluginState[] };
+  "plugins:install": { args: [string, string | null]; result: void };
+  "plugins:cancel": { args: [string]; result: void };
+  "plugins:uninstall": { args: [string]; result: PluginState };
+  "plugins:choose-python": { args: []; result: string | null };
   "weights:list": { args: []; result: WeightsState[] };
   "weights:accept-license": { args: [string]; result: WeightsState };
   "weights:download": { args: [string]; result: void };
@@ -203,6 +224,7 @@ export type IpcEvents = {
   "app:close-requested": [];
   "jobs:update": [JobInfo];
   "weights:update": [WeightsState];
+  "plugins:update": [PluginState];
 };
 
 export type FormaApi = {
@@ -228,6 +250,14 @@ export type FormaApi = {
   };
   engines: {
     list: () => Promise<EngineInfo[]>;
+  };
+  plugins: {
+    list: () => Promise<PluginState[]>;
+    install: (id: string, python: string | null) => Promise<void>;
+    cancel: (id: string) => Promise<void>;
+    uninstall: (id: string) => Promise<PluginState>;
+    choosePython: () => Promise<string | null>;
+    onUpdate: (callback: (state: PluginState) => void) => () => void;
   };
   weights: {
     list: () => Promise<WeightsState[]>;

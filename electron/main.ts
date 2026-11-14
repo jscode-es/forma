@@ -20,6 +20,7 @@ import {
 import { importReference, readReference } from "./images";
 import { clearStaging, exportModel, importModel, readModel, stageModelBytes } from "./models";
 import { engineId, imageSource, jobRequest, modelSource, projectId, projectInput, projectName } from "./schemas";
+import { cancelInstall, choosePython, listPlugins, startInstall, uninstallPlugin } from "./plugins";
 import { getSystemInfo, openDataDir } from "./system";
 import { acceptLicense, cancelDownload, checkUpdates, downloadWeights, listWeights, removeWeights, verifyWeights } from "./weights";
 
@@ -85,6 +86,11 @@ function registerIpc() {
   handle("references:import", none, importReference);
   handle("references:read", z.tuple([imageSource, projectId.nullable()]), readReference);
   handle("engines:list", none, async () => (await listEngines()).map((e) => e.info));
+  handle("plugins:list", none, listPlugins);
+  handle("plugins:install", z.tuple([engineId, z.string().max(1024).nullable()]), startInstall);
+  handle("plugins:cancel", z.tuple([engineId]), cancelInstall);
+  handle("plugins:uninstall", z.tuple([engineId]), uninstallPlugin);
+  handle("plugins:choose-python", none, choosePython);
   handle("weights:list", none, listWeights);
   handle("weights:accept-license", z.tuple([engineId]), acceptLicense);
   handle("weights:download", z.tuple([engineId]), downloadWeights);

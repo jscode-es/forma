@@ -213,7 +213,8 @@
       "cuda-missing": "CUDA no disponible",
       "vram-insufficient": "VRAM insuficiente",
       "weights-missing": "Faltan pesos obligatorios por descargar"
-    }
+    },
+    "activateHint": "Activa un motor en Modelos."
   },
   "status": {
     "noGpu": "GPU no detectada",
@@ -410,5 +411,53 @@
     "lod": "Exportar LOD {{index}} {{name}}",
     "noLods": "La versión activa no tiene LOD. Créalos desde Modelo → Optimizar y LOD.",
     "done": "Guardado en {{path}} · SHA-256 {{sha}} verificado"
+  },
+  "plugins": {
+    "title": "Motores",
+    "activate": "Activar",
+    "update": "Actualizar",
+    "cancel": "Cancelar",
+    "uninstall": "Desinstalar motor",
+    "confirmUninstall": "Desinstalar",
+    "activateTitle": "Activar {{name}}",
+    "requirements": "Requisitos",
+    "reqGpu": "GPU NVIDIA con CUDA y al menos {{vram}} GB de VRAM",
+    "reqTools": "Python {{python}} y Git instalados en este equipo",
+    "reqDisk": "Unos {{size}} GB libres en disco (entorno y pesos)",
+    "licenses": "Licencias",
+    "existingPython": "Usar un entorno de Python existente (avanzado)",
+    "existingPythonHint": "Elige el ejecutable python de un entorno que ya tenga los paquetes necesarios. Forma no instalará nada en él.",
+    "choosePython": "Elegir el ejecutable python",
+    "accept": "He leído y acepto estas licencias",
+    "acceptAndActivate": "Aceptar y activar",
+    "status": {
+      "available": "Disponible",
+      "installing": "Activando",
+      "installed": "Activo",
+      "outdated": "Actualización disponible",
+      "failed": "Fallido"
+    },
+    "stage": {
+      "preparing": "Preparando",
+      "checking": "Comprobando requisitos",
+      "copying": "Copiando los archivos del motor",
+      "code": "Descargando el código del motor",
+      "python": "Creando el entorno de Python",
+      "dependencies": "Instalando dependencias (varios GB, puede tardar)",
+      "pip:collecting": "Resolviendo dependencias",
+      "pip:downloading": "Descargando dependencias",
+      "pip:installing-collected-packages": "Instalando dependencias",
+      "pip:successfully-installed": "Dependencias instaladas",
+      "verifying": "Verificando la instalación"
+    },
+    "error": {
+      "git-missing": "Git no está instalado. Instálalo desde git-scm.com y vuelve a intentarlo.",
+      "python-missing": "Python 3.11 no está instalado. Instálalo desde python.org y vuelve a intentarlo.",
+      "python-invalid": "El ejecutable de Python elegido no existe."
+    },
+    "warn": {
+      "cuda": "No se ha detectado CUDA en este equipo.",
+      "vram": "Esta GPU tiene menos de {{required}} GB de VRAM."
+    }
   }
 }

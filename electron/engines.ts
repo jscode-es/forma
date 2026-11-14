@@ -29,7 +29,10 @@ function readEngine(dir: string, builtin: boolean): InstalledEngine | null {
     return null;
   }
   const parsed = engineManifest.safeParse(raw);
-  if (!parsed.success) return null;
+  if (!parsed.success) {
+    console.warn(`Invalid engine manifest in ${dir}:`, parsed.error.issues);
+    return null;
+  }
   const manifest = parsed.data;
   return {
     manifest,

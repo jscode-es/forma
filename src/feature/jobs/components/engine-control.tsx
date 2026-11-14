@@ -77,7 +77,7 @@ export function EngineControl() {
     return (
       <div className={styles.notice}>
         <strong>{t("engine.none")}</strong>
-        <span className={styles.hint}>{t("engine.noneHint")}</span>
+        <span className={styles.hint}>{t("engine.activateHint")}</span>
       </div>
     );
   }

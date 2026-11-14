@@ -104,12 +104,15 @@ Engines whose code or weights cannot be distributed with Forma live in `plugins/
   "requirements": "requirements.txt",
   "files": ["forma-engine.json", "main.py", "requirements.txt", "README.md"],
   "vendor": [{ "repo": "https://github.com/org/code.git", "commit": "<40-character commit>", "dir": "vendor/code" }],
-  "licenseNotice": "Shown before installing; requires --accept-license.",
+  "licenseNotice": { "en": "Shown before installing.", "es": "Se muestra antes de instalar." },
+  "diskGb": 9,
   "check": "import torch; print(torch.cuda.is_available())"
 }
 ```
 
-`npm run plugin:install -- <name> --accept-license` copies the files to the user engines folder, clones each vendor repository at its pinned commit, creates `.venv` with the requirements (or reuses an environment with `--python <path>`) and runs the check. The user installs and accepts third-party licenses; Forma does not.
+Plugins under `plugins/` are bundled with Forma and listed in **Models → Engines**. **Activate** shows requirements and licenses (`licenseNotice` plus each weights license), records the acceptance, then copies the files to the user engines folder, clones each vendor repository at its pinned commit, creates `.venv` with the requirements (or uses an existing environment the user chooses), runs `check`, marks the plugin as installed and downloads its weights. Progress and the last lines of git/pip output are shown live; the installation can be cancelled.
+
+For contributors, `npm run plugin:install -- <name> --accept-license` does the same from the command line: it copies the files to the user engines folder, clones each vendor repository at its pinned commit, creates `.venv` with the requirements (or reuses an environment with `--python <path>`) and runs the check. The user installs and accepts third-party licenses; Forma does not.
 
 ## Lifecycle and guarantees
 

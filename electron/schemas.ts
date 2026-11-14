@@ -113,7 +113,7 @@ export const jobRequest = z.object({
   models: z.array(sceneModel).max(4),
 });
 
-const localizedText = z.object({ en: z.string().min(1).max(200), es: z.string().max(200).optional() });
+const localizedText = z.object({ en: z.string().min(1).max(600), es: z.string().max(600).optional() });
 
 const parameterId = z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]{0,63}$/);
 

@@ -24,7 +24,7 @@ const install = JSON.parse(readFileSync(join(source, "install.json"), "utf8"));
 const manifest = JSON.parse(readFileSync(join(source, "forma-engine.json"), "utf8"));
 
 if (install.licenseNotice) {
-  console.log(`\n${install.licenseNotice}\n`);
+  console.log(`\n${install.licenseNotice.en}\n`);
   if (!args.includes("--accept-license")) {
     console.error("Re-run with --accept-license to confirm you accept these terms.");
     process.exit(1);
