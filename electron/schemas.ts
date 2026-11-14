@@ -135,7 +135,7 @@ export const modelSource = z.discriminatedUnion("type", [
   z.object({ type: z.literal("asset"), projectId: z.uuid(), assetId: z.uuid() }),
 ]);
 
-export const engineTask = z.enum(["image-to-3d", "text-to-3d", "text-to-image", "remove-background", "optimize", "texture", "rig", "animation", "mesh-inspect", "retopology", "uv-unwrap", "normals", "ambient-occlusion", "video-to-motion"]);
+export const engineTask = z.enum(["image-to-3d", "text-to-3d", "text-to-image", "remove-background", "optimize", "texture", "rig", "animation", "mesh-inspect", "retopology", "uv-unwrap", "normals", "ambient-occlusion", "video-to-motion", "export-package"]);
 
 export const jobRequest = z.object({
   videos: z.array(z.object({ stagingId: z.uuid(), name: z.string().min(1).max(120) })).max(1).default([]),

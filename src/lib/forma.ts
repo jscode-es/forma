@@ -13,6 +13,7 @@ export type {
   EngineSelection,
   EngineTask,
   ExportResult,
+  PackageResult,
   FormaApi,
   HardwareInfo,
   ImageSource,

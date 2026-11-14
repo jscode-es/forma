@@ -229,8 +229,8 @@
         "help": "Exports each LOD as a separate file."
       },
       "interchange": {
-        "title": "Blender, Unity and Godot",
-        "help": "Packages validated for other tools."
+        "title": "Engine packages",
+        "help": "Prepares a validated folder for Blender, Unity or Godot with the active version, its LODs, tangents for normal maps, import instructions and a checksummed manifest."
       },
       "textMotion": {
         "title": "Motion from text",
@@ -412,7 +412,8 @@
       "unwrapping": "Unwrapping UVs",
       "rendering-geometry": "Rendering geometry views",
       "encoding-reference": "Encoding the reference",
-      "baking": "Baking the atlas"
+      "baking": "Baking the atlas",
+      "packaging": "Packaging and validating"
     },
     "error": {
       "interrupted": "Interrupted: the app was closed while it ran",
@@ -433,7 +434,8 @@
       "occlusion-bake-empty": "The occlusion bake produced no pixels",
       "occlusion-bake-failed": "Blender could not bake the occlusion",
       "embedded-buffer-required": "The model must embed its buffers",
-      "invalid-occlusion-samples": "Samples must be between 8 and 512"
+      "invalid-occlusion-samples": "Samples must be between 8 and 512",
+      "invalid-target": "Unknown export target"
     }
   },
   "models": {
@@ -490,7 +492,8 @@
     "occlusion-bake-empty": "The occlusion bake produced no pixels",
     "occlusion-bake-failed": "Blender could not bake the occlusion",
     "embedded-buffer-required": "The model must embed its buffers",
-    "invalid-occlusion-samples": "Samples must be between 8 and 512"
+    "invalid-occlusion-samples": "Samples must be between 8 and 512",
+    "invalid-target": "Unknown export target"
   },
   "versions": {
     "title": "Versions",
@@ -966,5 +969,28 @@
       "side": "Side",
       "back": "Back"
     }
+  },
+  "interchange": {
+    "target": "Target engine",
+    "targets": {
+      "blender": "Blender",
+      "unity": "Unity",
+      "godot": "Godot"
+    },
+    "targetHints": {
+      "blender": "GLB files plus a script that imports the model and its LODs into a collection (Blender 4+).",
+      "unity": "GLB files for glTFast with instructions to build an LOD Group (Unity 2021.3+).",
+      "godot": "GLB files that Godot 4 imports as scenes, with optional manual LODs."
+    },
+    "includeLods": "Include LODs ({{count}})",
+    "tangents": "Generate MikkTSpace tangents for normal maps",
+    "prepare": "Prepare package",
+    "preparing": "Preparing package…",
+    "needsModel": "Generate or import a model first; the default cube is not exported as a package.",
+    "files": "Package files",
+    "valid": "{{errors}} errors · {{warnings}} warnings",
+    "validator": "Every GLB validated with the Khronos glTF Validator {{version}} for {{target}}.",
+    "export": "Export folder…",
+    "done": "Exported {{files}} files to {{path}}"
   }
 }

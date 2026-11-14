@@ -13,7 +13,8 @@ Module._resolveFilename = function (request, ...rest) {
 const { NodeIO } = require("@gltf-transform/core");
 const { ALL_EXTENSIONS } = require("@gltf-transform/extensions");
 const { prune, simplify, weld } = require("@gltf-transform/functions");
-const { MeshoptSimplifier } = require("meshoptimizer");
+const { MeshoptDecoder, MeshoptSimplifier } = require("meshoptimizer");
+const { runPackage } = require("./package.cjs");
 
 const send = (message) => process.stdout.write(`${JSON.stringify(message)}\n`);
 
@@ -63,10 +64,10 @@ async function main() {
   const job = JSON.parse(readFileSync(process.argv[process.argv.indexOf("--job") + 1], "utf8"));
   const input = job.inputs?.models?.[0];
   if (!input) fail("model-required");
+  await Promise.all([MeshoptSimplifier.ready, MeshoptDecoder.ready]);
+  const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({ "meshopt.decoder": MeshoptDecoder });
+  if (job.task === "export-package") return runPackage(job, io, send, fail);
   const { budget, lod1, lod2, lod3 } = job.parameters;
-
-  await MeshoptSimplifier.ready;
-  const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
 
   const source = await io.read(input);
   if (source.getRoot().listSkins().length > 0 || primitives(source).some((p) => p.listTargets().length > 0)) {

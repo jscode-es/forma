@@ -229,8 +229,8 @@
         "help": "Exporta cada LOD como un archivo separado."
       },
       "interchange": {
-        "title": "Blender, Unity y Godot",
-        "help": "Paquetes validados para otras herramientas."
+        "title": "Paquetes para motores",
+        "help": "Prepara una carpeta validada para Blender, Unity o Godot con la versión activa, sus LOD, tangentes para mapas de normales, instrucciones de importación y un manifiesto con sumas de verificación."
       },
       "textMotion": {
         "title": "Movimiento desde texto",
@@ -412,7 +412,8 @@
       "unwrapping": "Desplegando UV",
       "rendering-geometry": "Renderizando vistas de la geometría",
       "encoding-reference": "Codificando la referencia",
-      "baking": "Horneando el atlas"
+      "baking": "Horneando el atlas",
+      "packaging": "Empaquetando y validando"
     },
     "error": {
       "interrupted": "Interrumpido: la aplicación se cerró mientras se ejecutaba",
@@ -433,7 +434,8 @@
       "occlusion-bake-empty": "El horneado de oclusión no produjo píxeles",
       "occlusion-bake-failed": "Blender no pudo hornear la oclusión",
       "embedded-buffer-required": "El modelo debe llevar sus buffers incrustados",
-      "invalid-occlusion-samples": "Las muestras deben estar entre 8 y 512"
+      "invalid-occlusion-samples": "Las muestras deben estar entre 8 y 512",
+      "invalid-target": "Destino de exportación desconocido"
     }
   },
   "models": {
@@ -490,7 +492,8 @@
     "occlusion-bake-empty": "El horneado de oclusión no produjo píxeles",
     "occlusion-bake-failed": "Blender no pudo hornear la oclusión",
     "embedded-buffer-required": "El modelo debe llevar sus buffers incrustados",
-    "invalid-occlusion-samples": "Las muestras deben estar entre 8 y 512"
+    "invalid-occlusion-samples": "Las muestras deben estar entre 8 y 512",
+    "invalid-target": "Destino de exportación desconocido"
   },
   "versions": {
     "title": "Versiones",
@@ -966,5 +969,28 @@
       "side": "Lateral",
       "back": "Trasera"
     }
+  },
+  "interchange": {
+    "target": "Motor de destino",
+    "targets": {
+      "blender": "Blender",
+      "unity": "Unity",
+      "godot": "Godot"
+    },
+    "targetHints": {
+      "blender": "Archivos GLB y un script que importa el modelo y sus LOD en una colección (Blender 4+).",
+      "unity": "Archivos GLB para glTFast con instrucciones para montar un LOD Group (Unity 2021.3+).",
+      "godot": "Archivos GLB que Godot 4 importa como escenas, con LOD manuales opcionales."
+    },
+    "includeLods": "Incluir LOD ({{count}})",
+    "tangents": "Generar tangentes MikkTSpace para mapas de normales",
+    "prepare": "Preparar paquete",
+    "preparing": "Preparando paquete…",
+    "needsModel": "Genera o importa un modelo primero; el cubo por defecto no se exporta como paquete.",
+    "files": "Archivos del paquete",
+    "valid": "{{errors}} errores · {{warnings}} avisos",
+    "validator": "Cada GLB validado con el validador glTF de Khronos {{version}} para {{target}}.",
+    "export": "Exportar carpeta…",
+    "done": "Exportados {{files}} archivos en {{path}}"
   }
 }

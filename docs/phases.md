@@ -177,8 +177,8 @@ The independent SQLite library imports/exports validated portable clips. Local T
 
 ## Phase 17 · Interchange and distribution
 
-- [ ] Export packages for Blender, Unity and Godot with validation
-- [ ] glTF validation and tangents
+- [x] Export packages for Blender, Unity and Godot with validation
+- [x] glTF validation and tangents
 - [ ] Local CLI for automation
 - [ ] Auto-update
 - [ ] Bundled runtime for engines where licenses allow

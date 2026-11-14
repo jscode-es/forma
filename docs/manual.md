@@ -146,6 +146,15 @@ Video capture estimates motion in place: it does not recover calibrated root tra
 
 **Export** (left menu) **→ Files → Export GLB** always writes the active version (a version in preview is not exported until you apply it). The file is read back and its SHA-256 checked. LODs are exported as separate files.
 
+**Export → Interchange → Engine packages** prepares a folder for **Blender**, **Unity** or **Godot** from the active version:
+
+- `model.glb` and, optionally, its LODs as `lod-N.glb`, each checked with the Khronos glTF Validator; a file with validation errors is not packaged.
+- MikkTSpace tangents for primitives with a normal map, so the normal map looks the same in every engine.
+- `README.md` with the import steps for that engine, `validation.json` and `forma-package.json` (units, axes and the SHA-256 of every file).
+- For Blender, `import_forma.py`, which imports the model and its LODs into a `Forma` collection. Unity needs the glTFast package; Godot 4 imports GLB natively.
+
+**Prepare package** runs in the background and lists the files with their validation; **Export folder…** copies them to a new folder and checks every copy.
+
 ## Projects
 
 - **Save project** (Ctrl+S) asks for a name the first time. Files are copied into the project folder.

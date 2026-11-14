@@ -23,6 +23,7 @@ import {
 import { Play, Search, Settings, SlidersHorizontal, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ACTIVE, EngineControl, generateModel, TextureControl, useJobsStore } from "@/feature/jobs";
+import { InterchangeControl } from "@/feature/interchange";
 import { MaterialControl } from "@/feature/materials";
 import { PaintControl, usePaintStore } from "@/feature/paint";
 import { RigControl, RigEditorControl, RigWeightsControl } from "@/feature/rigging";
@@ -221,6 +222,7 @@ const SECTIONS: SectionDef[] = [
   { tab: "model", id: "optimize", content: <OptimizeControl /> },
   { tab: "files", id: "glb", content: <ExportControl /> },
   { tab: "files", id: "lod", content: <LodExportControl /> },
+  { tab: "interchange", id: "interchange", content: <InterchangeControl /> },
   { tab: "create", id: "scale", content: <ScaleControl /> },
   ...(Object.keys(PLANNED_SECTIONS) as InspectorTab[]).flatMap((tab) => PLANNED_SECTIONS[tab].map((s) => ({ tab, ...s }))),
 ];

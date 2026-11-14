@@ -146,6 +146,15 @@ La captura estima el movimiento en el sitio: no recupera desplazamiento de raíz
 
 **Exportar** (menú izquierdo) **→ Archivos → Exportar GLB** siempre guarda la versión activa (una versión en vista previa no se exporta hasta que la apliques). El archivo se vuelve a leer y se comprueba su SHA-256. Los LOD se exportan como archivos separados.
 
+**Exportar → Intercambio → Paquetes para motores** prepara una carpeta para **Blender**, **Unity** o **Godot** a partir de la versión activa:
+
+- `model.glb` y, si quieres, sus LOD como `lod-N.glb`, cada uno comprobado con el validador glTF de Khronos; un archivo con errores de validación no se empaqueta.
+- Tangentes MikkTSpace para las primitivas con mapa de normales, para que el mapa se vea igual en todos los motores.
+- `README.md` con los pasos de importación de ese motor, `validation.json` y `forma-package.json` (unidades, ejes y SHA-256 de cada archivo).
+- Para Blender, `import_forma.py`, que importa el modelo y sus LOD en una colección `Forma`. Unity necesita el paquete glTFast; Godot 4 importa GLB de forma nativa.
+
+**Preparar paquete** trabaja en segundo plano y lista los archivos con su validación; **Exportar carpeta…** los copia a una carpeta nueva y comprueba cada copia.
+
 ## Proyectos
 
 - **Guardar proyecto** (Ctrl+S) pide un nombre la primera vez. Los archivos se copian a la carpeta del proyecto.

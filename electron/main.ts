@@ -127,6 +127,7 @@ function registerIpc() {
   handle("jobs:stage-file", z.tuple([z.uuid(), z.string().max(260)]), (id, file) => jobs.stageFile(id, file));
   handle("jobs:read-file", z.tuple([z.uuid(), z.string().max(260)]), (id, file) => jobs.readFile(id, file));
   handle("jobs:export-file", z.tuple([z.uuid(), z.string().min(1).max(260)]), (id, file) => jobs.exportFile(id, file));
+  handle("jobs:export-package", z.tuple([z.uuid(), z.string().min(1).max(120)]), (id, name) => jobs.exportPackage(id, name));
   handle("system:info", none, getSystemInfo);
   handle("system:hardware", z.tuple([z.boolean()]), getHardware);
   handle("system:blender", z.tuple([z.boolean()]), getBlender);
