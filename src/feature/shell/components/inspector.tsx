@@ -291,7 +291,7 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
             >
               {visible.map((s) => (
                 <AccordionItem key={`${s.tab}-${s.id}`} value={`${s.tab}-${s.id}`}>
-                  <AccordionTrigger>
+                  <AccordionTrigger className={styles.sectionTrigger}>
                     <span className={styles.sectionTitle}>
                       {t(`inspector.sections.${s.id}.title`)}
                       {needle && <Badge variant="secondary">{t(`inspector.tabs.${s.tab}`)}</Badge>}
