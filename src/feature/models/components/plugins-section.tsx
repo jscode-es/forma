@@ -32,7 +32,6 @@ export function PluginsSection() {
 
   return (
     <section className={styles.group}>
-      <h4 className={styles.groupTitle}>{t("plugins.title")}</h4>
       {plugins.map((p) => (
         <div key={p.id} className={styles.item}>
           <div className={styles.itemMain}>

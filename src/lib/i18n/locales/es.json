@@ -358,7 +358,8 @@
       "responsibility": "Eres responsable de cumplir los términos de la licencia en tu país y para tu uso.",
       "accept": "He leído y acepto la licencia",
       "acceptAndDownload": "Aceptar y descargar"
-    }
+    },
+    "weightsTab": "Pesos"
   },
   "errors": {
     "image-too-large": "La imagen supera los 20 MB",
@@ -458,6 +459,7 @@
     "warn": {
       "cuda": "No se ha detectado CUDA en este equipo.",
       "vram": "Esta GPU tiene menos de {{required}} GB de VRAM."
-    }
+    },
+    "empty": "No hay motores disponibles en esta versión."
   }
 }
