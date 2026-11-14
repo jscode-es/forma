@@ -1,15 +1,30 @@
 {
-  "app": {
-    "tagline": "Estudio de IA local: modelos 3D, rigging, animación y pintura."
+  "nav": {
+    "create3d": "Crear 3D",
+    "createAnimation": "Crear animación"
   },
-  "projects": {
-    "newTitle": "Nuevo proyecto",
-    "newDescription": "Los proyectos se guardan en local con SQLite.",
-    "namePlaceholder": "Nombre del proyecto",
-    "nameLabel": "Nombre del proyecto",
-    "create": "Crear",
-    "emptyTitle": "Aún no hay proyectos",
-    "emptyDescription": "Crea tu primer proyecto para empezar a generar."
+  "viewport": {
+    "create3d": {
+      "title": "Visor 3D",
+      "description": "Los modelos generados aparecerán aquí."
+    },
+    "createAnimation": {
+      "title": "Vista previa de animación",
+      "description": "Los modelos animados se reproducirán aquí."
+    }
+  },
+  "config": {
+    "prompt": "Prompt",
+    "generate": "Generar",
+    "preferences": "Preferencias",
+    "create3d": {
+      "title": "Crear 3D",
+      "promptPlaceholder": "Describe el modelo que quieres generar"
+    },
+    "createAnimation": {
+      "title": "Crear animación",
+      "promptPlaceholder": "Describe la animación que quieres generar"
+    }
   },
   "settings": {
     "language": "Idioma",

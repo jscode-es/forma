@@ -1,15 +1,30 @@
 {
-  "app": {
-    "tagline": "Local-first AI studio: 3D models, rigging, animation and painting."
+  "nav": {
+    "create3d": "Create 3D",
+    "createAnimation": "Create animation"
   },
-  "projects": {
-    "newTitle": "New project",
-    "newDescription": "Projects are stored locally in SQLite.",
-    "namePlaceholder": "Project name",
-    "nameLabel": "Project name",
-    "create": "Create",
-    "emptyTitle": "No projects yet",
-    "emptyDescription": "Create your first project to start generating."
+  "viewport": {
+    "create3d": {
+      "title": "3D viewport",
+      "description": "Generated models will appear here."
+    },
+    "createAnimation": {
+      "title": "Animation preview",
+      "description": "Animated models will play here."
+    }
+  },
+  "config": {
+    "prompt": "Prompt",
+    "generate": "Generate",
+    "preferences": "Preferences",
+    "create3d": {
+      "title": "Create 3D",
+      "promptPlaceholder": "Describe the model you want to generate"
+    },
+    "createAnimation": {
+      "title": "Create animation",
+      "promptPlaceholder": "Describe the animation you want to generate"
+    }
   },
   "settings": {
     "language": "Language",
