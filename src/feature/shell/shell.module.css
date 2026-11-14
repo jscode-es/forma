@@ -313,6 +313,7 @@
 .sectionBody {
   display: grid;
   gap: 0.75rem;
+  padding: 3px;
   color: var(--color-foreground);
 }
 

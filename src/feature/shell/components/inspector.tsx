@@ -13,6 +13,9 @@ import {
   InputGroup,
   InputGroupAddon,
   Label,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Switch,
   ToggleGroup,
   ToggleGroupItem,
@@ -22,7 +25,7 @@ import { useTranslation } from "react-i18next";
 import { ACTIVE, EngineControl, generateModel, useJobsStore } from "@/feature/jobs";
 import { useModelsStore } from "@/feature/models";
 import { ExportControl, LodExportControl, OptimizeControl } from "@/feature/versions";
-import { useProjectStore, type Quality } from "@/stores/project-store";
+import { DEFAULT_QUALITY_STEPS, useProjectStore, type Quality } from "@/stores/project-store";
 import { useWorkspaceStore, type InspectorTab } from "@/stores/workspace-store";
 import styles from "../shell.module.css";
 import { INSPECTOR_TABS, PLANNED_SECTIONS, type SectionKey } from "../sections";
@@ -36,21 +39,65 @@ function QualityControl() {
   const { t } = useTranslation();
   const quality = useProjectStore((s) => s.quality);
   const setQuality = useProjectStore((s) => s.setQuality);
+  const steps = useProjectStore((s) => s.qualitySteps[s.quality]);
 
   return (
-    <ToggleGroup
-      type="single"
-      value={quality}
-      onValueChange={(v) => v && setQuality(v as Quality)}
-      aria-label={t("inspector.sections.quality.title")}
-      style={{ width: "100%" }}
-    >
-      {QUALITIES.map((q) => (
-        <ToggleGroupItem key={q} value={q} style={{ flex: 1 }}>
-          {t(`quality.${q}`)}
-        </ToggleGroupItem>
-      ))}
-    </ToggleGroup>
+    <div className={styles.sectionBody} style={{ padding: 0 }}>
+      <ToggleGroup
+        type="single"
+        value={quality}
+        onValueChange={(v) => v && setQuality(v as Quality)}
+        aria-label={t("inspector.sections.quality.title")}
+        style={{ width: "100%" }}
+      >
+        {QUALITIES.map((q) => (
+          <ToggleGroupItem key={q} value={q} style={{ flex: 1 }}>
+            {t(`quality.${q}`)}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
+      <span className={styles.hint}>{t("quality.selected", { steps })}</span>
+    </div>
+  );
+}
+
+function QualityStepsButton() {
+  const { t } = useTranslation();
+  const qualitySteps = useProjectStore((s) => s.qualitySteps);
+  const setQualitySteps = useProjectStore((s) => s.setQualitySteps);
+
+  return (
+    <Popover>
+      <PopoverTrigger className={styles.iconAction} aria-label={t("quality.customize")} title={t("quality.customize")}>
+        <Icon icon={Settings} size={15} />
+      </PopoverTrigger>
+      <PopoverContent style={{ width: 240 }}>
+        <div className={styles.sectionBody}>
+          <strong style={{ fontSize: "0.8125rem" }}>{t("quality.stepsTitle")}</strong>
+          {QUALITIES.map((q) => (
+            <div key={q} className={styles.row}>
+              <Label htmlFor={`quality-steps-${q}`}>{t(`quality.${q}`)}</Label>
+              <Input
+                id={`quality-steps-${q}`}
+                type="number"
+                min={1}
+                max={200}
+                step={1}
+                value={qualitySteps[q]}
+                style={{ width: "5.5rem" }}
+                onChange={(e) => {
+                  const value = Math.round(Number(e.target.value));
+                  if (Number.isFinite(value) && value >= 1 && value <= 200) setQualitySteps({ ...qualitySteps, [q]: value });
+                }}
+              />
+            </div>
+          ))}
+          <Button size="sm" variant="ghost" onClick={() => setQualitySteps(DEFAULT_QUALITY_STEPS)}>
+            {t("quality.reset")}
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -132,7 +179,7 @@ const SECTIONS: SectionDef[] = [
     action: <ManageModelsButton />,
     content: <EngineControl />,
   },
-  { tab: "create", id: "quality", content: <QualityControl /> },
+  { tab: "create", id: "quality", action: <QualityStepsButton />, content: <QualityControl /> },
   { tab: "model", id: "optimize", content: <OptimizeControl /> },
   { tab: "export", id: "glb", content: <ExportControl /> },
   { tab: "export", id: "lod", content: <LodExportControl /> },

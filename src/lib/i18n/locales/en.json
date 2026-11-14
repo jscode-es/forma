@@ -120,7 +120,7 @@
       },
       "quality": {
         "title": "Quality",
-        "help": "Fast, balanced and high use 15, 30 and 50 steps."
+        "help": "Sampling steps of each profile. Use the gear to customize them."
       },
       "scale": {
         "title": "Physical scale",
@@ -197,7 +197,11 @@
   "quality": {
     "fast": "Fast",
     "balanced": "Balanced",
-    "high": "High"
+    "high": "High",
+    "selected": "{{steps}} steps",
+    "customize": "Customize steps",
+    "stepsTitle": "Steps per profile",
+    "reset": "Reset to 15 / 30 / 50"
   },
   "scale": {
     "apply": "Apply physical scale",

@@ -4,8 +4,11 @@ export type ParameterValue = number | boolean | string;
 
 export type EngineSelection = { id: string | null; parameters: Record<string, ParameterValue> };
 
+export type QualitySteps = Record<Quality, number>;
+
 export type ProjectSettings = {
   quality: Quality;
+  qualitySteps: QualitySteps;
   physicalScale: boolean;
   heightMeters: number;
   engine: EngineSelection;

@@ -120,7 +120,7 @@
       },
       "quality": {
         "title": "Calidad",
-        "help": "Rápida, equilibrada y alta usan 15, 30 y 50 pasos."
+        "help": "Pasos de muestreo de cada perfil. Con el engranaje puedes personalizarlos."
       },
       "scale": {
         "title": "Escala física",
@@ -197,7 +197,11 @@
   "quality": {
     "fast": "Rápida",
     "balanced": "Equilibrada",
-    "high": "Alta"
+    "high": "Alta",
+    "selected": "{{steps}} pasos",
+    "customize": "Personalizar pasos",
+    "stepsTitle": "Pasos por perfil",
+    "reset": "Restablecer 15 / 30 / 50"
   },
   "scale": {
     "apply": "Aplicar escala física",
