@@ -7,10 +7,13 @@ export {
   backgroundEngine,
   engineFor,
   errorMessage,
+  generateImages,
   generateModel,
   localized,
   optimizeModel,
   refreshEngines,
   removeBackground,
+  pickCandidate,
   useJobsStore,
+  type Candidates,
 } from "./jobs-store";

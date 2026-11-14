@@ -26,7 +26,7 @@ Every new project starts with a 1 m cube. Projects, settings and the panel layou
 Forma includes the engines it supports, but you activate them yourself because their licenses are between you and their authors.
 
 1. Open **Models** (left menu) → **Engines**.
-2. Click **Activate** on the engine (for example Hunyuan3D 2.0). Check the requirements: NVIDIA GPU with CUDA and enough VRAM, Python 3.11 and Git, free disk.
+2. Click **Activate** on the engine (for example Hunyuan3D 2.0). Check the requirements: NVIDIA GPU with CUDA and enough VRAM, Python 3.11, Git when the plugin downloads code, free disk.
 3. Read the licenses, tick **I have read and accept these licenses** and click **Accept and activate**.
 4. Forma downloads the engine code at a fixed version, prepares its Python environment (several GB the first time), verifies it and downloads the model weights. Progress and the last lines of output are shown; you can cancel.
 
@@ -45,6 +45,16 @@ Hunyuan3D 2.0 is licensed by Tencent and the license does not apply in the Europ
 5. Click **Generate model**. The job appears in **Job queue**; **Process** shows its progress, prepared images and log.
 
 On an RTX 5070 (12 GB), Hunyuan3D 2.0 needs about 2 minutes at 30 steps.
+
+## Create a model from text
+
+1. Activate an image engine, such as **SDXL-Lightning**, in **Models → Engines**.
+2. In **Create 3D → Create → Prompt**, describe one object and choose the image engine. *Images* sets how many candidates you get and *Seed* makes them reproducible; candidate *n* uses seed + *n*.
+3. Click **Generate images** (or press Ctrl+Enter in the prompt). The candidates appear under the button.
+4. Click the candidate you like: it becomes the reference, with its prompt and seed.
+5. Continue as in [Create a model from an image](#create-a-model-from-an-image), from step 3.
+
+**Prompt history** keeps every prompt of the project with its engine settings and seed. **Reuse** puts the prompt and settings back so you can repeat or vary it.
 
 ## Versions
 

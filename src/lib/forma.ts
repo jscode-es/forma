@@ -21,6 +21,7 @@ export type {
   ProjectScene,
   ProjectSettings,
   ProjectSummary,
+  PromptEntry,
   Quality,
   QualitySteps,
   ReferenceImage,

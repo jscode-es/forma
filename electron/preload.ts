@@ -63,6 +63,7 @@ const api: FormaApi = {
     logs: (id) => invoke("jobs:logs", id),
     stageResult: (id) => invoke("jobs:stage-result", id),
     stageImage: (id) => invoke("jobs:stage-image", id),
+    stageReference: (id, file) => invoke("jobs:stage-reference", id, file),
     stageFile: (id, file) => invoke("jobs:stage-file", id, file),
     readFile: (id, file) => invoke("jobs:read-file", id, file),
     onUpdate: (callback) => subscribe("jobs:update", callback),

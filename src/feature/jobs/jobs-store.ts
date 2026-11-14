@@ -7,8 +7,18 @@ import { scaleGlbToHeight } from "./scale";
 type Target =
   | { kind: "model"; engineName: string }
   | { kind: "optimize"; budget: number }
-  | { kind: "prepared"; referenceId: string };
+  | { kind: "prepared"; referenceId: string }
+  | { kind: "candidates"; prompt: string; engineId: string };
 type Pending = Target & { sessionId: string };
+
+export type Candidates = {
+  jobId: string;
+  sessionId: string;
+  prompt: string;
+  engineId: string;
+  files: { path: string; label: string; seed: number | null }[];
+  picked: string | null;
+};
 
 type JobsState = {
   jobs: JobInfo[];
@@ -17,6 +27,7 @@ type JobsState = {
   selectedId: string | null;
   pending: Record<string, Pending>;
   enqueueError: string | null;
+  candidates: Candidates | null;
   select: (id: string | null) => void;
 };
 
@@ -27,6 +38,7 @@ export const useJobsStore = create<JobsState>()((set) => ({
   selectedId: null,
   pending: {},
   enqueueError: null,
+  candidates: null,
   select: (selectedId) => set({ selectedId }),
 }));
 
@@ -61,19 +73,23 @@ async function enqueue(
   parameters: JobInfo["parameters"],
   target: Target,
   models: SceneModel[] = [],
+  prompt: string | null = null,
 ) {
   const api = window.forma!;
   const project = useProjectStore.getState();
   const reference = project.references[0];
   const images =
-    engine.inputs.images.max > 0 && reference ? [task === "remove-background" ? reference.original : activeImage(reference)] : [];
-  const job = await api.jobs.enqueue({ engineId: engine.id, task, projectId: project.id, parameters, images, models });
+    task !== "text-to-image" && engine.inputs.images.max > 0 && reference
+      ? [task === "remove-background" ? reference.original : activeImage(reference)]
+      : [];
+  const job = await api.jobs.enqueue({ engineId: engine.id, task, projectId: project.id, parameters, images, models, prompt });
   upsertJob(job);
   useJobsStore.setState((s) => ({
     selectedId: job.id,
     enqueueError: null,
     pending: { ...s.pending, [job.id]: { ...target, sessionId: project.sessionId } },
   }));
+  return job;
 }
 
 export async function generateModel() {
@@ -86,6 +102,43 @@ export async function generateModel() {
   }
   try {
     await enqueue("image-to-3d", engine, parameters, { kind: "model", engineName: engine.name });
+  } catch (error) {
+    useJobsStore.setState({ enqueueError: errorMessage(error) });
+  }
+}
+
+export async function generateImages() {
+  const project = useProjectStore.getState();
+  const engine = useJobsStore.getState().engines.find((e) => e.id === project.imageEngine.id);
+  const prompt = project.prompt.trim();
+  if (!window.forma || !engine || !prompt) return;
+  try {
+    const job = await enqueue("text-to-image", engine, { ...project.imageEngine.parameters }, { kind: "candidates", prompt, engineId: engine.id }, [], prompt);
+    useProjectStore.getState().addPrompt({
+      id: crypto.randomUUID(),
+      text: prompt,
+      engineId: engine.id,
+      params: job.parameters,
+      createdAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    useJobsStore.setState({ enqueueError: errorMessage(error) });
+  }
+}
+
+export async function pickCandidate(path: string) {
+  const candidates = useJobsStore.getState().candidates;
+  const file = candidates?.files.find((f) => f.path === path);
+  if (!window.forma || !candidates || !file) return;
+  try {
+    const reference = await window.forma.jobs.stageReference(candidates.jobId, path);
+    if (useProjectStore.getState().sessionId !== candidates.sessionId) return;
+    useProjectStore.getState().setReference({
+      ...reference,
+      name: candidates.prompt.slice(0, 120),
+      prompt: { text: candidates.prompt, seed: file.seed, engineId: candidates.engineId },
+    });
+    useJobsStore.setState({ candidates: { ...candidates, picked: path }, enqueueError: null });
   } catch (error) {
     useJobsStore.setState({ enqueueError: errorMessage(error) });
   }
@@ -141,6 +194,16 @@ export async function applyFinishedJob(job: JobInfo) {
   }
   if (job.status !== "succeeded") return;
   const api = window.forma!;
+
+  if (target.kind === "candidates") {
+    const files = job.results
+      .filter((r) => r.kind === "image")
+      .map((r) => ({ path: r.path, label: r.label, seed: typeof r.meta?.seed === "number" ? r.meta.seed : null }));
+    useJobsStore.setState({
+      candidates: { jobId: job.id, sessionId: target.sessionId, prompt: target.prompt, engineId: target.engineId, files, picked: null },
+    });
+    return;
+  }
 
   if (target.kind === "prepared") {
     const prepared = await api.jobs.stageImage(job.id);

@@ -5,11 +5,11 @@ import path from "node:path";
 import { createInterface } from "node:readline";
 import { app, BrowserWindow } from "electron";
 import { z } from "zod";
-import type { ImageSource, JobFile, JobInfo, JobRequest, SceneModel } from "./contract";
+import type { ImageSource, JobFile, JobInfo, JobRequest, ReferenceImage, SceneModel } from "./contract";
 import { getDb } from "./db";
 import { enginePython, listEngines, resolveParameters, type InstalledEngine } from "./engines";
 import { findPython } from "./hardware";
-import { imageExtension, imagePath, stageImageFile } from "./images";
+import { imageExtension, imagePath, inspectImage, stageImageFile } from "./images";
 import { modelPath, stageModelFile, stagingRoot } from "./models";
 import { installedWeights } from "./weights";
 
@@ -39,7 +39,19 @@ const message = z.discriminatedUnion("type", [
   z.object({ type: z.literal("intermediate"), path: z.string().max(260), label: z.string().max(120), kind: z.string().max(40).default("file") }),
   z.object({
     type: z.literal("result"),
-    files: z.array(z.object({ path: z.string().max(260), label: z.string().max(120).default(""), kind: z.string().max(40) })).max(32),
+    files: z
+      .array(
+        z.object({
+          path: z.string().max(260),
+          label: z.string().max(120).default(""),
+          kind: z.string().max(40),
+          meta: z
+            .record(z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]{0,31}$/), z.union([z.number().finite(), z.boolean(), z.string().max(200)]))
+            .refine((m) => Object.keys(m).length <= 8, "too many meta keys")
+            .optional(),
+        }),
+      )
+      .max(32),
   }),
   z.object({ type: z.literal("error"), message: z.string().max(4000) }),
 ]);
@@ -148,6 +160,8 @@ class JobRunner {
     if (!engine.info.available) throw new Error(`Engine unavailable: ${engine.info.problem}`);
     if (!engine.manifest.tasks.includes(request.task)) throw new Error("The engine does not support this task");
     const parameters = resolveParameters(engine.manifest, request.parameters);
+    const prompt = request.task === "text-to-image" || request.task === "text-to-3d" ? (request.prompt ?? null) : null;
+    if ((request.task === "text-to-image" || request.task === "text-to-3d") && !prompt) throw new Error("prompt-required");
     const limits = engine.manifest.inputs.images;
     if (request.images.length < limits.min) throw new Error("reference-required");
     if (request.images.length > limits.max) throw new Error("Too many reference images");
@@ -174,7 +188,7 @@ class JobRunner {
       fs.copyFileSync(source, path.join(jobDir(id), name));
       return name;
     });
-    fs.writeFileSync(path.join(jobDir(id), "inputs.json"), JSON.stringify({ images: inputs, models }));
+    fs.writeFileSync(path.join(jobDir(id), "inputs.json"), JSON.stringify({ images: inputs, models, prompt }));
     getDb()
       .prepare("INSERT INTO jobs (id, engine_id, kind, project_id, status, params) VALUES (?, ?, ?, ?, 'queued', ?)")
       .run(id, engine.manifest.id, request.task, request.projectId, JSON.stringify(parameters));
@@ -196,7 +210,7 @@ class JobRunner {
 
   retry(id: string): Promise<JobInfo> {
     const row = getRow(id);
-    const { images: imageFiles, models: modelFiles } = this.inputs(id);
+    const { images: imageFiles, models: modelFiles, prompt } = this.inputs(id);
     const images: ImageSource[] = imageFiles.map((file) => stageImageFile(path.join(jobDir(id), file)));
     const models: SceneModel[] = modelFiles.map((file) => stageModelFile(path.join(jobDir(id), file), "Input"));
     return this.enqueue({
@@ -206,15 +220,16 @@ class JobRunner {
       parameters: JSON.parse(row.params),
       images,
       models,
+      prompt,
     });
   }
 
-  private inputs(id: string): { images: string[]; models: string[] } {
+  private inputs(id: string): { images: string[]; models: string[]; prompt: string | null } {
     try {
       const parsed = JSON.parse(fs.readFileSync(path.join(jobDir(id), "inputs.json"), "utf8"));
-      return { images: parsed.images ?? [], models: parsed.models ?? [] };
+      return { images: parsed.images ?? [], models: parsed.models ?? [], prompt: typeof parsed.prompt === "string" ? parsed.prompt : null };
     } catch {
-      return { images: [], models: [] };
+      return { images: [], models: [], prompt: null };
     }
   }
 
@@ -230,6 +245,24 @@ class JobRunner {
     const image = job.results.find((r) => r.kind === "image");
     if (job.status !== "succeeded" || !image) throw new Error("The job has no image result");
     return stageImageFile(this.resolveFile(id, image.path));
+  }
+
+  stageReference(id: string, relative: string): ReferenceImage {
+    const job = toInfo(getRow(id));
+    const image = job.results.find((r) => r.path === relative && r.kind === "image");
+    if (job.status !== "succeeded" || !image) throw new Error("File not found");
+    const file = this.resolveFile(id, image.path);
+    const { width, height } = inspectImage(file);
+    return {
+      id: randomUUID(),
+      name: (image.label || path.basename(image.path, path.extname(image.path))).slice(0, 120),
+      width,
+      height,
+      original: stageImageFile(file),
+      prepared: null,
+      usePrepared: false,
+      prompt: null,
+    };
   }
 
   readFile(id: string, relative: string): Uint8Array {
@@ -314,6 +347,7 @@ class JobRunner {
       inputs: {
         images: this.inputs(id).images.map((file) => path.join(dir, file)),
         models: this.inputs(id).models.map((file) => path.join(dir, file)),
+        prompt: this.inputs(id).prompt,
       },
       outputDir: path.join(dir, "out"),
     };
@@ -361,7 +395,7 @@ class JobRunner {
           getDb().prepare("UPDATE jobs SET intermediates = ? WHERE id = ?").run(JSON.stringify(intermediates), id);
           emit(id);
         } else if (parsed.type === "result") {
-          results = parsed.files.map((f) => ({ path: insideOutput(id, f.path), label: f.label, kind: f.kind }));
+          results = parsed.files.map((f) => ({ path: insideOutput(id, f.path), label: f.label, kind: f.kind, ...(f.meta ? { meta: f.meta } : {}) }));
         } else {
           error = parsed.message;
           write(`error ${parsed.message}`);

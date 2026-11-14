@@ -12,6 +12,7 @@ export type ProjectSettings = {
   physicalScale: boolean;
   heightMeters: number;
   engine: EngineSelection;
+  imageEngine: EngineSelection;
 };
 
 export type SceneModel =
@@ -29,6 +30,15 @@ export type ReferenceImage = {
   original: ImageSource;
   prepared: ImageSource | null;
   usePrepared: boolean;
+  prompt: { text: string; seed: number | null; engineId: string } | null;
+};
+
+export type PromptEntry = {
+  id: string;
+  text: string;
+  engineId: string;
+  params: Record<string, ParameterValue>;
+  createdAt: string;
 };
 
 export type VariantOrigin = "default" | "import" | "generation" | "optimize";
@@ -47,7 +57,7 @@ export type Variant = {
   triangles: number | null;
 };
 
-export type ProjectScene = { references: ReferenceImage[]; variants: Variant[]; activeVariantId: string };
+export type ProjectScene = { references: ReferenceImage[]; prompts: PromptEntry[]; variants: Variant[]; activeVariantId: string };
 
 export type ModelSource = { type: "staged"; stagingId: string } | { type: "asset"; projectId: string; assetId: string };
 
@@ -82,12 +92,22 @@ export type HardwareInfo = {
 
 export type LocalizedText = { en: string; es?: string };
 
-export type EngineTask = "image-to-3d" | "text-to-3d" | "remove-background" | "optimize" | "texture" | "rig" | "animation";
+export type EngineTask =
+  | "image-to-3d"
+  | "text-to-3d"
+  | "text-to-image"
+  | "remove-background"
+  | "optimize"
+  | "texture"
+  | "rig"
+  | "animation";
+
+type ParameterBase = { id: string; label: LocalizedText; tasks?: EngineTask[] };
 
 export type EngineParameter =
-  | { id: string; type: "integer" | "number"; label: LocalizedText; min: number; max: number; step?: number; default: number }
-  | { id: string; type: "boolean"; label: LocalizedText; default: boolean }
-  | { id: string; type: "enum"; label: LocalizedText; options: { value: string; label: LocalizedText }[]; default: string };
+  | (ParameterBase & { type: "integer" | "number"; min: number; max: number; step?: number; default: number })
+  | (ParameterBase & { type: "boolean"; default: boolean })
+  | (ParameterBase & { type: "enum"; options: { value: string; label: LocalizedText }[]; default: string });
 
 export type EngineInfo = {
   id: string;
@@ -149,7 +169,7 @@ export type PluginState = {
 
 export type JobStatus = "queued" | "running" | "succeeded" | "failed" | "cancelled";
 
-export type JobFile = { path: string; label: string; kind: string };
+export type JobFile = { path: string; label: string; kind: string; meta?: Record<string, ParameterValue> };
 
 export type JobInfo = {
   id: string;
@@ -175,6 +195,7 @@ export type JobRequest = {
   parameters: Record<string, ParameterValue>;
   images: ImageSource[];
   models: SceneModel[];
+  prompt?: string | null;
 };
 
 export type IpcChannels = {
@@ -212,6 +233,7 @@ export type IpcChannels = {
   "jobs:logs": { args: [string]; result: string };
   "jobs:stage-result": { args: [string]; result: SceneModel };
   "jobs:stage-image": { args: [string]; result: ImageSource };
+  "jobs:stage-reference": { args: [string, string]; result: ReferenceImage };
   "jobs:stage-file": { args: [string, string]; result: SceneModel };
   "jobs:read-file": { args: [string, string]; result: Uint8Array };
   "system:info": { args: []; result: SystemInfo };
@@ -280,6 +302,7 @@ export type FormaApi = {
     logs: (id: string) => Promise<string>;
     stageResult: (id: string) => Promise<SceneModel>;
     stageImage: (id: string) => Promise<ImageSource>;
+    stageReference: (id: string, path: string) => Promise<ReferenceImage>;
     stageFile: (id: string, path: string) => Promise<SceneModel>;
     readFile: (id: string, path: string) => Promise<Uint8Array>;
     onUpdate: (callback: (job: JobInfo) => void) => () => void;

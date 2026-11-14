@@ -187,10 +187,12 @@ async function installPlugin(id: string, existingPython: string | null) {
   };
 
   try {
-    step("checking");
-    await run(plugin, current, "git", ["--version"]).catch(() => {
-      throw new Error("git-missing");
-    });
+    if (plugin.spec.vendor.length > 0) {
+      step("checking");
+      await run(plugin, current, "git", ["--version"]).catch(() => {
+        throw new Error("git-missing");
+      });
+    }
 
     step("copying");
     fs.mkdirSync(dir, { recursive: true });

@@ -42,6 +42,7 @@ Forma ships a demo engine that needs no GPU and the AI engines it supports as pl
 | Plugin | Task | License of the model | Install |
 | --- | --- | --- | --- |
 | [Hunyuan3D 2.0](plugins/hunyuan3d-2/README.md) | Image to 3D, background removal | Tencent Hunyuan 3D 2.0 Community (not valid in the EU, UK and South Korea) | Models → Engines → Activate |
+| [SDXL-Lightning](plugins/sdxl-lightning/README.md) | Text to image (candidates for text to 3D) | CreativeML Open RAIL++-M | Models → Engines → Activate |
 
 Contributors can also install a plugin from the command line with `npm run plugin:install -- <name> --accept-license`. To write a plugin, see [docs/engine-plugins.md](docs/engine-plugins.md).
 
