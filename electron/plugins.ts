@@ -191,11 +191,13 @@ async function installPlugin(id: string, existingPython: string | null) {
     for (const vendor of plugin.spec.vendor) {
       step("code");
       const vendorDir = path.join(dir, vendor.dir);
+      const git = (...args: string[]) => run(plugin, current, "git", ["-c", "core.longpaths=true", ...args]);
       if (!fs.existsSync(path.join(vendorDir, ".git"))) {
-        await run(plugin, current, "git", ["clone", "--filter=blob:none", "--no-checkout", vendor.repo, vendorDir]);
+        await git("clone", "--filter=blob:none", "--no-checkout", vendor.repo, vendorDir);
       }
-      await run(plugin, current, "git", ["-C", vendorDir, "fetch", "--quiet", "origin", vendor.commit]);
-      await run(plugin, current, "git", ["-C", vendorDir, "checkout", "--quiet", "--force", vendor.commit]);
+      if (vendor.paths) await git("-C", vendorDir, "sparse-checkout", "set", "--", ...vendor.paths);
+      await git("-C", vendorDir, "fetch", "--quiet", "origin", vendor.commit);
+      await git("-C", vendorDir, "checkout", "--quiet", "--force", vendor.commit);
     }
 
     let python: string;

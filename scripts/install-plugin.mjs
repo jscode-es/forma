@@ -49,11 +49,11 @@ const run = (command, commandArgs, options = {}) => {
 
 for (const vendor of install.vendor ?? []) {
   const dir = join(target, vendor.dir);
-  if (!existsSync(join(dir, ".git"))) {
-    run("git", ["clone", "--filter=blob:none", "--no-checkout", vendor.repo, dir]);
-  }
-  run("git", ["-C", dir, "fetch", "--quiet", "origin", vendor.commit]);
-  run("git", ["-C", dir, "checkout", "--quiet", "--force", vendor.commit]);
+  const git = (...args) => run("git", ["-c", "core.longpaths=true", ...args]);
+  if (!existsSync(join(dir, ".git"))) git("clone", "--filter=blob:none", "--no-checkout", vendor.repo, dir);
+  if (vendor.paths) git("-C", dir, "sparse-checkout", "set", "--", ...vendor.paths);
+  git("-C", dir, "fetch", "--quiet", "origin", vendor.commit);
+  git("-C", dir, "checkout", "--quiet", "--force", vendor.commit);
   const head = execFileSync("git", ["-C", dir, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
   if (head !== vendor.commit) throw new Error(`Unexpected commit ${head} in ${vendor.dir}`);
   console.log(`${vendor.dir} at ${vendor.commit.slice(0, 7)}`);

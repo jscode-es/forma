@@ -11,12 +11,18 @@
     {
       "repo": "https://github.com/Tencent-Hunyuan/Hunyuan3D-2.git",
       "commit": "f8db63096c8282cb27354314d896feba5ba6ff8a",
-      "dir": "vendor/Hunyuan3D-2"
+      "dir": "vendor/Hunyuan3D-2",
+      "paths": [
+        "hy3dgen"
+      ]
     },
     {
       "repo": "https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1.git",
       "commit": "82920d643c0dc2f7bfd7255f45f62d386edfe60c",
-      "dir": "vendor/Hunyuan3D-2.1"
+      "dir": "vendor/Hunyuan3D-2.1",
+      "paths": [
+        "hy3dpaint"
+      ]
     }
   ],
   "build": [
