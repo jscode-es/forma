@@ -238,6 +238,44 @@ export const engineManifest = z.object({
 
 export type EngineManifest = z.infer<typeof engineManifest>;
 
+export const engineMessage = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("progress"), value: z.number().min(0).max(1), stage: z.string().max(80).optional() }),
+  z.object({ type: z.literal("log"), level: z.enum(["debug", "info", "warn", "error"]).default("info"), message: z.string().max(4000) }),
+  z.object({ type: z.literal("intermediate"), path: z.string().max(260), label: z.string().max(120), kind: z.string().max(40).default("file") }),
+  z.object({
+    type: z.literal("result"),
+    files: z
+      .array(
+        z.object({
+          path: z.string().max(260),
+          label: z.string().max(120).default(""),
+          kind: z.string().max(40),
+          meta: z
+            .record(z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]{0,31}$/), z.union([z.number().finite(), z.boolean(), z.string().max(200)]))
+            .refine((m) => Object.keys(m).length <= 8, "too many meta keys")
+            .optional(),
+        }),
+      )
+      .max(32),
+  }),
+  z.object({ type: z.literal("error"), message: z.string().max(4000) }),
+]);
+
+export const installSpec = z.object({
+  python: z.string().regex(/^3\.\d+$/),
+  requirements: z.string().regex(/^[\w.-]+$/),
+  files: z.array(z.string().regex(/^[\w.-]+$/)).min(1),
+  vendor: z
+    .array(z.object({ repo: z.url({ protocol: /^https$/ }), commit: z.string().regex(/^[0-9a-f]{40}$/), dir: z.string().regex(/^[\w./-]+$/) }))
+    .default([]),
+  licenseNotice: z.object({ en: z.string().min(1).max(2000), es: z.string().max(2000).optional() }).optional(),
+  build: z
+    .array(z.string().regex(/^[\w./-]+$/).refine((dir) => !dir.split("/").includes(".."), "build dirs must stay inside the plugin"))
+    .default([]),
+  diskGb: z.number().positive().default(1),
+  check: z.string().max(400).optional(),
+});
+
 function parseJson<T>(raw: string, schema: z.ZodType<T>, fallback: T, defaults: object = {}): T {
   try {
     const parsed = schema.safeParse({ ...defaults, ...JSON.parse(raw) });

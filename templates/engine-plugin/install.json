@@ -1,0 +1,11 @@
+{
+  "python": "3.11",
+  "requirements": "requirements.txt",
+  "files": ["forma-engine.json", "main.py", "requirements.txt", "README.md"],
+  "licenseNotice": {
+    "en": "This template has no third-party code or weights. Describe here the licenses the user accepts when installing your engine.",
+    "es": "Esta plantilla no tiene código ni pesos de terceros. Describe aquí las licencias que acepta el usuario al instalar tu motor."
+  },
+  "diskGb": 0.1,
+  "check": "import json, struct; print('ok')"
+}

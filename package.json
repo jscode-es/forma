@@ -21,6 +21,9 @@
     "prepare": "husky",
     "fixtures": "node scripts/fetch-fixtures.mjs",
     "plugin:install": "node scripts/install-plugin.mjs",
+    "plugin:new": "node scripts/new-plugin.mjs",
+    "plugin:check": "node scripts/check-plugin.mjs",
+    "plugin:weights": "node scripts/weights-manifest.mjs",
     "test:unit": "node --test tests/*.test.mjs tests/electron/job-queue.test.cjs tests/electron/animation-library.test.cjs",
     "test:e2e": "playwright test"
   },

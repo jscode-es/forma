@@ -17,7 +17,7 @@ The end-to-end suite (Playwright) launches the built app with an isolated data f
 
 ## Engines
 
-To integrate an AI model, write an engine plugin: see [docs/engine-plugins.md](docs/engine-plugins.md). Use the built-in `forma-demo` engine to test the job pipeline without a GPU.
+To integrate an AI model, write an engine plugin: follow the [plugin guide](docs/plugin-guide.md) (`npm run plugin:new`, `npm run plugin:check`) and the [reference](docs/engine-plugins.md). Use the built-in `forma-demo` engine to test the job pipeline without a GPU.
 
 ## Workflow
 

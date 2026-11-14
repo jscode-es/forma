@@ -166,7 +166,7 @@ The independent SQLite library imports/exports validated portable clips. Local T
 
 ## Phase 16 · More engines and plugins
 
-- [ ] Public plugin guide and template
+- [x] Public plugin guide and template (`plugin:new`, `plugin:check`, `plugin:weights`, CI validation)
 - [ ] Additional engines as community plugins (TRELLIS family, Pixal3D, gaussian splats)
 - [ ] WSL/Linux engine environments
 - [ ] Engine comparison with common captures

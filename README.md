@@ -47,12 +47,12 @@ Forma ships a demo engine that needs no GPU and the AI engines it supports as pl
 | [Hunyuan3D Paint 2.1 PBR](plugins/hunyuan3d-2-1-paint/README.md) | Texture: albedo, metallic and roughness | Tencent Hunyuan 3D 2.1 Community (not valid in the EU, UK and South Korea) | Models → Engines → Activate |
 | [MediaPipe Motion](plugins/mediapipe-motion/README.md) | Motion from video | Apache 2.0 | Models → Engines → Activate |
 
-Contributors can also install a plugin from the command line with `npm run plugin:install -- <name> --accept-license`. To write a plugin, see [docs/engine-plugins.md](docs/engine-plugins.md).
+Contributors can also install a plugin from the command line with `npm run plugin:install -- <name> --accept-license`. To write a plugin, follow the [plugin guide](docs/plugin-guide.md).
 
 ## Documentation
 
 - [User manual](docs/manual.md) · [Manual de usuario](docs/manual.es.md)
-- [Architecture](docs/architecture.md), [engine plugins](docs/engine-plugins.md), [releasing](docs/releasing.md), [development phases](docs/phases.md)
+- [Architecture](docs/architecture.md), [plugin guide](docs/plugin-guide.md), [engine plugins](docs/engine-plugins.md), [releasing](docs/releasing.md), [development phases](docs/phases.md)
 
 ## Contributing
 

@@ -19,6 +19,8 @@ jobs:
       - run: npm run lint
       - run: npm run build
       - run: npm run test:unit
+      - run: npm run plugin:check -- templates/engine-plugin plugins/* engines/*
+      - run: npm run plugin:check -- templates/engine-plugin engines/demo engines/mesh-tools --run
       - run: python3 -m unittest discover -s tests -p "test_*.py"
 
   e2e:
