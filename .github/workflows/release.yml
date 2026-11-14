@@ -39,9 +39,22 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx electron-builder --publish never
+      - name: Package (signed when certificates are configured)
+        shell: bash
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
+          WIN_CERTIFICATE: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CERTIFICATE_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          MAC_CERTIFICATE: ${{ secrets.MAC_CSC_LINK }}
+          MAC_CERTIFICATE_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          APPLE_ID_SECRET: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD_SECRET: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_SECRET: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          if [ -n "$WIN_CERTIFICATE" ]; then export WIN_CSC_LINK="$WIN_CERTIFICATE" WIN_CSC_KEY_PASSWORD="$WIN_CERTIFICATE_PASSWORD"; fi
+          if [ -n "$MAC_CERTIFICATE" ]; then export CSC_LINK="$MAC_CERTIFICATE" CSC_KEY_PASSWORD="$MAC_CERTIFICATE_PASSWORD"; fi
+          if [ -n "$APPLE_ID_SECRET" ]; then export APPLE_ID="$APPLE_ID_SECRET" APPLE_APP_SPECIFIC_PASSWORD="$APPLE_PASSWORD_SECRET" APPLE_TEAM_ID="$APPLE_TEAM_SECRET"; fi
+          npx electron-builder --publish never
       - name: Upload to release
         shell: bash
         env:

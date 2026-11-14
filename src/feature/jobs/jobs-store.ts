@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { EngineInfo, EngineTask, HardwareInfo, JobInfo, LocalizedText, SceneModel } from "@/lib/forma";
 import { activeImage, activeVariant, QUALITY_STEPS, useProjectStore } from "@/stores/project-store";
+import { useWorkspaceStore } from "@/stores/workspace-store";
 import { scaleGlbToHeight } from "./scale";
 
 type Target =
@@ -132,7 +133,13 @@ export async function applyFinishedJob(job: JobInfo) {
   useJobsStore.setState({ pending: rest });
 
   const project = useProjectStore.getState();
-  if (job.status !== "succeeded" || target.sessionId !== project.sessionId) return;
+  if (target.sessionId !== project.sessionId) return;
+  if (job.status === "failed") {
+    useJobsStore.setState({ selectedId: job.id });
+    useWorkspaceStore.getState().setDockTab("process");
+    return;
+  }
+  if (job.status !== "succeeded") return;
   const api = window.forma!;
 
   if (target.kind === "prepared") {

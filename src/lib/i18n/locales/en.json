@@ -93,7 +93,8 @@
       "label": "Timeline",
       "title": "No animation",
       "description": "Keys and tracks of the active clip."
-    }
+    },
+    "label": "Activity"
   },
   "inspector": {
     "title": "Configuration",

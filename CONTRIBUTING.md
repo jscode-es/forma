@@ -6,7 +6,10 @@ See [Getting started](README.md#getting-started). Before opening a PR run:
 
 ```bash
 npm run typecheck && npm run lint && npm run build
+npm run fixtures && npm run test:e2e
 ```
+
+The end-to-end suite (Playwright) launches the built app with an isolated data folder (`FORMA_USER_DATA`), drives it like a user with the demo engine, checks accessibility with axe and records a performance baseline in `test-results/performance.json`. Set `FORMA_E2E_EXECUTABLE` to run it against a packaged app.
 
 ## Test models
 

@@ -33,7 +33,8 @@ export function Dock() {
   const active = useJobsStore((s) => s.jobs.filter((j) => ACTIVE.has(j.status)).length);
 
   return (
-    <Tabs value={dockTab} onValueChange={(v) => setDockTab(v as DockTab)} className={styles.dock}>
+    <Tabs value={dockTab} onValueChange={(v) => setDockTab(v as DockTab)} className={styles.dock} asChild>
+      <section aria-label={t("dock.label")}>
       <TabsList variant="underline" size="sm" style={{ paddingInline: "0.75rem", justifyContent: "flex-start" }}>
         {TABS.map((id) => (
           <TabsTrigger key={id} value={id} variant="underline" size="sm">
@@ -58,6 +59,7 @@ export function Dock() {
       <TabsContent value="timeline" className={styles.dockBody}>
         <Placeholder id="timeline" icon={Clock} phase={15} />
       </TabsContent>
+      </section>
     </Tabs>
   );
 }

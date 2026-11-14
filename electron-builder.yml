@@ -21,7 +21,7 @@ nsis:
 mac:
   category: public.app-category.graphics-design
   target: [dmg, zip]
-  identity: null
+  hardenedRuntime: true
 linux:
   category: Graphics
   maintainer: Forma contributors <forma@users.noreply.github.com>

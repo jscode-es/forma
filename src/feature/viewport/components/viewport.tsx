@@ -40,7 +40,7 @@ export function Viewport() {
   const modelName = variantName(variant, t("scene.cube"));
 
   return (
-    <div className={styles.viewport}>
+    <main className={styles.viewport} aria-label={t("viewport.preview")}>
       <div className={styles.header}>
         <span className={styles.label}>
           <Icon icon={Box} size={16} />
@@ -138,6 +138,6 @@ export function Viewport() {
           </span>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

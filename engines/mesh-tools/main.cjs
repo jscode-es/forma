@@ -1,5 +1,15 @@
+const Module = require("node:module");
 const { readFileSync } = require("node:fs");
 const { join } = require("node:path");
+
+// @gltf-transform/functions loads sharp (through ndarray-pixels) only for texture operations, which are
+// not used here. Its native binary crashes under Electron's Node on Linux, so resolve it to a stub.
+const resolveFilename = Module._resolveFilename;
+Module._resolveFilename = function (request, ...rest) {
+  if (request === "sharp") return join(__dirname, "sharp-stub.cjs");
+  return resolveFilename.call(this, request, ...rest);
+};
+
 const { NodeIO } = require("@gltf-transform/core");
 const { ALL_EXTENSIONS } = require("@gltf-transform/extensions");
 const { prune, simplify, weld } = require("@gltf-transform/functions");

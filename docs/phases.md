@@ -96,11 +96,11 @@ Target: the interface structure of the design reference, without engines.
 
 ## Phase 8 · Stable 1.0
 
-- [ ] End-to-end test suite of the Electron app (open, generate with a fake engine, save, export)
-- [ ] Performance baseline and fixes for the viewer and jobs
-- [ ] Accessibility pass: keyboard, focus, labels
-- [ ] User manual and engine installation guides
-- [ ] Signed installers and a reproducible release checklist
+- [x] End-to-end test suite of the Electron app (open, generate with a fake engine, save, export), also run against the packaged app and in CI
+- [x] Performance baseline and fixes for the viewer and jobs (startup ~2 s, 109k-triangle model ~1 s, demo job ~1 s)
+- [x] Accessibility pass: keyboard, focus, labels (axe: no serious issues; landmarks, headings, keyboard tabs)
+- [x] User manual and engine installation guides (English and Spanish)
+- [ ] Signed installers and a reproducible release checklist (checklist and signing pipeline ready; certificates pending)
 
 ## Phase 9 · Text to 3D
 
