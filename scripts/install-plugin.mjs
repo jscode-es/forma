@@ -73,6 +73,7 @@ if (python) {
   }
   run(python, ["-m", "pip", "install", "--upgrade", "pip"]);
   run(python, ["-m", "pip", "install", "-r", join(target, install.requirements)]);
+  for (const build of install.build ?? []) run(python, ["-m", "pip", "install", "--no-build-isolation", join(target, build)]);
 }
 
 if (install.check) {

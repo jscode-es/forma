@@ -18,6 +18,9 @@ const installSpec = z.object({
     .array(z.object({ repo: z.url({ protocol: /^https$/ }), commit: z.string().regex(/^[0-9a-f]{40}$/), dir: z.string().regex(/^[\w./-]+$/) }))
     .default([]),
   licenseNotice: z.object({ en: z.string().min(1).max(2000), es: z.string().max(2000).optional() }).optional(),
+  build: z
+    .array(z.string().regex(/^[\w./-]+$/).refine((dir) => !dir.split("/").includes(".."), "build dirs must stay inside the plugin"))
+    .default([]),
   diskGb: z.number().positive().default(1),
   check: z.string().max(400).optional(),
 });
@@ -221,6 +224,10 @@ async function installPlugin(id: string, existingPython: string | null) {
       if (!fs.existsSync(python)) await run(plugin, current, await findPython311(plugin.spec.python), ["-m", "venv", venv]);
       step("dependencies");
       await run(plugin, current, python, ["-m", "pip", "install", "--disable-pip-version-check", "-r", path.join(dir, plugin.spec.requirements)]);
+      for (const build of plugin.spec.build) {
+        step("building");
+        await run(plugin, current, python, ["-m", "pip", "install", "--disable-pip-version-check", "--no-build-isolation", path.join(dir, build)]);
+      }
     }
 
     if (plugin.spec.check) {
