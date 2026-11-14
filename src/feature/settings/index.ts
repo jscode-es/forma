@@ -1,1 +1,1 @@
-export { SettingsToggles } from "./components/settings-toggles";
+export { LanguageToggle, ThemeToggle } from "./components/settings-toggles";
