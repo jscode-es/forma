@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { FormaApi } from "@/lib/forma";
-import { currentSettings, useProjectStore } from "@/stores/project-store";
+import { currentScene, currentSettings, useProjectStore } from "@/stores/project-store";
 
 type Pending = () => void | Promise<void>;
 
@@ -43,7 +43,7 @@ export function saveProject(after?: Pending) {
     return;
   }
   return run(async () => {
-    useProjectStore.getState().load(await api().projects.update(id, { name: name ?? "", settings: currentSettings() }));
+    useProjectStore.getState().load(await api().projects.update(id, { name: name ?? "", settings: currentSettings(), scene: currentScene() }));
     await after?.();
   });
 }
@@ -52,7 +52,7 @@ export function saveProjectAs(name: string) {
   const { afterSave } = useProjectFlow.getState();
   useProjectFlow.setState({ saveOpen: false, afterSave: null });
   return run(async () => {
-    useProjectStore.getState().load(await api().projects.create({ name, settings: currentSettings() }));
+    useProjectStore.getState().load(await api().projects.create({ name, settings: currentSettings(), scene: currentScene() }));
     await afterSave?.();
   });
 }

@@ -6,6 +6,15 @@ export type ProjectSettings = {
   heightMeters: number;
 };
 
+export type SceneModel =
+  | { type: "default-cube" }
+  | { type: "asset"; assetId: string; name: string }
+  | { type: "staged"; stagingId: string; name: string };
+
+export type ProjectScene = { model: SceneModel };
+
+export type ModelSource = { type: "staged"; stagingId: string } | { type: "asset"; projectId: string; assetId: string };
+
 export type ProjectSummary = {
   id: string;
   name: string;
@@ -13,9 +22,9 @@ export type ProjectSummary = {
   updatedAt: string;
 };
 
-export type Project = ProjectSummary & { settings: ProjectSettings };
+export type Project = ProjectSummary & { settings: ProjectSettings; scene: ProjectScene };
 
-export type ProjectInput = { name: string; settings: ProjectSettings };
+export type ProjectInput = { name: string; settings: ProjectSettings; scene: ProjectScene };
 
 export type SystemInfo = {
   version: string;
@@ -33,6 +42,8 @@ export type IpcChannels = {
   "projects:rename": { args: [string, string]; result: ProjectSummary };
   "projects:duplicate": { args: [string, string]; result: ProjectSummary };
   "projects:delete": { args: [string]; result: void };
+  "models:import": { args: []; result: SceneModel | null };
+  "models:read": { args: [ModelSource]; result: Uint8Array };
   "system:info": { args: []; result: SystemInfo };
   "system:open-data-dir": { args: []; result: void };
   "app:set-dirty": { args: [boolean]; result: void };
@@ -51,6 +62,10 @@ export type FormaApi = {
     rename: (id: string, name: string) => Promise<ProjectSummary>;
     duplicate: (id: string, name: string) => Promise<ProjectSummary>;
     delete: (id: string) => Promise<void>;
+  };
+  models: {
+    import: () => Promise<SceneModel | null>;
+    read: (source: ModelSource) => Promise<Uint8Array>;
   };
   system: {
     info: () => Promise<SystemInfo>;

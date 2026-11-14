@@ -29,8 +29,11 @@
   },
   "scene": {
     "title": "Escena",
-    "noModel": "Sin modelo",
-    "empty": "Genera un modelo o abre un proyecto."
+    "cube": "Cubo",
+    "objects_one": "{{count}} objeto",
+    "objects_other": "{{count}} objetos",
+    "import": "Importar GLB",
+    "importHint": "Sustituye el objeto de la escena. Se copia al proyecto al guardar."
   },
   "references": {
     "title": "Referencias",
@@ -41,11 +44,24 @@
   "viewport": {
     "preview": "Previsualización",
     "mode": "Modo de vista",
+    "material": "Material",
     "solid": "Sólido",
     "wireframe": "Malla",
-    "eyebrow": "Las ideas toman forma",
-    "title": "Todo empieza con una imagen.",
-    "description": "Importa una referencia para preparar tu primer objeto."
+    "loading": "Cargando modelo",
+    "error": "No se pudo cargar el modelo: {{message}}",
+    "statsLabel": "Estadísticas del modelo",
+    "frame": "Encuadrar modelo",
+    "camera": "Vistas de cámara",
+    "grid": "Cuadrícula",
+    "hint": "Arrastra para orbitar · Rueda para acercar · Botón derecho para desplazar",
+    "presets": {
+      "perspective": "Perspectiva",
+      "front": "Frontal",
+      "back": "Trasera",
+      "left": "Izquierda",
+      "right": "Derecha",
+      "top": "Superior"
+    }
   },
   "dock": {
     "session": {
@@ -225,5 +241,11 @@
     "discard": "Descartar",
     "saveAndContinue": "Guardar y continuar",
     "errorTitle": "Algo ha fallado"
+  },
+  "stats": {
+    "vertices": "{{value}} vértices",
+    "triangles": "{{value}} triángulos",
+    "trianglesShort": "{{value}} tris",
+    "textures": "{{value}} texturas"
   }
 }

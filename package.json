@@ -18,7 +18,8 @@
     "dist": "npm run build && electron-builder",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit && tsc -p electron --noEmit",
-    "prepare": "husky"
+    "prepare": "husky",
+    "fixtures": "node scripts/fetch-fixtures.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
@@ -27,6 +28,7 @@
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.187.0",
     "concurrently": "^10.0.7",
     "cross-env": "^10.1.0",
     "electron": "^45.3.2",
@@ -37,6 +39,7 @@
     "next": "^16.4.6",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "three": "^0.187.0",
     "typescript": "^6.0.3",
     "wait-on": "^9.5.1"
   },

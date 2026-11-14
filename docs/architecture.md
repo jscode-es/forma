@@ -27,3 +27,10 @@ Main process (ipcMain, SQLite, inference runner - planned)
 - IPC contract: `electron/contract.ts` (types only, shared by main, preload and renderer). Every channel is registered with `handle()` from `electron/ipc.ts`, which checks the sender origin and validates arguments with zod schemas from `electron/schemas.ts`.
 - Unsaved changes: the renderer reports its dirty state to the main process; closing the window, starting a new project or opening another one asks to save, discard or cancel.
 - Tool state lives in Zustand stores, not in components, so switching tools or tabs never discards it.
+
+## 3D viewport
+
+- `src/feature/viewport/engine/viewer.ts` owns one `WebGLRenderer` for the lifetime of the viewport: on-demand rendering (only when the camera moves or the scene changes), ACES tone mapping, studio environment, grid scaled to the model size, and full disposal of geometries, materials and textures when the model changes or the viewport unmounts.
+- View modes: Material (original materials), Solid (neutral clay) and Wireframe (clay with edges, back lines hidden).
+- Every new project starts with a 1 m default cube. Importing a GLB copies it to a staging folder; saving moves it into `projects/<id>/assets/` and records it in `assets` with its SHA-256. The renderer receives model bytes through `models:read`, never file paths.
+- A model that fails to load keeps the previous one on screen and reverts the scene to it.

@@ -16,6 +16,10 @@ const api: FormaApi = {
     duplicate: (id, name) => invoke("projects:duplicate", id, name),
     delete: (id) => invoke("projects:delete", id),
   },
+  models: {
+    import: () => invoke("models:import"),
+    read: (source) => invoke("models:read", source),
+  },
   system: {
     info: () => invoke("system:info"),
     openDataDir: () => invoke("system:open-data-dir"),

@@ -8,6 +8,10 @@ See [Getting started](README.md#getting-started). Before opening a PR run:
 npm run typecheck && npm run lint && npm run build
 ```
 
+## Test models
+
+`npm run fixtures` downloads CC0 sample models (Avocado, ToyCar) into `fixtures/models/`, pinned and verified by SHA-256. See [fixtures/README.md](fixtures/README.md).
+
 ## Workflow
 
 1. Pick an item from the current phase in [docs/phases.md](docs/phases.md), or open an issue before starting large changes. See [docs/releasing.md](docs/releasing.md) for the branch model.

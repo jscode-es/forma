@@ -1,8 +1,10 @@
 "use client";
 
-import { Badge, Icon } from "@kivora/nextjs";
-import { CircleHelp, ImagePlus, LibraryBig, Settings } from "lucide-react";
+import { Badge, Button, Icon } from "@kivora/nextjs";
+import { Box, CircleHelp, ImagePlus, LibraryBig, Settings, Upload } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useViewerStore } from "@/feature/viewport";
+import { useProjectStore } from "@/stores/project-store";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import styles from "../shell.module.css";
 import { SECTIONS } from "../sections";
@@ -11,9 +13,21 @@ import { HelpHint } from "./help-hint";
 export type ShellDialog = "library" | "help" | "settings";
 
 export function SideMenu({ onOpenDialog }: { onOpenDialog: (dialog: ShellDialog) => void }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const section = useWorkspaceStore((s) => s.section);
   const setSection = useWorkspaceStore((s) => s.setSection);
+  const model = useProjectStore((s) => s.model);
+  const stats = useViewerStore((s) => s.stats);
+  const number = new Intl.NumberFormat(i18n.language);
+
+  async function importModel() {
+    try {
+      const imported = await window.forma?.models.import();
+      if (imported) useProjectStore.getState().setModel(imported);
+    } catch (error) {
+      useViewerStore.setState({ error: error instanceof Error ? error.message : String(error) });
+    }
+  }
 
   const footer = [
     { id: "library" as const, icon: LibraryBig },
@@ -48,10 +62,23 @@ export function SideMenu({ onOpenDialog }: { onOpenDialog: (dialog: ShellDialog)
           <section className={styles.block} aria-labelledby="scene-title">
             <div className={styles.blockHeader}>
               <span id="scene-title">{t("scene.title")}</span>
-              <span className={styles.hint}>{t("scene.noModel")}</span>
+              <span className={styles.hint}>{t("scene.objects", { count: 1 })}</span>
             </div>
+            <div className={`${styles.navItem} ${styles.navItemActive}`} style={{ cursor: "default" }}>
+              <Icon icon={Box} size={16} />
+              <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {model.type === "default-cube" ? t("scene.cube") : model.name}
+              </span>
+              {stats && (
+                <span className={styles.hint}>{t("stats.trianglesShort", { value: number.format(stats.triangles) })}</span>
+              )}
+            </div>
+            <Button variant="outline" size="sm" disabled={!window.forma} onClick={importModel}>
+              <Icon icon={Upload} size={15} />
+              {t("scene.import")}
+            </Button>
             <p className={styles.hint} style={{ margin: 0 }}>
-              {t("scene.empty")}
+              {t("scene.importHint")}
             </p>
           </section>
 

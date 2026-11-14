@@ -2,14 +2,15 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { app } from "electron";
-import type { Project, ProjectInput, ProjectSummary } from "./contract";
+import type { Project, ProjectInput, ProjectScene, ProjectSummary } from "./contract";
 import { getDb, getSetting, setSetting, transaction } from "./db";
-import { parseStoredSettings, projectId } from "./schemas";
+import { assertProjectAsset, commitStagedModel } from "./models";
+import { parseStoredScene, parseStoredSettings, projectId } from "./schemas";
 
-type Row = { id: string; name: string; settings: string; created_at: string; updated_at: string };
+type Row = { id: string; name: string; settings: string; scene: string; created_at: string; updated_at: string };
 
 const LAST_PROJECT = "last_project_id";
-const COLUMNS = "id, name, settings, created_at, updated_at";
+const COLUMNS = "id, name, settings, scene, created_at, updated_at";
 const NOW = "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')";
 
 function projectsRoot() {
@@ -25,7 +26,14 @@ function toSummary(row: Row): ProjectSummary {
 }
 
 function toProject(row: Row): Project {
-  return { ...toSummary(row), settings: parseStoredSettings(row.settings) };
+  return { ...toSummary(row), settings: parseStoredSettings(row.settings), scene: parseStoredScene(row.scene) };
+}
+
+function resolveScene(projectId: string, scene: ProjectScene): ProjectScene {
+  const { model } = scene;
+  if (model.type === "staged") return { model: commitStagedModel(projectId, model) };
+  if (model.type === "asset") assertProjectAsset(projectId, model.assetId);
+  return scene;
 }
 
 function getRow(id: string): Row {
@@ -47,14 +55,18 @@ export function createProject(input: ProjectInput): Project {
   getDb()
     .prepare(`INSERT INTO projects (id, name, settings, opened_at) VALUES (?, ?, ?, ${NOW})`)
     .run(id, input.name, JSON.stringify(input.settings));
+  const scene = resolveScene(id, input.scene);
+  getDb().prepare("UPDATE projects SET scene = ? WHERE id = ?").run(JSON.stringify(scene), id);
   setSetting(LAST_PROJECT, id);
   return toProject(getRow(id));
 }
 
 export function updateProject(id: string, input: ProjectInput): Project {
+  getRow(id);
+  const scene = resolveScene(id, input.scene);
   getDb()
-    .prepare(`UPDATE projects SET name = ?, settings = ?, updated_at = ${NOW} WHERE id = ?`)
-    .run(input.name, JSON.stringify(input.settings), id);
+    .prepare(`UPDATE projects SET name = ?, settings = ?, scene = ?, updated_at = ${NOW} WHERE id = ?`)
+    .run(input.name, JSON.stringify(input.settings), JSON.stringify(scene), id);
   return toProject(getRow(id));
 }
 
@@ -113,6 +125,12 @@ export function duplicateProject(id: string, name: string): ProjectSummary {
         v.id,
       );
     }
+
+    const scene = parseStoredScene(source.scene);
+    if (scene.model.type === "asset") {
+      scene.model = { ...scene.model, assetId: assetIds.get(scene.model.assetId) ?? scene.model.assetId };
+    }
+    db.prepare("UPDATE projects SET scene = ? WHERE id = ?").run(JSON.stringify(scene), copyId);
 
     const from = projectDir(id);
     const to = projectDir(copyId);
