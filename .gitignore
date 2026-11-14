@@ -1,0 +1,13 @@
+.next/
+out/
+dist-electron/
+release/
+node_modules/
+*.db
+*.db-*
+.env*
+!.env.example
+next-env.d.ts
+*.tsbuildinfo
+.DS_Store
+models/
