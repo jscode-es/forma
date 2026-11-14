@@ -10,7 +10,7 @@ npm run typecheck && npm run lint && npm run build
 
 ## Workflow
 
-1. Open an issue (or comment on one) before starting large changes. See [docs/releasing.md](docs/releasing.md) for the branch model.
+1. Pick an item from the current phase in [docs/phases.md](docs/phases.md), or open an issue before starting large changes. See [docs/releasing.md](docs/releasing.md) for the branch model.
 2. Fork, create a branch from `dev`: `feat/...`, `fix/...`, `docs/...`.
 3. Keep PRs focused and small. Describe what changed and why.
 4. Open the PR against `dev`. The PR title must be a Conventional Commit. CI must pass.
