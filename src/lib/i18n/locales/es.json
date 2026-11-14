@@ -40,7 +40,16 @@
     "title": "Referencias",
     "help": "Imágenes que guían la generación. Basta con una; varias vistas del mismo objeto mejoran el resultado.",
     "dropTitle": "Tu próxima idea empieza aquí",
-    "dropHint": "PNG, JPG, WebP · hasta 20 MB"
+    "dropHint": "PNG, JPG o WebP · hasta 20 MB y 16 MP",
+    "original": "Original",
+    "prepared": "Sin fondo",
+    "usePrepared": "Usar la imagen sin fondo",
+    "removeBackground": "Quitar fondo",
+    "removeAgain": "Volver a quitar el fondo",
+    "removing": "Quitando el fondo...",
+    "noBackgroundEngine": "Instala un motor que quite fondos",
+    "remove": "Quitar referencia",
+    "replace": "Cambiar imagen"
   },
   "viewport": {
     "preview": "Previsualización",
@@ -293,12 +302,16 @@
     "stage": {
       "preparing": "Preparando",
       "sampling": "Muestreando",
-      "exporting": "Exportando"
+      "exporting": "Exportando",
+      "loading": "Cargando el modelo",
+      "cleaning": "Limpiando la malla",
+      "removing-background": "Quitando el fondo"
     },
     "error": {
       "interrupted": "Interrumpido: la aplicación se cerró mientras se ejecutaba",
       "timeout": "Se superó el tiempo límite",
-      "no-result": "El motor terminó sin resultado"
+      "no-result": "El motor terminó sin resultado",
+      "reference-required": "Este motor necesita una imagen de referencia"
     }
   },
   "models": {
@@ -337,5 +350,12 @@
       "accept": "He leído y acepto la licencia",
       "acceptAndDownload": "Aceptar y descargar"
     }
+  },
+  "errors": {
+    "image-too-large": "La imagen supera los 20 MB",
+    "image-unsupported": "Formato no admitido: usa PNG, JPG o WebP",
+    "image-too-small": "La imagen mide menos de 64 px",
+    "image-too-many-pixels": "La imagen supera los 16 megapíxeles",
+    "reference-required": "Este motor necesita una imagen de referencia"
   }
 }

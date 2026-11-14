@@ -112,7 +112,7 @@ function GenerateFooter() {
         {t("inspector.generate")}
       </Button>
       <span className={styles.hint} style={{ textAlign: "center", color: error ? "var(--color-destructive)" : undefined }}>
-        {error ?? (!ready ? t("inspector.generateHint") : busy ? t("inspector.generateQueued") : t("inspector.generateReady"))}
+        {error ? t(`errors.${error}`, { defaultValue: error }) : (!ready ? t("inspector.generateHint") : busy ? t("inspector.generateQueued") : t("inspector.generateReady"))}
       </span>
     </div>
   );

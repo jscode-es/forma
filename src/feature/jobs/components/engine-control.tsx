@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { Badge, Input, Label, Select, Switch, ToggleGroup, ToggleGroupItem } from "@kivora/nextjs";
 import { useTranslation } from "react-i18next";
 import type { EngineParameter, ParameterValue } from "@/lib/forma";
-import { useProjectStore } from "@/stores/project-store";
+import { QUALITY_STEPS, useProjectStore } from "@/stores/project-store";
 import { localized, useJobsStore } from "../jobs-store";
 import styles from "../jobs.module.css";
 
@@ -70,6 +70,7 @@ export function EngineControl() {
   const engines = useMemo(() => allEngines.filter((e) => e.tasks.includes("image-to-3d")), [allEngines]);
   const selection = useProjectStore((s) => s.engine);
   const setEngine = useProjectStore((s) => s.setEngine);
+  const quality = useProjectStore((s) => s.quality);
   const engine = engines.find((e) => e.id === selection.id) ?? null;
 
   if (engines.length === 0) {
@@ -104,7 +105,11 @@ export function EngineControl() {
           </span>
           {!engine.available && <Badge variant="destructive">{t(`engine.problem.${engine.problem}`, { defaultValue: engine.problem ?? "" })}</Badge>}
           {engine.parameters.map((parameter) => (
-            <ParameterControl key={parameter.id} parameter={parameter} value={selection.parameters[parameter.id]} />
+            <ParameterControl
+              key={parameter.id}
+              parameter={parameter}
+              value={selection.parameters[parameter.id] ?? (parameter.id === "steps" ? QUALITY_STEPS[quality] : undefined)}
+            />
           ))}
         </>
       )}

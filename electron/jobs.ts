@@ -5,10 +5,11 @@ import path from "node:path";
 import { createInterface } from "node:readline";
 import { app, BrowserWindow } from "electron";
 import { z } from "zod";
-import type { JobFile, JobInfo, JobRequest, SceneModel } from "./contract";
+import type { ImageSource, JobFile, JobInfo, JobRequest, SceneModel } from "./contract";
 import { getDb } from "./db";
 import { enginePython, listEngines, resolveParameters, type InstalledEngine } from "./engines";
 import { findPython } from "./hardware";
+import { imageExtension, imagePath, stageImageFile } from "./images";
 import { stagingRoot } from "./models";
 import { installedWeights } from "./weights";
 
@@ -147,9 +148,20 @@ class JobRunner {
     if (!engine.info.available) throw new Error(`Engine unavailable: ${engine.info.problem}`);
     if (!engine.manifest.tasks.includes(request.task)) throw new Error("The engine does not support this task");
     const parameters = resolveParameters(engine.manifest, request.parameters);
+    const limits = engine.manifest.inputs.images;
+    if (request.images.length < limits.min) throw new Error("reference-required");
+    if (request.images.length > limits.max) throw new Error("Too many reference images");
+    const sources = request.images.map((image) => imagePath(image, request.projectId));
 
     const id = randomUUID();
     fs.mkdirSync(path.join(jobDir(id), "out"), { recursive: true });
+    fs.mkdirSync(path.join(jobDir(id), "in"), { recursive: true });
+    const inputs = sources.map((source, index) => {
+      const name = `in/image-${index}.${imageExtension(source)}`;
+      fs.copyFileSync(source, path.join(jobDir(id), name));
+      return name;
+    });
+    fs.writeFileSync(path.join(jobDir(id), "inputs.json"), JSON.stringify({ images: inputs }));
     getDb()
       .prepare("INSERT INTO jobs (id, engine_id, kind, project_id, status, params) VALUES (?, ?, ?, ?, 'queued', ?)")
       .run(id, engine.manifest.id, request.task, request.projectId, JSON.stringify(parameters));
@@ -171,12 +183,42 @@ class JobRunner {
 
   retry(id: string): Promise<JobInfo> {
     const row = getRow(id);
+    const images: ImageSource[] = this.inputs(id).images.map((file) => stageImageFile(path.join(jobDir(id), file)));
     return this.enqueue({
       engineId: row.engine_id,
       task: row.kind as JobRequest["task"],
-      projectId: row.project_id,
+      projectId: null,
       parameters: JSON.parse(row.params),
+      images,
     });
+  }
+
+  private inputs(id: string): { images: string[] } {
+    try {
+      return JSON.parse(fs.readFileSync(path.join(jobDir(id), "inputs.json"), "utf8"));
+    } catch {
+      return { images: [] };
+    }
+  }
+
+  stageImage(id: string): ImageSource {
+    const job = toInfo(getRow(id));
+    const image = job.results.find((r) => r.kind === "image");
+    if (job.status !== "succeeded" || !image) throw new Error("The job has no image result");
+    return stageImageFile(this.resolveFile(id, image.path));
+  }
+
+  readFile(id: string, relative: string): Uint8Array {
+    const file = this.resolveFile(id, relative);
+    if (fs.statSync(file).size > 50 * 1024 * 1024) throw new Error("File too large to preview");
+    return fs.readFileSync(file);
+  }
+
+  private resolveFile(id: string, relative: string) {
+    const root = jobDir(id);
+    const file = path.resolve(root, relative);
+    if (!file.startsWith(root + path.sep) || !fs.existsSync(file)) throw new Error("File not found");
+    return file;
   }
 
   logs(id: string): string {
@@ -244,6 +286,7 @@ class JobRunner {
       task: row.kind,
       parameters: JSON.parse(row.params),
       weights: installedWeights(engine.manifest),
+      inputs: { images: this.inputs(id).images.map((file) => path.join(dir, file)) },
       outputDir: path.join(dir, "out"),
     };
     fs.writeFileSync(path.join(dir, "job.json"), JSON.stringify(spec, null, 2));

@@ -35,6 +35,16 @@ npm run dev
 
 Other scripts: `npm run build`, `npm start`, `npm run dist`, `npm run lint`, `npm run typecheck`.
 
+## Engines
+
+Forma ships a demo engine that needs no GPU. Real AI engines are plugins you install yourself, so their licenses stay between you and their authors:
+
+| Plugin | Task | License of the model | Install |
+| --- | --- | --- | --- |
+| [Hunyuan3D 2.0](plugins/hunyuan3d-2/README.md) | Image to 3D, background removal | Tencent Hunyuan 3D 2.0 Community (not valid in the EU, UK and South Korea) | `npm run plugin:install -- hunyuan3d-2 --accept-license` |
+
+After installing, download the weights from Models in the app. To write a plugin, see [docs/engine-plugins.md](docs/engine-plugins.md).
+
 ## Contributing
 
 Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Look for issues labeled `good first issue`.

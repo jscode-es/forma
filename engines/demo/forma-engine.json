@@ -10,7 +10,8 @@
   },
   "tasks": [
     "image-to-3d",
-    "text-to-3d"
+    "text-to-3d",
+    "remove-background"
   ],
   "runtime": {
     "type": "node",
@@ -132,5 +133,11 @@
         }
       ]
     }
-  ]
+  ],
+  "inputs": {
+    "images": {
+      "min": 0,
+      "max": 1
+    }
+  }
 }

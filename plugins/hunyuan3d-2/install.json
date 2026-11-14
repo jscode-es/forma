@@ -1,0 +1,14 @@
+{
+  "python": "3.11",
+  "requirements": "requirements.txt",
+  "files": ["forma-engine.json", "main.py", "requirements.txt", "README.md"],
+  "vendor": [
+    {
+      "repo": "https://github.com/Tencent-Hunyuan/Hunyuan3D-2.git",
+      "commit": "f8db63096c8282cb27354314d896feba5ba6ff8a",
+      "dir": "vendor/Hunyuan3D-2"
+    }
+  ],
+  "licenseNotice": "Hunyuan3D 2.0 code and weights are licensed by Tencent under the Tencent Hunyuan 3D 2.0 Community License (https://github.com/Tencent-Hunyuan/Hunyuan3D-2/blob/main/LICENSE). The license does not apply in the European Union, the United Kingdom or South Korea. You are responsible for having the right to use it.",
+  "check": "import torch, hy3dgen.shapegen; print('cuda', torch.cuda.is_available())"
+}

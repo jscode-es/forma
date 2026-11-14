@@ -7,7 +7,7 @@ export const DEFAULT_SETTINGS: ProjectSettings = {
   heightMeters: 1.8,
   engine: { id: null, parameters: {} },
 };
-export const DEFAULT_SCENE: ProjectScene = { model: { type: "default-cube" } };
+export const DEFAULT_SCENE: ProjectScene = { model: { type: "default-cube" }, references: [] };
 
 export const projectId = z.uuid();
 
@@ -34,7 +34,22 @@ export const sceneModel = z.discriminatedUnion("type", [
   z.object({ type: z.literal("staged"), stagingId: z.uuid(), name: modelName }),
 ]);
 
-export const projectScene = z.object({ model: sceneModel });
+export const imageSource = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("staged"), stagingId: z.uuid() }),
+  z.object({ type: z.literal("asset"), assetId: z.uuid() }),
+]);
+
+export const referenceImage = z.object({
+  id: z.uuid(),
+  name: z.string().max(120),
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+  original: imageSource,
+  prepared: imageSource.nullable(),
+  usePrepared: z.boolean(),
+});
+
+export const projectScene = z.object({ model: sceneModel, references: z.array(referenceImage).max(8).default([]) });
 
 export const projectInput = z.object({ name: projectName, settings: projectSettings, scene: projectScene });
 
@@ -43,13 +58,14 @@ export const modelSource = z.discriminatedUnion("type", [
   z.object({ type: z.literal("asset"), projectId: z.uuid(), assetId: z.uuid() }),
 ]);
 
-export const engineTask = z.enum(["image-to-3d", "text-to-3d", "texture", "rig", "animation"]);
+export const engineTask = z.enum(["image-to-3d", "text-to-3d", "remove-background", "texture", "rig", "animation"]);
 
 export const jobRequest = z.object({
   engineId,
   task: engineTask,
   projectId: z.uuid().nullable(),
   parameters: parameterValues,
+  images: z.array(imageSource).max(8),
 });
 
 const localizedText = z.object({ en: z.string().min(1).max(200), es: z.string().max(200).optional() });
@@ -72,6 +88,9 @@ export const engineManifest = z.object({
     .object({ vramGb: z.number().min(0).default(0), cuda: z.boolean().default(false) })
     .default({ vramGb: 0, cuda: false }),
   demo: z.boolean().default(false),
+  inputs: z
+    .object({ images: z.object({ min: z.number().int().min(0).max(8), max: z.number().int().min(0).max(8) }) })
+    .default({ images: { min: 0, max: 0 } }),
   weights: z
     .array(
       z.object({
@@ -146,5 +165,8 @@ export function parseStoredSettings(raw: string): ProjectSettings {
 
 export function parseStoredScene(raw: string): ProjectScene {
   const scene = parseJson(raw, projectScene, DEFAULT_SCENE);
-  return scene.model.type === "staged" ? DEFAULT_SCENE : scene;
+  return {
+    model: scene.model.type === "staged" ? DEFAULT_SCENE.model : scene.model,
+    references: scene.references.filter((r) => r.original.type === "asset" && r.prepared?.type !== "staged"),
+  };
 }

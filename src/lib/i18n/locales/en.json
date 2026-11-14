@@ -40,7 +40,16 @@
     "title": "References",
     "help": "Images that guide the generation. One image is enough; several views of the same object improve the result.",
     "dropTitle": "Your next idea starts here",
-    "dropHint": "PNG, JPG, WebP · up to 20 MB"
+    "dropHint": "PNG, JPG or WebP · up to 20 MB and 16 MP",
+    "original": "Original",
+    "prepared": "No background",
+    "usePrepared": "Use the image without background",
+    "removeBackground": "Remove background",
+    "removeAgain": "Remove background again",
+    "removing": "Removing background...",
+    "noBackgroundEngine": "Install an engine that removes backgrounds",
+    "remove": "Remove reference",
+    "replace": "Replace image"
   },
   "viewport": {
     "preview": "Preview",
@@ -293,12 +302,16 @@
     "stage": {
       "preparing": "Preparing",
       "sampling": "Sampling",
-      "exporting": "Exporting"
+      "exporting": "Exporting",
+      "loading": "Loading model",
+      "cleaning": "Cleaning mesh",
+      "removing-background": "Removing background"
     },
     "error": {
       "interrupted": "Interrupted: the app was closed while it ran",
       "timeout": "Time limit exceeded",
-      "no-result": "The engine finished without a result"
+      "no-result": "The engine finished without a result",
+      "reference-required": "This engine needs a reference image"
     }
   },
   "models": {
@@ -337,5 +350,12 @@
       "accept": "I have read and accept the license",
       "acceptAndDownload": "Accept and download"
     }
+  },
+  "errors": {
+    "image-too-large": "The image is larger than 20 MB",
+    "image-unsupported": "Unsupported image: use PNG, JPG or WebP",
+    "image-too-small": "The image is smaller than 64 px",
+    "image-too-many-pixels": "The image exceeds 16 megapixels",
+    "reference-required": "This engine needs a reference image"
   }
 }

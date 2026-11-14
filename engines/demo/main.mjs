@@ -70,6 +70,16 @@ function buildGlb({ vertices, faces }) {
 
 const job = JSON.parse(readFileSync(process.argv[process.argv.indexOf("--job") + 1], "utf8"));
 const { steps, shape, fail } = job.parameters;
+const images = job.inputs?.images ?? [];
+
+if (job.task === "remove-background") {
+  send({ type: "progress", value: 0.5, stage: "removing-background" });
+  await sleep(300);
+  copyFileSync(images[0], join(job.outputDir, "prepared.png"));
+  send({ type: "result", files: [{ path: "prepared.png", label: "Prepared image (demo: unchanged)", kind: "image" }] });
+  process.exit(0);
+}
+if (images.length > 0) send({ type: "log", level: "info", message: `reference: ${images[0]}` });
 
 send({ type: "log", level: "info", message: `demo job ${job.jobId}: ${steps} steps, ${shape}` });
 send({ type: "progress", value: 0, stage: "preparing" });

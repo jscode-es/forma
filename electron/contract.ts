@@ -16,7 +16,19 @@ export type SceneModel =
   | { type: "asset"; assetId: string; name: string }
   | { type: "staged"; stagingId: string; name: string };
 
-export type ProjectScene = { model: SceneModel };
+export type ImageSource = { type: "staged"; stagingId: string } | { type: "asset"; assetId: string };
+
+export type ReferenceImage = {
+  id: string;
+  name: string;
+  width: number;
+  height: number;
+  original: ImageSource;
+  prepared: ImageSource | null;
+  usePrepared: boolean;
+};
+
+export type ProjectScene = { model: SceneModel; references: ReferenceImage[] };
 
 export type ModelSource = { type: "staged"; stagingId: string } | { type: "asset"; projectId: string; assetId: string };
 
@@ -49,7 +61,7 @@ export type HardwareInfo = {
 
 export type LocalizedText = { en: string; es?: string };
 
-export type EngineTask = "image-to-3d" | "text-to-3d" | "texture" | "rig" | "animation";
+export type EngineTask = "image-to-3d" | "text-to-3d" | "remove-background" | "texture" | "rig" | "animation";
 
 export type EngineParameter =
   | { id: string; type: "integer" | "number"; label: LocalizedText; min: number; max: number; step?: number; default: number }
@@ -65,6 +77,7 @@ export type EngineInfo = {
   tasks: EngineTask[];
   parameters: EngineParameter[];
   requirements: { vramGb: number; cuda: boolean; python: boolean };
+  inputs: { images: { min: number; max: number } };
   builtin: boolean;
   demo: boolean;
   available: boolean;
@@ -123,6 +136,7 @@ export type JobRequest = {
   task: EngineTask;
   projectId: string | null;
   parameters: Record<string, ParameterValue>;
+  images: ImageSource[];
 };
 
 export type IpcChannels = {
@@ -136,6 +150,9 @@ export type IpcChannels = {
   "projects:delete": { args: [string]; result: void };
   "models:import": { args: []; result: SceneModel | null };
   "models:read": { args: [ModelSource]; result: Uint8Array };
+  "models:stage-bytes": { args: [Uint8Array, string]; result: SceneModel };
+  "references:import": { args: []; result: ReferenceImage | null };
+  "references:read": { args: [ImageSource, string | null]; result: Uint8Array };
   "engines:list": { args: []; result: EngineInfo[] };
   "weights:list": { args: []; result: WeightsState[] };
   "weights:accept-license": { args: [string]; result: WeightsState };
@@ -150,6 +167,8 @@ export type IpcChannels = {
   "jobs:retry": { args: [string]; result: JobInfo };
   "jobs:logs": { args: [string]; result: string };
   "jobs:stage-result": { args: [string]; result: SceneModel };
+  "jobs:stage-image": { args: [string]; result: ImageSource };
+  "jobs:read-file": { args: [string, string]; result: Uint8Array };
   "system:info": { args: []; result: SystemInfo };
   "system:hardware": { args: [boolean]; result: HardwareInfo };
   "system:open-data-dir": { args: []; result: void };
@@ -179,6 +198,11 @@ export type FormaApi = {
   models: {
     import: () => Promise<SceneModel | null>;
     read: (source: ModelSource) => Promise<Uint8Array>;
+    stageBytes: (bytes: Uint8Array, name: string) => Promise<SceneModel>;
+  };
+  references: {
+    import: () => Promise<ReferenceImage | null>;
+    read: (source: ImageSource, projectId: string | null) => Promise<Uint8Array>;
   };
   engines: {
     list: () => Promise<EngineInfo[]>;
@@ -200,6 +224,8 @@ export type FormaApi = {
     retry: (id: string) => Promise<JobInfo>;
     logs: (id: string) => Promise<string>;
     stageResult: (id: string) => Promise<SceneModel>;
+    stageImage: (id: string) => Promise<ImageSource>;
+    readFile: (id: string, path: string) => Promise<Uint8Array>;
     onUpdate: (callback: (job: JobInfo) => void) => () => void;
   };
   system: {

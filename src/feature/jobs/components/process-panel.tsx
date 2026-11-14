@@ -4,8 +4,15 @@ import { useEffect, useState } from "react";
 import { Badge, Icon, Progress } from "@kivora/nextjs";
 import { Activity } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useBlobUrl } from "@/hooks/use-blob-url";
+import type { JobFile } from "@/lib/forma";
 import { ACTIVE, useJobsStore } from "../jobs-store";
 import styles from "../jobs.module.css";
+
+function JobImage({ jobId, file }: { jobId: string; file: JobFile }) {
+  const url = useBlobUrl(`${jobId}:${file.path}`, () => window.forma?.jobs.readFile(jobId, file.path));
+  return url ? <img src={url} alt={file.label} className={styles.preview} /> : null;
+}
 
 export function ProcessPanel() {
   const { t, i18n } = useTranslation();
@@ -68,6 +75,7 @@ export function ProcessPanel() {
           <ul className={styles.files}>
             {[...job.intermediates, ...job.results].map((file) => (
               <li key={file.path}>
+                {file.kind === "image" && <JobImage jobId={job.id} file={file} />}
                 {file.label || file.path} <span className={styles.hint}>{file.path}</span>
               </li>
             ))}

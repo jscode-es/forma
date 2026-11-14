@@ -17,8 +17,9 @@ import {
   renameProject,
   updateProject,
 } from "./projects";
-import { clearStaging, importModel, readModel } from "./models";
-import { engineId, jobRequest, modelSource, projectId, projectInput, projectName } from "./schemas";
+import { importReference, readReference } from "./images";
+import { clearStaging, importModel, readModel, stageModelBytes } from "./models";
+import { engineId, imageSource, jobRequest, modelSource, projectId, projectInput, projectName } from "./schemas";
 import { getSystemInfo, openDataDir } from "./system";
 import { acceptLicense, cancelDownload, checkUpdates, downloadWeights, listWeights, removeWeights, verifyWeights } from "./weights";
 
@@ -79,6 +80,9 @@ function registerIpc() {
   handle("projects:delete", id, deleteProject);
   handle("models:import", none, importModel);
   handle("models:read", z.tuple([modelSource]), readModel);
+  handle("models:stage-bytes", z.tuple([z.instanceof(Uint8Array), z.string().max(120)]), stageModelBytes);
+  handle("references:import", none, importReference);
+  handle("references:read", z.tuple([imageSource, projectId.nullable()]), readReference);
   handle("engines:list", none, async () => (await listEngines()).map((e) => e.info));
   handle("weights:list", none, listWeights);
   handle("weights:accept-license", z.tuple([engineId]), acceptLicense);
@@ -93,6 +97,8 @@ function registerIpc() {
   handle("jobs:retry", z.tuple([z.uuid()]), (id) => jobs.retry(id));
   handle("jobs:logs", z.tuple([z.uuid()]), (id) => jobs.logs(id));
   handle("jobs:stage-result", z.tuple([z.uuid()]), (id) => jobs.stageResult(id));
+  handle("jobs:stage-image", z.tuple([z.uuid()]), (id) => jobs.stageImage(id));
+  handle("jobs:read-file", z.tuple([z.uuid(), z.string().max(260)]), (id, file) => jobs.readFile(id, file));
   handle("system:info", none, getSystemInfo);
   handle("system:hardware", z.tuple([z.boolean()]), getHardware);
   handle("system:open-data-dir", none, openDataDir);
