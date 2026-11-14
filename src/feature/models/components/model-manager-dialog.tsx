@@ -21,6 +21,7 @@ import { localized, useJobsStore } from "@/feature/jobs";
 import type { WeightsState } from "@/lib/forma";
 import { checkUpdates, formatBytes, useModelsStore } from "../models-store";
 import styles from "../models.module.css";
+import { PluginsSection } from "./plugins-section";
 
 const STATUS_VARIANT: Record<WeightsState["status"], "default" | "secondary" | "destructive" | "outline"> = {
   missing: "outline",
@@ -81,9 +82,9 @@ function ManagerContent() {
         </Button>
       </div>
 
-      {weights.length === 0 && <p className={styles.hint}>{t("models.empty")}</p>}
-
       <div className={styles.groups}>
+        <PluginsSection />
+        {weights.length === 0 && <p className={styles.hint}>{t("models.empty")}</p>}
         {engines.map((engineName) => (
           <section key={engineName} className={styles.group}>
             <h4 className={styles.groupTitle}>{engineName}</h4>

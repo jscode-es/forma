@@ -9,8 +9,10 @@ files:
   - out/**
   - package.json
   - engines/**
+  - plugins/**
 asarUnpack:
   - engines/**
+  - plugins/**
 win:
   target: nsis
 nsis:

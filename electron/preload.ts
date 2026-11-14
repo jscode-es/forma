@@ -37,6 +37,14 @@ const api: FormaApi = {
   engines: {
     list: () => invoke("engines:list"),
   },
+  plugins: {
+    list: () => invoke("plugins:list"),
+    install: (id, python) => invoke("plugins:install", id, python),
+    cancel: (id) => invoke("plugins:cancel", id),
+    uninstall: (id) => invoke("plugins:uninstall", id),
+    choosePython: () => invoke("plugins:choose-python"),
+    onUpdate: (callback) => subscribe("plugins:update", callback),
+  },
   weights: {
     list: () => invoke("weights:list"),
     acceptLicense: (id) => invoke("weights:accept-license", id),

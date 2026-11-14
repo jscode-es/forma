@@ -15,6 +15,7 @@ export type {
   LocalizedText,
   ModelSource,
   ParameterValue,
+  PluginState,
   Project,
   ProjectInput,
   ProjectScene,

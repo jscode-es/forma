@@ -76,11 +76,11 @@ Target: the interface structure of the design reference, without engines.
 - [x] Status, verify, repair and remove; disk usage view
 - [x] Update check that only reports, never installs by itself
 
-## Phase 6 · Image to 3D (first engine)
+## Phase 6 · Image to 3D (first engine) (done)
 
 - [x] Reference image import with validation (PNG, JPG, WebP, size limits)
 - [x] Background removal step (BiRefNet) with preview
-- [ ] First engine plugin: Hunyuan3D 2.0 geometry (plugin written; pending a verified run on a user installation)
+- [x] First engine plugin: Hunyuan3D 2.0 geometry, activated from the app (verified on an RTX 5070: 108 s, 714k triangles)
 - [x] Quality profiles, seed and engine-specific settings saved with the project
 - [x] Generation with real progress, result shown in the viewport, GLB stored in the project
 - [x] Physical scale (height in meters)

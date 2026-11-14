@@ -10,7 +10,11 @@ The plugin code in this folder is MIT, like Forma. **Hunyuan3D code and weights 
 - Python 3.11 and Git
 - About 3 GB for the Python environment and 5.4 GB for the weights
 
-## Install
+## Activate
+
+In Forma open **Models → Engines** and click **Activate** on Hunyuan3D 2.0. Review the requirements and licenses, accept them and Forma will download the pinned code, create the Python environment (several GB), verify it and download the weights. Optionally choose an existing Python environment that already has the packages of `requirements.txt`.
+
+From the command line (contributors):
 
 ```bash
 npm run plugin:install -- hunyuan3d-2 --accept-license
@@ -21,7 +25,9 @@ Options:
 - `--python <path>`: reuse an existing Python 3.11 environment that already has the packages of `requirements.txt` instead of creating `.venv`.
 - `--data-dir <path>`: Forma data folder, if it is not the default one.
 
-Then open Forma → Models and download **Hunyuan3D DiT 2.0** and **BiRefNet** (license acceptance is required). Select "Hunyuan3D 2.0" in Create → Generation engine.
+Then select "Hunyuan3D 2.0" in Create → Generation engine.
+
+Reference run on an RTX 5070 (12 GB): background removal 30 s, generation at 30 steps and resolution 380 in 108 s, 714,396 triangles.
 
 ## Parameters
 

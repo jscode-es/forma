@@ -92,3 +92,16 @@
   align-items: center;
   gap: 0.5rem;
 }
+
+.log {
+  margin: 0;
+  max-height: 7rem;
+  overflow: auto;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
