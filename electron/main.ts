@@ -15,12 +15,18 @@ function createWindow() {
     width: 1280,
     height: 800,
     title: "Forma",
+    show: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
     },
+  });
+
+  win.once("ready-to-show", () => {
+    win.maximize();
+    win.show();
   });
 
   win.webContents.setWindowOpenHandler(({ url }) => {
