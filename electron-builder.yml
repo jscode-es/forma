@@ -8,6 +8,9 @@ files:
   - dist-electron/**
   - out/**
   - package.json
+  - engines/**
+asarUnpack:
+  - engines/**
 win:
   target: nsis
 nsis:

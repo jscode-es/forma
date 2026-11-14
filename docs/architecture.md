@@ -34,3 +34,10 @@ Main process (ipcMain, SQLite, inference runner - planned)
 - View modes: Material (original materials), Solid (neutral clay) and Wireframe (clay with edges, back lines hidden).
 - Every new project starts with a 1 m default cube. Importing a GLB copies it to a staging folder; saving moves it into `projects/<id>/assets/` and records it in `assets` with its SHA-256. The renderer receives model bytes through `models:read`, never file paths.
 - A model that fails to load keeps the previous one on screen and reverts the scene to it.
+
+## Engines and jobs
+
+- Engines are plugins described in [engine-plugins.md](engine-plugins.md): manifest, process protocol (JSON lines on stdout) and guarantees.
+- `electron/jobs.ts` runs one job at a time, persists the queue in `jobs`, kills the process tree on cancel, timeout or quit, and marks interrupted jobs on start.
+- `electron/hardware.ts` detects GPU, VRAM, driver and CUDA (`nvidia-smi`), free disk and Python.
+- The renderer receives job updates through the `jobs:update` event. When a job started from the current session succeeds, its model is staged and placed in the scene.

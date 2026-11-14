@@ -71,6 +71,17 @@ const MIGRATIONS: Migration[] = [
       ALTER TABLE assets ADD COLUMN name TEXT NOT NULL DEFAULT '';
     `);
   },
+  (db) => {
+    db.exec(`
+      ALTER TABLE jobs ADD COLUMN engine_id TEXT NOT NULL DEFAULT '';
+      ALTER TABLE jobs ADD COLUMN progress REAL NOT NULL DEFAULT 0;
+      ALTER TABLE jobs ADD COLUMN stage TEXT;
+      ALTER TABLE jobs ADD COLUMN started_at TEXT;
+      ALTER TABLE jobs ADD COLUMN intermediates TEXT NOT NULL DEFAULT '[]';
+      ALTER TABLE jobs ADD COLUMN results TEXT NOT NULL DEFAULT '[]';
+      CREATE INDEX jobs_status ON jobs(status);
+    `);
+  },
 ];
 
 let db: DatabaseSync;

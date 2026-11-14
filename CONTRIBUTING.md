@@ -12,6 +12,10 @@ npm run typecheck && npm run lint && npm run build
 
 `npm run fixtures` downloads CC0 sample models (Avocado, ToyCar) into `fixtures/models/`, pinned and verified by SHA-256. See [fixtures/README.md](fixtures/README.md).
 
+## Engines
+
+To integrate an AI model, write an engine plugin: see [docs/engine-plugins.md](docs/engine-plugins.md). Use the built-in `forma-demo` engine to test the job pipeline without a GPU.
+
 ## Workflow
 
 1. Pick an item from the current phase in [docs/phases.md](docs/phases.md), or open an issue before starting large changes. See [docs/releasing.md](docs/releasing.md) for the branch model.

@@ -93,7 +93,7 @@
     "search": "Search tool...",
     "noResults": "No tools match your search.",
     "generate": "Generate model",
-    "generateHint": "Requires an installed engine.",
+    "generateHint": "Choose an available engine.",
     "tabs": {
       "create": "Create",
       "model": "Model",
@@ -179,7 +179,9 @@
         "title": "Blender, Unity and Godot",
         "help": "Packages validated for other tools."
       }
-    }
+    },
+    "generateReady": "The job runs locally and appears in the job queue.",
+    "generateQueued": "A job of this engine is already in the queue."
   },
   "quality": {
     "fast": "Fast",
@@ -192,12 +194,23 @@
   },
   "engine": {
     "none": "No engines installed",
-    "noneHint": "Engines are installed from the model manager."
+    "noneHint": "Engines are installed from the model manager.",
+    "choose": "Choose an engine",
+    "demo": "demo",
+    "problem": {
+      "entry-missing": "Entry file missing",
+      "python-missing": "Python not found",
+      "cuda-missing": "CUDA not available",
+      "vram-insufficient": "Not enough VRAM"
+    }
   },
   "status": {
     "noGpu": "GPU not detected",
     "noEngines": "No engines installed",
-    "local": "Everything runs on this computer"
+    "local": "Everything runs on this computer",
+    "engines_one": "{{count}} engine",
+    "engines_other": "{{count}} engines",
+    "demoAvailable": "demo engine"
   },
   "library": {
     "title": "Library",
@@ -230,7 +243,20 @@
     "dark": "Dark",
     "dataDir": "Data folder",
     "dataDirHint": "Projects, models and the database are stored here.",
-    "openDataDir": "Open folder"
+    "openDataDir": "Open folder",
+    "hardware": {
+      "title": "Hardware and engines",
+      "gpu": "GPU",
+      "vram": "VRAM",
+      "driver": "Driver",
+      "cuda": "CUDA",
+      "disk": "Free disk",
+      "python": "Python",
+      "engines": "Engines",
+      "enginesHint": "Engines are read from the engines folder inside the data folder. Each one runs in its own process, without network access.",
+      "refresh": "Check again",
+      "notFound": "Not found"
+    }
   },
   "project": {
     "name": "Project name",
@@ -247,5 +273,30 @@
     "triangles": "{{value}} triangles",
     "trianglesShort": "{{value}} tris",
     "textures": "{{value}} textures"
+  },
+  "jobs": {
+    "cancel": "Cancel",
+    "retry": "Retry",
+    "parameters": "Parameters",
+    "files": "Files",
+    "log": "Log",
+    "duration": "{{seconds}} s",
+    "status": {
+      "queued": "Queued",
+      "running": "Running",
+      "succeeded": "Done",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "stage": {
+      "preparing": "Preparing",
+      "sampling": "Sampling",
+      "exporting": "Exporting"
+    },
+    "error": {
+      "interrupted": "Interrupted: the app was closed while it ran",
+      "timeout": "Time limit exceeded",
+      "no-result": "The engine finished without a result"
+    }
   }
 }

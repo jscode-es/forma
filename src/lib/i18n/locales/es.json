@@ -93,7 +93,7 @@
     "search": "Buscar herramienta...",
     "noResults": "Ninguna herramienta coincide con la búsqueda.",
     "generate": "Generar modelo",
-    "generateHint": "Necesita un motor instalado.",
+    "generateHint": "Elige un motor disponible.",
     "tabs": {
       "create": "Crear",
       "model": "Modelo",
@@ -179,7 +179,9 @@
         "title": "Blender, Unity y Godot",
         "help": "Paquetes validados para otras herramientas."
       }
-    }
+    },
+    "generateReady": "El trabajo se ejecuta en local y aparece en la cola.",
+    "generateQueued": "Ya hay un trabajo de este motor en la cola."
   },
   "quality": {
     "fast": "Rápida",
@@ -192,12 +194,23 @@
   },
   "engine": {
     "none": "No hay motores instalados",
-    "noneHint": "Los motores se instalan desde el gestor de modelos."
+    "noneHint": "Los motores se instalan desde el gestor de modelos.",
+    "choose": "Elige un motor",
+    "demo": "demo",
+    "problem": {
+      "entry-missing": "Falta el archivo de entrada",
+      "python-missing": "No se encuentra Python",
+      "cuda-missing": "CUDA no disponible",
+      "vram-insufficient": "VRAM insuficiente"
+    }
   },
   "status": {
     "noGpu": "GPU no detectada",
     "noEngines": "Sin motores instalados",
-    "local": "Todo se procesa en este equipo"
+    "local": "Todo se procesa en este equipo",
+    "engines_one": "{{count}} motor",
+    "engines_other": "{{count}} motores",
+    "demoAvailable": "motor de demostración"
   },
   "library": {
     "title": "Biblioteca",
@@ -230,7 +243,20 @@
     "dark": "Oscuro",
     "dataDir": "Carpeta de datos",
     "dataDirHint": "Aquí se guardan los proyectos, los modelos y la base de datos.",
-    "openDataDir": "Abrir carpeta"
+    "openDataDir": "Abrir carpeta",
+    "hardware": {
+      "title": "Hardware y motores",
+      "gpu": "GPU",
+      "vram": "VRAM",
+      "driver": "Controlador",
+      "cuda": "CUDA",
+      "disk": "Disco libre",
+      "python": "Python",
+      "engines": "Motores",
+      "enginesHint": "Los motores se leen de la carpeta engines dentro de la carpeta de datos. Cada uno se ejecuta en su propio proceso y sin acceso a la red.",
+      "refresh": "Volver a comprobar",
+      "notFound": "No encontrado"
+    }
   },
   "project": {
     "name": "Nombre del proyecto",
@@ -247,5 +273,30 @@
     "triangles": "{{value}} triángulos",
     "trianglesShort": "{{value}} tris",
     "textures": "{{value}} texturas"
+  },
+  "jobs": {
+    "cancel": "Cancelar",
+    "retry": "Reintentar",
+    "parameters": "Parámetros",
+    "files": "Archivos",
+    "log": "Registro",
+    "duration": "{{seconds}} s",
+    "status": {
+      "queued": "En cola",
+      "running": "En curso",
+      "succeeded": "Hecho",
+      "failed": "Fallido",
+      "cancelled": "Cancelado"
+    },
+    "stage": {
+      "preparing": "Preparando",
+      "sampling": "Muestreando",
+      "exporting": "Exportando"
+    },
+    "error": {
+      "interrupted": "Interrumpido: la aplicación se cerró mientras se ejecutaba",
+      "timeout": "Se superó el tiempo límite",
+      "no-result": "El motor terminó sin resultado"
+    }
   }
 }

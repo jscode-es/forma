@@ -58,15 +58,15 @@ Target: the interface structure of the design reference, without engines.
 - [x] Viewer lifecycle without leaks when switching tools or projects
 - [x] Failure state keeps the last good model visible
 
-## Phase 4 · Engine runtime and jobs
+## Phase 4 · Engine runtime and jobs (done)
 
-- [ ] Engine plugin contract: manifest, inputs, parameters, progress, cancel, result files
-- [ ] Worker process manager: one process per job, GPU freed on exit, timeouts, crash recovery
-- [ ] Job queue (one GPU job at a time) persisted in SQLite
-- [ ] Process and Job queue tabs: progress, logs, intermediates, cancel, retry
-- [ ] Hardware detection: GPU, VRAM, CUDA, disk
-- [ ] Offline guarantee: engines run without network access
-- [ ] Python environment discovery and diagnostics
+- [x] Engine plugin contract: manifest, inputs, parameters, progress, cancel, result files
+- [x] Worker process manager: one process per job, GPU freed on exit, timeouts, crash recovery
+- [x] Job queue (one GPU job at a time) persisted in SQLite
+- [x] Process and Job queue tabs: progress, logs, intermediates, cancel, retry
+- [x] Hardware detection: GPU, VRAM, CUDA, disk
+- [x] Offline guarantee: engines run without network access
+- [x] Python environment discovery and diagnostics
 
 ## Phase 5 · Model manager
 

@@ -10,6 +10,7 @@ import {
   SheetTitle,
 } from "@kivora/nextjs";
 import { useTranslation } from "react-i18next";
+import { useJobsSync } from "@/feature/jobs";
 import { ProjectDialogs, useProjectSession } from "@/feature/projects";
 import { Viewport } from "@/feature/viewport";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -27,6 +28,7 @@ export function AppShell() {
   const [dialog, setDialog] = useState<ShellDialog | null>(null);
   const [inspectorOpen, setInspectorOpen] = useState(false);
   useProjectSession();
+  useJobsSync();
 
   return (
     <div className={styles.app}>
