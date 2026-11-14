@@ -31,6 +31,16 @@ const api: FormaApi = {
   engines: {
     list: () => invoke("engines:list"),
   },
+  weights: {
+    list: () => invoke("weights:list"),
+    acceptLicense: (id) => invoke("weights:accept-license", id),
+    download: (id) => invoke("weights:download", id),
+    cancel: (id) => invoke("weights:cancel", id),
+    verify: (id) => invoke("weights:verify", id),
+    remove: (id) => invoke("weights:remove", id),
+    checkUpdates: () => invoke("weights:check-updates"),
+    onUpdate: (callback) => subscribe("weights:update", callback),
+  },
   jobs: {
     list: () => invoke("jobs:list"),
     enqueue: (request) => invoke("jobs:enqueue", request),

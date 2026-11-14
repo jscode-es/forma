@@ -34,6 +34,34 @@ Forma runs every AI model as an **engine**: a folder with a manifest and an entr
 - Parameters are rendered automatically in the inspector and validated (type, range, options) before a job starts. Unknown values are dropped.
 - An engine is marked unavailable when its entry file is missing, Python is missing, CUDA is required but not present, or the GPU has less VRAM than `requirements.vramGb`.
 
+## Weights
+
+Engines declare the files they need in `weights`. Forma downloads them on request into `<data folder>/models/<id>/<revision>/`, never during a job.
+
+```json
+"weights": [
+  {
+    "id": "my-engine-dit",
+    "name": "Shape model",
+    "optional": false,
+    "license": {
+      "id": "Apache-2.0",
+      "name": "Apache License 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0",
+      "summary": { "en": "Permissive license.", "es": "Licencia permisiva." }
+    },
+    "source": { "type": "huggingface", "repo": "org/model", "revision": "<40-character commit>" },
+    "files": [{ "path": "dit/model.safetensors", "size": 123456, "sha256": "<64 hex characters>" }]
+  }
+]
+```
+
+- `source.type`: `huggingface` (`https://huggingface.co/<repo>/resolve/<revision>/<path>`) or `github` (raw files). The revision must be a full commit hash so downloads are reproducible.
+- Every file is checked against its size and SHA-256. Downloads resume from `.part` files and only follow redirects to Hugging Face and GitHub hosts.
+- The user must accept the license of each revision before the first download; the acceptance is stored locally.
+- An engine with missing required (non-optional) weights is unavailable. Installed weights reach the engine in `job.json` as `"weights": { "<id>": "<folder>" }`.
+- "Check for updates" only reports newer upstream revisions. Changing the pinned revision is a manifest change reviewed in a pull request.
+
 ## Process protocol
 
 Forma starts one process per job: `<runtime> <entry> --job <job.json>`, with the engine folder as working directory.
@@ -41,7 +69,13 @@ Forma starts one process per job: `<runtime> <entry> --job <job.json>`, with the
 `job.json`:
 
 ```json
-{ "jobId": "uuid", "task": "image-to-3d", "parameters": { "steps": 30 }, "outputDir": "<jobs>/<uuid>/out" }
+{
+  "jobId": "uuid",
+  "task": "image-to-3d",
+  "parameters": { "steps": 30 },
+  "weights": { "my-engine-dit": "<data folder>/models/my-engine-dit/<revision>" },
+  "outputDir": "<jobs>/<uuid>/out"
+}
 ```
 
 The engine writes **one JSON object per line** to stdout. Anything else on stdout or stderr goes to the job log.

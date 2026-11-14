@@ -71,6 +71,32 @@ export type EngineInfo = {
   problem: string | null;
 };
 
+export type WeightsSource = { type: "huggingface" | "github"; repo: string; revision: string };
+
+export type LicenseInfo = { id: string; name: string; url: string; summary: LocalizedText };
+
+export type WeightsFile = { path: string; size: number; sha256: string };
+
+export type WeightsStatus = "missing" | "partial" | "downloading" | "verifying" | "installed" | "corrupt";
+
+export type WeightsState = {
+  id: string;
+  name: string;
+  engineId: string;
+  engineName: string;
+  optional: boolean;
+  vramGb: number;
+  license: LicenseInfo;
+  source: WeightsSource;
+  files: WeightsFile[];
+  sizeBytes: number;
+  status: WeightsStatus;
+  downloadedBytes: number;
+  licenseAccepted: boolean;
+  error: string | null;
+  latestRevision: string | null;
+};
+
 export type JobStatus = "queued" | "running" | "succeeded" | "failed" | "cancelled";
 
 export type JobFile = { path: string; label: string; kind: string };
@@ -111,6 +137,13 @@ export type IpcChannels = {
   "models:import": { args: []; result: SceneModel | null };
   "models:read": { args: [ModelSource]; result: Uint8Array };
   "engines:list": { args: []; result: EngineInfo[] };
+  "weights:list": { args: []; result: WeightsState[] };
+  "weights:accept-license": { args: [string]; result: WeightsState };
+  "weights:download": { args: [string]; result: void };
+  "weights:cancel": { args: [string]; result: void };
+  "weights:verify": { args: [string]; result: WeightsState };
+  "weights:remove": { args: [string]; result: WeightsState };
+  "weights:check-updates": { args: []; result: WeightsState[] };
   "jobs:list": { args: []; result: JobInfo[] };
   "jobs:enqueue": { args: [JobRequest]; result: JobInfo };
   "jobs:cancel": { args: [string]; result: void };
@@ -129,6 +162,7 @@ export type IpcChannel = keyof IpcChannels;
 export type IpcEvents = {
   "app:close-requested": [];
   "jobs:update": [JobInfo];
+  "weights:update": [WeightsState];
 };
 
 export type FormaApi = {
@@ -148,6 +182,16 @@ export type FormaApi = {
   };
   engines: {
     list: () => Promise<EngineInfo[]>;
+  };
+  weights: {
+    list: () => Promise<WeightsState[]>;
+    acceptLicense: (id: string) => Promise<WeightsState>;
+    download: (id: string) => Promise<void>;
+    cancel: (id: string) => Promise<void>;
+    verify: (id: string) => Promise<WeightsState>;
+    remove: (id: string) => Promise<WeightsState>;
+    checkUpdates: () => Promise<WeightsState[]>;
+    onUpdate: (callback: (state: WeightsState) => void) => () => void;
   };
   jobs: {
     list: () => Promise<JobInfo[]>;

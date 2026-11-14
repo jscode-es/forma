@@ -4,6 +4,7 @@ import { app } from "electron";
 import type { EngineInfo, ParameterValue } from "./contract";
 import { getHardware } from "./hardware";
 import { engineManifest, type EngineManifest } from "./schemas";
+import { missingRequiredWeights } from "./weights";
 
 export type InstalledEngine = { info: EngineInfo; manifest: EngineManifest; dir: string };
 
@@ -67,6 +68,7 @@ export async function listEngines(): Promise<InstalledEngine[]> {
       else if (manifest.runtime.type === "python" && !hardware.python && !fs.existsSync(enginePython(dir) ?? "")) info.problem = "python-missing";
       else if (manifest.requirements.cuda && !hardware.cuda) info.problem = "cuda-missing";
       else if (hardware.vramMb !== null && manifest.requirements.vramGb * 1024 > hardware.vramMb) info.problem = "vram-insufficient";
+      else if (missingRequiredWeights(manifest).length > 0) info.problem = "weights-missing";
       info.available = info.problem === null;
       engines.set(manifest.id, engine);
     }

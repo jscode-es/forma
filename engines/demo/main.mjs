@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const send = (message) => process.stdout.write(`${JSON.stringify(message)}\n`);
@@ -88,5 +88,20 @@ for (let step = 1; step <= steps; step++) {
 }
 
 send({ type: "progress", value: 0.95, stage: "exporting" });
-writeFileSync(join(job.outputDir, "model.glb"), buildGlb(SHAPES[shape]));
-send({ type: "result", files: [{ path: "model.glb", label: shape === "pyramid" ? "Pyramid" : "Crystal", kind: "model" }] });
+const SAMPLES = {
+  avocado: { weights: "demo-avocado", file: "Models/Avocado/glTF-Binary/Avocado.glb", label: "Avocado" },
+  fox: { weights: "demo-fox", file: "Models/Fox/glTF-Binary/Fox.glb", label: "Fox" },
+};
+const sample = SAMPLES[shape];
+if (sample) {
+  const dir = job.weights?.[sample.weights];
+  if (!dir) {
+    send({ type: "error", message: `Download the "${sample.weights}" weights in the model manager first` });
+    process.exit(1);
+  }
+  copyFileSync(join(dir, sample.file), join(job.outputDir, "model.glb"));
+} else {
+  writeFileSync(join(job.outputDir, "model.glb"), buildGlb(SHAPES[shape]));
+}
+const label = sample?.label ?? (shape === "pyramid" ? "Pyramid" : "Crystal");
+send({ type: "result", files: [{ path: "model.glb", label, kind: "model" }] });

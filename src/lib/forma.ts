@@ -7,6 +7,7 @@ export type {
   FormaApi,
   HardwareInfo,
   JobInfo,
+  LicenseInfo,
   LocalizedText,
   ModelSource,
   ParameterValue,
@@ -18,6 +19,7 @@ export type {
   Quality,
   SceneModel,
   SystemInfo,
+  WeightsState,
 } from "../../electron/contract";
 
 declare global {

@@ -72,6 +72,38 @@ export const engineManifest = z.object({
     .object({ vramGb: z.number().min(0).default(0), cuda: z.boolean().default(false) })
     .default({ vramGb: 0, cuda: false }),
   demo: z.boolean().default(false),
+  weights: z
+    .array(
+      z.object({
+        id: engineId,
+        name: z.string().min(1).max(120),
+        optional: z.boolean().default(false),
+        license: z.object({
+          id: z.string().min(1).max(80),
+          name: z.string().min(1).max(160),
+          url: z.url({ protocol: /^https$/ }),
+          summary: localizedText,
+        }),
+        source: z.object({
+          type: z.enum(["huggingface", "github"]),
+          repo: z.string().regex(/^[\w.-]+\/[\w.-]+$/),
+          revision: z.string().regex(/^[0-9a-f]{40}$/),
+        }),
+        files: z
+          .array(
+            z.object({
+              path: z
+                .string()
+                .regex(/^[\w.-]+(\/[\w.-]+)*$/)
+                .refine((p) => !p.split("/").includes(".."), "path must stay inside the weights folder"),
+              size: z.number().int().positive(),
+              sha256: z.string().regex(/^[0-9a-f]{64}$/),
+            }),
+          )
+          .min(1),
+      }),
+    )
+    .default([]),
   parameters: z
     .array(
       z.discriminatedUnion("type", [
