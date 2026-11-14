@@ -1,5 +1,7 @@
 # Engine plugins
 
+Reference for manifests, weights and the process protocol. To write a new plugin, start with the [plugin guide](plugin-guide.md).
+
 Forma runs every AI model as an **engine**: a folder with a manifest and an entry script. Forma never bundles third-party models or weights; users install engines themselves.
 
 ## Where engines live
@@ -125,6 +127,8 @@ Engines whose code or weights cannot be distributed with Forma live in `plugins/
 
 Plugins under `plugins/` are bundled with Forma and listed in **Models → Engines**. **Activate** shows requirements and licenses (`licenseNotice` plus each weights license), records the acceptance, then copies the files to the user engines folder, clones each vendor repository at its pinned commit, creates `.venv` with the requirements (or uses an existing environment the user chooses), runs `check`, marks the plugin as installed and downloads its weights. Progress and the last lines of git/pip output are shown live; the installation can be cancelled.
 
+`install.json` may also list `build`: folders inside the plugin compiled with `pip install --no-build-isolation` after the requirements, for native extensions such as CUDA rasterizers.
+
 For contributors, `npm run plugin:install -- <name> --accept-license` does the same from the command line: it copies the files to the user engines folder, clones each vendor repository at its pinned commit, creates `.venv` with the requirements (or reuses an environment with `--python <path>`) and runs the check. The user installs and accepts third-party licenses; Forma does not.
 
 ## Lifecycle and guarantees
@@ -134,4 +138,4 @@ For contributors, `npm run plugin:install -- <name> --accept-license` does the s
 - Network: the process receives `HF_HUB_OFFLINE=1`, `TRANSFORMERS_OFFLINE=1` and proxy variables pointing to a closed local port, so well-behaved libraries cannot download anything. This is a best-effort guard, not an OS sandbox: engines must not download at run time; prepare weights during installation.
 - Logs are stored in `<data folder>/jobs/<id>/job.log` and shown in the Process tab.
 
-See `engines/demo/` for a complete engine without dependencies.
+See `engines/demo/` and [`templates/engine-plugin`](../templates/engine-plugin) for complete engines without dependencies, and the [plugin guide](plugin-guide.md) for the step-by-step workflow.

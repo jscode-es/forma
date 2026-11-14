@@ -12,6 +12,7 @@ import { enginePython, listEngines, resolveParameters, type InstalledEngine } fr
 import { findPython } from "./hardware";
 import { imageExtension, imagePath, inspectImage, stageImageFile } from "./images";
 import { modelPath, stageModelFile, stagingRoot } from "./models";
+import { engineMessage } from "./schemas";
 import { installedWeights } from "./weights";
 import { videoPath, stageVideoFile } from "./videos";
 
@@ -36,28 +37,6 @@ const NOW = "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')";
 const MAX_LOG_BYTES = 64 * 1024;
 type RunningJob = { id: string; child: ChildProcess | null; cancelled: boolean };
 
-const message = z.discriminatedUnion("type", [
-  z.object({ type: z.literal("progress"), value: z.number().min(0).max(1), stage: z.string().max(80).optional() }),
-  z.object({ type: z.literal("log"), level: z.enum(["debug", "info", "warn", "error"]).default("info"), message: z.string().max(4000) }),
-  z.object({ type: z.literal("intermediate"), path: z.string().max(260), label: z.string().max(120), kind: z.string().max(40).default("file") }),
-  z.object({
-    type: z.literal("result"),
-    files: z
-      .array(
-        z.object({
-          path: z.string().max(260),
-          label: z.string().max(120).default(""),
-          kind: z.string().max(40),
-          meta: z
-            .record(z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]{0,31}$/), z.union([z.number().finite(), z.boolean(), z.string().max(200)]))
-            .refine((m) => Object.keys(m).length <= 8, "too many meta keys")
-            .optional(),
-        }),
-      )
-      .max(32),
-  }),
-  z.object({ type: z.literal("error"), message: z.string().max(4000) }),
-]);
 
 function jobsRoot() {
   return path.join(app.getPath("userData"), "jobs");
@@ -463,9 +442,9 @@ class JobRunner {
     }, engine.manifest.timeoutSeconds * 1000);
 
     createInterface({ input: child.stdout! }).on("line", (line) => {
-      let parsed: z.infer<typeof message>;
+      let parsed: z.infer<typeof engineMessage>;
       try {
-        parsed = message.parse(JSON.parse(line));
+        parsed = engineMessage.parse(JSON.parse(line));
       } catch {
         write(`stdout ${line}`);
         return;

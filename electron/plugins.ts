@@ -7,23 +7,9 @@ import { z } from "zod";
 import type { PluginState } from "./contract";
 import { setSetting } from "./db";
 import { userEnginesRoot } from "./engines";
-import { engineManifest } from "./schemas";
+import { engineManifest, installSpec } from "./schemas";
 import { downloadWeights } from "./weights";
 
-const installSpec = z.object({
-  python: z.string().regex(/^3\.\d+$/),
-  requirements: z.string().regex(/^[\w.-]+$/),
-  files: z.array(z.string().regex(/^[\w.-]+$/)).min(1),
-  vendor: z
-    .array(z.object({ repo: z.url({ protocol: /^https$/ }), commit: z.string().regex(/^[0-9a-f]{40}$/), dir: z.string().regex(/^[\w./-]+$/) }))
-    .default([]),
-  licenseNotice: z.object({ en: z.string().min(1).max(2000), es: z.string().max(2000).optional() }).optional(),
-  build: z
-    .array(z.string().regex(/^[\w./-]+$/).refine((dir) => !dir.split("/").includes(".."), "build dirs must stay inside the plugin"))
-    .default([]),
-  diskGb: z.number().positive().default(1),
-  check: z.string().max(400).optional(),
-});
 
 type Plugin = { dir: string; spec: z.infer<typeof installSpec>; manifest: z.infer<typeof engineManifest> };
 type Live = { stage: string; progress: number | null; child?: ChildProcess; cancelled: boolean; log: string[] };

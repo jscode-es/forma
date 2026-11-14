@@ -1,0 +1,2 @@
+# Pin every dependency to an exact version, for example:
+# torch==2.7.1+cu128
