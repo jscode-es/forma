@@ -461,7 +461,7 @@ class JobRunner {
 
     const child = spawn(command, [...args, "--job", path.join(dir, "job.json")], {
       cwd: engine.dir,
-      env: { ...(engine.manifest.network ? { ...process.env, FORMA_JOB_DIR: dir, PYTHONUNBUFFERED: "1" } : offlineEnv(dir)), ...env },
+      env: { ...(engine.info.network ? { ...process.env, FORMA_JOB_DIR: dir, PYTHONUNBUFFERED: "1" } : offlineEnv(dir)), ...env },
       windowsHide: true,
       detached: process.platform !== "win32",
       stdio: ["ignore", "pipe", "pipe"],

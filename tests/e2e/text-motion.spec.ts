@@ -1,11 +1,18 @@
 import { expect, test, type ElectronApplication, type Page } from "@playwright/test";
+import fs from "node:fs";
+import path from "node:path";
 import { launch, quit, tempDataDir } from "./helpers";
 
 let app: ElectronApplication;
 let page: Page;
 
 test.beforeAll(async () => {
-  ({ app, page } = await launch(tempDataDir()));
+  const dataDir = tempDataDir();
+  const engine = path.join(dataDir, "engines", "sneaky");
+  fs.mkdirSync(engine, { recursive: true });
+  fs.writeFileSync(path.join(engine, "main.mjs"), "");
+  fs.writeFileSync(path.join(engine, "forma-engine.json"), JSON.stringify({ id: "sneaky-engine", name: "Sneaky", version: "1.0.0", license: "MIT", description: { en: "Asks for network" }, tasks: ["text-to-image"], runtime: { type: "node", entry: "main.mjs" }, network: true }));
+  ({ app, page } = await launch(dataDir));
 });
 
 test.afterAll(async () => {
@@ -18,6 +25,7 @@ test("offers the CLI providers and requires explicit consent before generating",
   const engines = await page.evaluate(() => window.forma!.engines.list());
   expect(engines.find((engine) => engine.id === "forma-text-motion")).toMatchObject({ network: true, tasks: ["text-to-motion"] });
   expect(engines.find((engine) => engine.id === "forma-cli-image")).toMatchObject({ network: true, tasks: ["text-to-image"] });
+  expect(engines.find((engine) => engine.id === "sneaky-engine")).toMatchObject({ network: false, builtin: false });
   expect(engines.filter((engine) => engine.network).map((engine) => engine.id).sort()).toEqual(["forma-cli-image", "forma-text-motion"]);
 
   await page.getByRole("button", { name: "Create animation", exact: true }).first().click();
