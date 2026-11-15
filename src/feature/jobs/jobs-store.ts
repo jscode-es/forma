@@ -13,16 +13,17 @@ export type MeshTask = Extract<EngineTask, "mesh-inspect" | "retopology" | "uv-u
 const MESH_ORIGINS = { retopology: "retopology", "uv-unwrap": "uv", normals: "normals", "ambient-occlusion": "occlusion" } as const;
 
 type Target =
-  | { kind: "model"; engineName: string }
-  | { kind: "optimize"; budget: number }
+  | { kind: "model"; engineName: string; then?: Pipeline }
+  | { kind: "optimize"; budget: number; parentId?: string; texture?: boolean }
   | { kind: "prepared"; referenceId: string }
-  | { kind: "texture"; engineName: string; parentId: string }
+  | { kind: "texture"; engineName: string; parentId: string; referenceId: string }
   | { kind: "rig"; parentId: string; sourceLabel: string }
   | { kind: "motion"; parentId: string; sourceLabel: string }
   | { kind: "mesh"; task: MeshTask; parentIds: string[]; sourceLabel: string }
   | { kind: "candidates"; prompt: string; engineId: string }
   | { kind: "package"; variantId: string; target: PackageTarget; name: string };
 type Pending = Target & { sessionId: string };
+type Pipeline = { budget: number | null; texture: boolean };
 
 export type PackageTarget = "blender" | "unity" | "godot";
 
@@ -125,8 +126,8 @@ async function enqueue(
     }).slice(0, engine.inputs.images.max);
     images = references.map(activeImage);
     views = references.map((r) => r.view);
-  } else if (task === "texture") {
-    const reference = project.references.find((r) => r.id === project.textureReferenceId);
+  } else if (task === "texture" && target.kind === "texture") {
+    const reference = project.references.find((r) => r.id === target.referenceId);
     images = reference ? [activeImage(reference)] : [];
     views = reference && engine.inputs.views.length > 0 ? [reference.view] : [];
   } else if (task !== "text-to-image" && engine.inputs.images.max > 0) {
@@ -149,8 +150,9 @@ export async function generateModel() {
   if (!window.forma || !engine) return;
   const parameters = { ...project.engine.parameters };
   if (engine.parameters.some((p) => p.id === "steps")) parameters.steps = project.qualitySteps[project.quality];
+  const then: Pipeline = { budget: project.gameReady ? project.gameBudget : null, texture: project.autoTexture && canAutoTexture() };
   try {
-    await enqueue("image-to-3d", engine, parameters, { kind: "model", engineName: engine.name });
+    await enqueue("image-to-3d", engine, parameters, { kind: "model", engineName: engine.name, then });
   } catch (error) {
     useJobsStore.setState({ enqueueError: errorMessage(error) });
   }
@@ -220,6 +222,35 @@ export async function removeBackground(referenceId: string) {
   }
 }
 
+export function textureEngine() {
+  const project = useProjectStore.getState();
+  const selected = useJobsStore.getState().engines.find((e) => e.id === project.textureEngine.id && e.available && e.tasks.includes("texture"));
+  return selected ?? engineFor("texture");
+}
+
+function textureReference() {
+  const project = useProjectStore.getState();
+  return project.references.find((r) => r.id === project.textureReferenceId) ?? mainReference(project.references);
+}
+
+export function canAutoTexture() {
+  return Boolean(textureEngine() && textureReference());
+}
+
+async function chainOptimize(sourceId: string, budget: number, texture: boolean) {
+  const project = useProjectStore.getState();
+  const source = project.variants.find((v) => v.id === sourceId);
+  const engine = engineFor("optimize");
+  if (!source || !engine) return;
+  project.retainVariant(sourceId);
+  try {
+    await enqueue("optimize", engine, { budget, lod1: 0, lod2: 0, lod3: 0 }, { kind: "optimize", budget, parentId: sourceId, texture }, [source.model]);
+  } catch (error) {
+    useProjectStore.getState().releaseVariant(sourceId);
+    useJobsStore.setState({ enqueueError: errorMessage(error) });
+  }
+}
+
 export async function optimizeModel(parameters: { budget: number; lod1: number; lod2: number; lod3: number }) {
   const engine = engineFor("optimize");
   const source = activeVariant(useProjectStore.getState()).model;
@@ -244,18 +275,20 @@ export async function packageModel(target: PackageTarget, includeLods: boolean, 
   }
 }
 
-export async function textureModel() {
+export async function textureModel(sourceId?: string) {
   const project = useProjectStore.getState();
-  const source = activeVariant(project);
-  const engine = useJobsStore.getState().engines.find((e) => e.id === project.textureEngine.id && e.tasks.includes("texture"));
-  if (!window.forma || !engine || source.model.type === "default-cube") return;
-  if (!project.references.some((r) => r.id === project.textureReferenceId)) {
+  const source = sourceId ? project.variants.find((v) => v.id === sourceId) : activeVariant(project);
+  const engine = sourceId ? textureEngine() : useJobsStore.getState().engines.find((e) => e.id === project.textureEngine.id && e.tasks.includes("texture"));
+  if (!window.forma || !engine || !source || source.model.type === "default-cube") return;
+  const reference = sourceId ? textureReference() : project.references.find((r) => r.id === project.textureReferenceId);
+  if (!reference) {
     useJobsStore.setState({ enqueueError: "reference-required" });
     return;
   }
+  const parameters = engine.id === project.textureEngine.id ? project.textureEngine.parameters : {};
   project.retainVariant(source.id);
   try {
-    await enqueue("texture", engine, project.textureEngine.parameters, { kind: "texture", engineName: engine.name, parentId: source.id }, [source.model]);
+    await enqueue("texture", engine, parameters, { kind: "texture", engineName: engine.name, parentId: source.id, referenceId: reference.id }, [source.model]);
   } catch (error) {
     if (useProjectStore.getState().sessionId === project.sessionId) useProjectStore.getState().releaseVariant(source.id);
     useJobsStore.setState({ enqueueError: errorMessage(error) });
@@ -443,13 +476,18 @@ export async function applyFinishedJob(job: JobInfo) {
   }
 
   if (target.kind === "optimize") {
-    const model = await api.jobs.stageResult(job.id);
-    const lods = await Promise.all(job.results.filter((r) => r.kind === "lod").map((r) => api.jobs.stageFile(job.id, r.path)));
-    if (useProjectStore.getState().sessionId !== target.sessionId) return;
-    useProjectStore.getState().addVariant(
-      { label: `${activeVariant(project).label} · ${target.budget}`, origin: "optimize", engineId: job.engineId, model, lods, params: job.parameters },
-      false,
-    );
+    try {
+      const model = await api.jobs.stageResult(job.id);
+      const lods = await Promise.all(job.results.filter((r) => r.kind === "lod").map((r) => api.jobs.stageFile(job.id, r.path)));
+      const current = useProjectStore.getState();
+      if (current.sessionId !== target.sessionId) return;
+      const parent = current.variants.find((v) => v.id === target.parentId) ?? activeVariant(project);
+      current.addVariant({ label: `${parent.label} · ${target.budget}`, origin: "optimize", engineId: job.engineId, model, lods, params: job.parameters }, false, target.parentId);
+      const optimized = addedVariant(model);
+      if (target.texture && optimized) await textureModel(optimized);
+    } finally {
+      if (target.parentId && useProjectStore.getState().sessionId === target.sessionId) useProjectStore.getState().releaseVariant(target.parentId);
+    }
     return;
   }
 
@@ -463,4 +501,12 @@ export async function applyFinishedJob(job: JobInfo) {
     { label: target.engineName, origin: "generation", engineId: job.engineId, model, lods: [], params: job.parameters },
     false,
   );
+  const generated = addedVariant(model);
+  if (!generated || !target.then) return;
+  if (target.then.budget !== null) await chainOptimize(generated, target.then.budget, target.then.texture);
+  else if (target.then.texture) await textureModel(generated);
+}
+
+function addedVariant(model: SceneModel) {
+  return useProjectStore.getState().variants.findLast((v) => v.model === model)?.id;
 }

@@ -26,7 +26,7 @@ import {
 } from "@kivora/nextjs";
 import { Play, Search, Settings, SlidersHorizontal, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { ACTIVE, EngineControl, generateModel, TextureControl, useJobsStore } from "@/feature/jobs";
+import { ACTIVE, canAutoTexture, EngineControl, generateModel, TextureControl, useJobsStore } from "@/feature/jobs";
 import { InterchangeControl } from "@/feature/interchange";
 import { MaterialControl } from "@/feature/materials";
 import { PaintControl, usePaintStore } from "@/feature/paint";
@@ -124,6 +124,37 @@ function QualityStepsButton() {
         </div>
       </PopoverContent>
     </Popover>
+  );
+}
+
+function PipelineControl() {
+  const { t } = useTranslation();
+  const autoTexture = useProjectStore((s) => s.autoTexture);
+  const gameReady = useProjectStore((s) => s.gameReady);
+  const budget = useProjectStore((s) => s.gameBudget);
+  useJobsStore((s) => s.engines);
+  useProjectStore((s) => s.references);
+  const textureReady = canAutoTexture();
+  const { setAutoTexture, setGameReady, setGameBudget } = useProjectStore.getState();
+
+  return (
+    <div className={styles.sectionBody}>
+      <div className={styles.row}>
+        <Label htmlFor="pipeline-texture">{t("pipeline.texture")}</Label>
+        <Switch id="pipeline-texture" checked={autoTexture && textureReady} disabled={!textureReady} onCheckedChange={setAutoTexture} />
+      </div>
+      {!textureReady && <span className={styles.hint}>{t("pipeline.textureUnavailable")}</span>}
+      <div className={styles.row}>
+        <Label htmlFor="pipeline-game">{t("pipeline.game")}</Label>
+        <Switch id="pipeline-game" checked={gameReady} onCheckedChange={setGameReady} />
+      </div>
+      {gameReady && (
+        <div className={styles.row}>
+          <Label htmlFor="pipeline-budget">{t("pipeline.budget")}</Label>
+          <NumberField id="pipeline-budget" integer min={500} max={200000} step={500} value={budget} onValueChange={setGameBudget} style={{ width: "7rem" }} />
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -235,6 +266,7 @@ const SECTIONS: SectionDef[] = [
   { tab: "files", id: "glb", content: <ExportControl /> },
   { tab: "files", id: "lod", content: <LodExportControl /> },
   { tab: "interchange", id: "interchange", content: <InterchangeControl /> },
+  { tab: "create", id: "pipeline", content: <PipelineControl /> },
   { tab: "create", id: "scale", content: <ScaleControl /> },
   ...(Object.keys(PLANNED_SECTIONS) as InspectorTab[]).flatMap((tab) => PLANNED_SECTIONS[tab].map((s) => ({ tab, ...s }))),
 ];

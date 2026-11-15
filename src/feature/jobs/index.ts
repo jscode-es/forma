@@ -19,6 +19,8 @@ export {
   enqueueTextMotion,
   type MeshTask,
   textureModel,
+  textureEngine,
+  canAutoTexture,
   localized,
   optimizeModel,
   refreshEngines,

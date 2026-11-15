@@ -10,6 +10,9 @@ export const DEFAULT_SETTINGS: ProjectSettings = {
   imageEngine: { id: null, parameters: {} },
   textureEngine: { id: null, parameters: {} },
   textureReferenceId: null,
+  autoTexture: false,
+  gameReady: false,
+  gameBudget: 10000,
 };
 export const DEFAULT_VARIANT_ID = "00000000-0000-4000-8000-000000000000";
 
@@ -59,6 +62,9 @@ export const projectSettings = z.object({
   imageEngine: z.object({ id: engineId.nullable(), parameters: parameterValues }),
   textureEngine: z.object({ id: engineId.nullable(), parameters: parameterValues }).default({ id: null, parameters: {} }),
   textureReferenceId: z.uuid().nullable().default(null),
+  autoTexture: z.boolean().default(false),
+  gameReady: z.boolean().default(false),
+  gameBudget: z.number().int().min(128).max(2000000).default(10000),
 });
 
 const modelName = z.string().max(120);
