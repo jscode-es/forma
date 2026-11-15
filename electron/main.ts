@@ -94,7 +94,13 @@ function createWindow() {
     return { action: "deny" };
   });
 
-  win.loadURL(isDev ? "http://localhost:3000" : "app://forma/");
+  const home = isDev ? "http://localhost:3000/" : "app://forma/";
+  win.webContents.on("will-navigate", (event, url) => {
+    if (!url.startsWith(home)) event.preventDefault();
+  });
+  win.webContents.session.on("will-download", (event) => event.preventDefault());
+
+  win.loadURL(home);
 }
 
 function registerIpc() {

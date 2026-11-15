@@ -37,6 +37,22 @@ export default function AppProviders({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // Drop zones call preventDefault; anywhere else Chromium would navigate to the dropped file or offer to save it.
+    const dragOver = (event: DragEvent) => {
+      if (event.defaultPrevented) return;
+      event.preventDefault();
+      if (event.dataTransfer) event.dataTransfer.dropEffect = "none";
+    };
+    const drop = (event: DragEvent) => event.preventDefault();
+    window.addEventListener("dragover", dragOver);
+    window.addEventListener("drop", drop);
+    return () => {
+      window.removeEventListener("dragover", dragOver);
+      window.removeEventListener("drop", drop);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!ready) return;
     let active = true;
     const apply = async () => {
