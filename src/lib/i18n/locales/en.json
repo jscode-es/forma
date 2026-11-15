@@ -690,7 +690,7 @@
     "fromPrompt": "Generated from a prompt",
     "fromPromptSeed": "Generated from a prompt · seed {{seed}}",
     "readyHint": "Ctrl+Enter in the prompt also generates.",
-    "networkHint": "Uses the network and your external account, and may consume your quota. Only the prompt is sent; consent resets after each generation.",
+    "networkHint": "Uses the network and your external account, and may consume your quota. Forma asks for permission before each generation.",
     "styleSettings": "SDXL style settings",
     "styleLabel": "Shared visual style",
     "stylePlaceholder": "Low-poly, pastel colors, isometric view, soft lighting",
@@ -707,7 +707,11 @@
     "viewsPicked": "Views in use (seed {{seed}})",
     "viewSetIndex": "View set {{index}}",
     "useViewsIndex": "Use view set {{index}}",
-    "viewsPickedIndex": "View set {{index}} in use"
+    "viewsPickedIndex": "View set {{index}} in use",
+    "consentTitle": "Use your external account?",
+    "consentText": "{{engine}} sends your prompt to your external CLI account. It uses the network and may consume your quota. Forma only keeps the images it returns. You are asked again for every generation.",
+    "consentViews": "For the back, side and top views, the front image it generated is sent back so every view shows the same object.",
+    "consentAccept": "Allow and generate"
   },
   "views": {
     "front": "Front",

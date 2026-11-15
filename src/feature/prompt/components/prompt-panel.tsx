@@ -5,7 +5,8 @@ import { Button, Dialog, DialogContent, DialogDescription, DialogHeader, DialogT
 import { Check, Expand, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { HelpHint } from "@/components/help-hint";
-import { ACTIVE, EngineControl, generateImages, pickCandidate, pickCandidateSet, useJobsStore, type Candidates } from "@/feature/jobs";
+import { requestImages } from "./consent-dialog";
+import { ACTIVE, EngineControl, pickCandidate, pickCandidateSet, useJobsStore, type Candidates } from "@/feature/jobs";
 import { useBlobUrl } from "@/hooks/use-blob-url";
 import type { PromptEntry } from "@/lib/forma";
 import { useProjectStore } from "@/stores/project-store";
@@ -113,7 +114,7 @@ export function PromptControl() {
           onKeyDown={(e) => {
             if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && ready) {
               e.preventDefault();
-              void generateImages(multiview);
+              requestImages(multiview);
             }
           }}
         />
