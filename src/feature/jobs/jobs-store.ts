@@ -148,9 +148,7 @@ export async function generateModel() {
   const engine = useJobsStore.getState().engines.find((e) => e.id === project.engine.id);
   if (!window.forma || !engine) return;
   const parameters = { ...project.engine.parameters };
-  if (engine.parameters.some((p) => p.id === "steps") && parameters.steps === undefined) {
-    parameters.steps = project.qualitySteps[project.quality];
-  }
+  if (engine.parameters.some((p) => p.id === "steps")) parameters.steps = project.qualitySteps[project.quality];
   try {
     await enqueue("image-to-3d", engine, parameters, { kind: "model", engineName: engine.name });
   } catch (error) {
