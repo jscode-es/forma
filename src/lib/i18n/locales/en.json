@@ -366,6 +366,26 @@
       "enginesHint": "Engines are read from the engines folder inside the data folder. Each one runs in its own process, without network access.",
       "refresh": "Check again",
       "notFound": "Not found"
+    },
+    "updates": {
+      "title": "Updates",
+      "automatic": "Check for updates when Forma starts",
+      "current": "Version {{version}}",
+      "status": {
+        "idle": "Not checked yet",
+        "unsupported": "Updates are available in the installed app",
+        "checking": "Checking…",
+        "not-available": "Forma is up to date"
+      },
+      "available": "Version {{version}} is available",
+      "downloading": "Downloading… {{percent}}%",
+      "downloaded": "Version {{version}} is ready to install",
+      "error": "Could not check for updates: {{message}}",
+      "check": "Check now",
+      "download": "Download",
+      "openRelease": "Download from GitHub",
+      "install": "Restart and install",
+      "hint": "Forma only contacts GitHub releases to compare versions; it never downloads or installs anything without your confirmation. macOS builds open the release page instead."
     }
   },
   "project": {

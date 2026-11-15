@@ -29,6 +29,10 @@ Merge strategy: **squash** feature PRs into `dev` (PR title becomes the commit),
    - Linux: `.AppImage`, `.deb`
 5. Merge `main` back into `dev` so `dev` has the new version and changelog.
 
+## Updates
+
+Installed apps update with `electron-updater` from `https://github.com/jscode-es/forma/releases/latest/download` (generic provider, so release tags can keep the `forma-v` prefix). The release workflow uploads `latest.yml`, `latest-mac.yml`, `latest-linux.yml` and the `.blockmap` files next to the installers; a release without them is invisible to the updater. Windows (NSIS) and Linux (AppImage) install updates; macOS requires signed builds, so it opens the release page until signing is configured. `FORMA_UPDATE_URL` points the updater to another server for tests.
+
 ## Local packaging
 
 ```bash
@@ -61,4 +65,4 @@ macOS builds use the hardened runtime, required for notarization.
 ## Not configured yet
 
 - Certificates: no signing secrets are configured, so current installers are unsigned.
-- Auto-update.
+- Auto-update on macOS (needs signed builds).

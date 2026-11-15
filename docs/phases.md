@@ -180,5 +180,5 @@ The independent SQLite library imports/exports validated portable clips. Local T
 - [x] Export packages for Blender, Unity and Godot with validation
 - [x] glTF validation and tangents
 - [x] Local CLI for automation ([command line](cli.md))
-- [ ] Auto-update
+- [x] Auto-update (electron-updater from GitHub releases, opt-out, install on confirmation; macOS needs signing)
 - [ ] Bundled runtime for engines where licenses allow

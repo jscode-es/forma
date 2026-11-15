@@ -169,6 +169,8 @@ Generations, textures, engine packages and glTF validation also run from a termi
 
 **Settings** has language (English, Spanish or system), theme (light, dark or system), the data folder and a hardware report (GPU, VRAM, driver, CUDA, free disk, Python, engines). The data folder holds the database, projects, jobs, engines and model weights.
 
+**Updates**: the installed app checks GitHub releases when it starts (turn it off with **Check for updates when Forma starts**) or when you click **Check now**. It only reports a new version: **Download** and **Restart and install** run when you click them. On macOS, until builds are signed, **Download from GitHub** opens the release page instead.
+
 ## Troubleshooting
 
 | Problem | What to do |

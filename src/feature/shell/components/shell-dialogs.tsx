@@ -10,13 +10,14 @@ import {
   DialogTitle,
   Icon,
   Label,
+  Switch,
 } from "@kivora/nextjs";
-import { ExternalLink, FolderOpen, RefreshCw } from "lucide-react";
+import { Download, ExternalLink, FolderOpen, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { refreshEngines, useJobsStore } from "@/feature/jobs";
 import { LibraryDialogContent } from "@/feature/projects";
 import { LanguageToggle, ThemeToggle } from "@/feature/settings";
-import type { SystemInfo } from "@/lib/forma";
+import type { SystemInfo, UpdateState } from "@/lib/forma";
 import styles from "../shell.module.css";
 import type { ShellDialog } from "./side-menu";
 
@@ -80,9 +81,64 @@ function SettingsContent() {
             {t("settings.openDataDir")}
           </Button>
         </div>
+        <UpdatesSection />
         <HardwareSection />
       </div>
     </DialogContent>
+  );
+}
+
+function UpdatesSection() {
+  const { t } = useTranslation();
+  const [state, setState] = useState<UpdateState | null>(null);
+
+  useEffect(() => {
+    const api = window.forma;
+    if (!api) return;
+    void api.updates.state().then(setState);
+    return api.updates.onUpdate(setState);
+  }, []);
+
+  if (!state) return null;
+  const busy = state.status === "checking" || state.status === "downloading";
+  const status =
+    state.status === "available"
+      ? t("settings.updates.available", { version: state.version })
+      : state.status === "downloading"
+        ? t("settings.updates.downloading", { percent: Math.round((state.progress ?? 0) * 100) })
+        : state.status === "downloaded"
+          ? t("settings.updates.downloaded", { version: state.version })
+          : state.status === "error"
+            ? t("settings.updates.error", { message: state.error })
+            : t(`settings.updates.status.${state.status as "idle" | "unsupported" | "checking" | "not-available"}`);
+
+  return (
+    <div style={{ display: "grid", gap: "0.5rem" }}>
+      <Label>{t("settings.updates.title")}</Label>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem" }}>
+        <Label htmlFor="updates-enabled" style={{ fontWeight: 400 }}>{t("settings.updates.automatic")}</Label>
+        <Switch id="updates-enabled" checked={state.enabled} disabled={state.status === "unsupported"} onCheckedChange={(value) => void window.forma!.updates.setEnabled(value).then(setState)} />
+      </div>
+      <span className={styles.hint} role="status">{t("settings.updates.current", { version: state.current })} · {status}</span>
+      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+        <Button variant="outline" size="sm" disabled={busy || state.status === "unsupported"} onClick={() => void window.forma!.updates.check().then(setState)}>
+          <Icon icon={RefreshCw} size={15} />
+          {t("settings.updates.check")}
+        </Button>
+        {state.status === "available" && (
+          <Button size="sm" onClick={() => void window.forma!.updates.download()}>
+            <Icon icon={Download} size={15} />
+            {state.canInstall ? t("settings.updates.download") : t("settings.updates.openRelease")}
+          </Button>
+        )}
+        {state.status === "downloaded" && (
+          <Button size="sm" onClick={() => void window.forma!.updates.install()}>
+            {t("settings.updates.install")}
+          </Button>
+        )}
+      </div>
+      <span className={styles.hint}>{t("settings.updates.hint")}</span>
+    </div>
   );
 }
 
