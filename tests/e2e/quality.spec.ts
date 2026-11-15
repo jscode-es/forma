@@ -67,7 +67,10 @@ test("meets the performance baseline", async () => {
     const loadToyCar = Date.now() - t;
 
     await chooseEngine(page, "Forma demo");
-    await page.getByRole("spinbutton", { name: "Steps" }).fill("1");
+    await page.getByRole("button", { name: "Customize steps", exact: true }).click();
+    await page.getByRole("spinbutton", { name: "Fast", exact: true }).fill("1");
+    await page.keyboard.press("Escape");
+    await page.getByRole("radio", { name: "Fast", exact: true }).click();
     t = Date.now();
     await page.getByRole("button", { name: "Generate model", exact: true }).click();
     await expect(page.getByText("Preview: Forma demo")).toBeVisible();

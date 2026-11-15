@@ -120,7 +120,6 @@ export function EngineControl({ task = "image-to-3d" }: { task?: EngineControlTa
   const setTextureEngine = useProjectStore((s) => s.setTextureEngine);
   const setParameter = useProjectStore((s) => (forTextures ? s.setTextureEngineParameter : forImages ? s.setImageEngineParameter : s.setEngineParameter));
   const setEngine = (id: string | null) => (forTextures ? setTextureEngine({ id, parameters: {} }) : forImages ? setImageEngine({ id, parameters: {} }) : setModelEngine(id));
-  const qualitySteps = useProjectStore((s) => (task === "image-to-3d" ? s.qualitySteps[s.quality] : undefined));
   const engine = engines.find((e) => e.id === selection.id) ?? null;
   const hasStyle = forImages && engine?.id === "sdxl-lightning" && engine.parameters.some((parameter) => parameter.id === "stylePrompt" && parameter.type === "string");
 
@@ -178,13 +177,14 @@ export function EngineControl({ task = "image-to-3d" }: { task?: EngineControlTa
             .filter((parameter) => !parameter.tasks || parameter.tasks.includes(task))
             .filter((parameter) => !(parameter.id === "provider" && parameter.type === "enum" && parameter.options.length === 1))
             .filter((parameter) => !(hasStyle && parameter.id === "stylePrompt"))
+            .filter((parameter) => !(task === "image-to-3d" && parameter.id === "steps"))
             .map((parameter) => (
               <ParameterControl
                 key={parameter.id}
                 parameter={parameter}
                 idPrefix={`engine-param-${task}`}
                 setParameter={setParameter}
-                value={selection.parameters[parameter.id] ?? (parameter.id === "steps" ? qualitySteps : undefined)}
+                value={selection.parameters[parameter.id]}
               />
             ))}
         </>
