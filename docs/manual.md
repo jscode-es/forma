@@ -155,6 +155,10 @@ Video capture estimates motion in place: it does not recover calibrated root tra
 
 **Prepare package** runs in the background and lists the files with their validation; **Export folder…** copies them to a new folder and checks every copy.
 
+## Command line
+
+Generations, textures, engine packages and glTF validation also run from a terminal without opening the window: see [command line](cli.md).
+
 ## Projects
 
 - **Save project** (Ctrl+S) asks for a name the first time. Files are copied into the project folder.

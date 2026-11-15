@@ -155,6 +155,10 @@ La captura estima el movimiento en el sitio: no recupera desplazamiento de raíz
 
 **Preparar paquete** trabaja en segundo plano y lista los archivos con su validación; **Exportar carpeta…** los copia a una carpeta nueva y comprueba cada copia.
 
+## Línea de comandos
+
+Las generaciones, texturas, paquetes para motores y la validación glTF también se ejecutan desde una terminal sin abrir la ventana: consulta [línea de comandos](cli.md).
+
 ## Proyectos
 
 - **Guardar proyecto** (Ctrl+S) pide un nombre la primera vez. Los archivos se copian a la carpeta del proyecto.

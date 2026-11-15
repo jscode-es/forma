@@ -2,6 +2,7 @@ import { app, BrowserWindow, net, protocol, shell } from "electron";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { z } from "zod";
+import { runCli } from "./cli";
 import { openDb } from "./db";
 import { animationClip } from "./animation-schema";
 import { listAnimations, readAnimation, saveAnimation, deleteAnimation, importAnimation, exportAnimation } from "./animations";
@@ -34,6 +35,21 @@ const isDev = process.env.FORMA_DEV === "1";
 // Lets tests and portable setups use an isolated data folder.
 if (process.env.FORMA_USER_DATA) app.setPath("userData", path.resolve(process.env.FORMA_USER_DATA));
 const outDir = path.join(__dirname, "..", "out");
+const cliIndex = process.argv.indexOf("--cli");
+const cli = cliIndex === -1 ? null : process.argv.slice(cliIndex + 1);
+
+if (!app.requestSingleInstanceLock({ cli: cli !== null })) {
+  if (cli) process.stderr.write("Forma is already running with this data folder. Close it to use the command line.\n");
+  app.exit(cli ? 2 : 0);
+}
+
+app.on("second-instance", (_event, _argv, _cwd, data) => {
+  if ((data as { cli?: boolean } | undefined)?.cli) return;
+  const window = BrowserWindow.getAllWindows()[0];
+  if (!window) return;
+  if (window.isMinimized()) window.restore();
+  window.focus();
+});
 
 let dirty = false;
 let closeConfirmed = false;
@@ -142,9 +158,17 @@ function registerIpc() {
   });
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   openDb(path.join(app.getPath("userData"), "forma.db"));
   clearStaging();
+  if (cli) {
+    app.dock?.hide();
+    jobs.recover();
+    const code = await runCli(cli);
+    jobs.shutdown();
+    app.exit(code);
+    return;
+  }
   registerIpc();
   jobs.recover();
 

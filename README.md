@@ -52,7 +52,7 @@ Contributors can also install a plugin from the command line with `npm run plugi
 ## Documentation
 
 - [User manual](docs/manual.md) · [Manual de usuario](docs/manual.es.md)
-- [Architecture](docs/architecture.md), [plugin guide](docs/plugin-guide.md), [engine plugins](docs/engine-plugins.md), [releasing](docs/releasing.md), [development phases](docs/phases.md)
+- [Architecture](docs/architecture.md), [plugin guide](docs/plugin-guide.md), [engine plugins](docs/engine-plugins.md), [command line](docs/cli.md), [releasing](docs/releasing.md), [development phases](docs/phases.md)
 
 ## Contributing
 
