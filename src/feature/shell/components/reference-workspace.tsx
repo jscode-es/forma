@@ -5,8 +5,8 @@ import { ImageIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { HelpHint } from "@/components/help-hint";
 import { ProgressButton } from "@/components/progress-button";
-import { ACTIVE, generateImages, useJobsStore } from "@/feature/jobs";
-import { PromptControl, PromptHistory } from "@/feature/prompt";
+import { ACTIVE, useJobsStore } from "@/feature/jobs";
+import { ConsentDialog, PromptControl, PromptHistory, requestImages } from "@/feature/prompt";
 import { ReferencePanel, ReferenceReview, ViewSlots } from "@/feature/references";
 import { useProjectStore } from "@/stores/project-store";
 import { useWorkspaceStore, type ReferenceTab } from "@/stores/workspace-store";
@@ -30,7 +30,8 @@ function ReferenceFooter() {
 
   return (
     <div className={styles.inspectorFooter}>
-      <ProgressButton size="lg" disabled={!ready} progress={job?.progress} onClick={() => generateImages(multiview)}>
+      <ConsentDialog />
+      <ProgressButton size="lg" disabled={!ready} progress={job?.progress} onClick={() => requestImages(multiview)}>
         <Icon icon={ImageIcon} size={16} />
         {job ? job.status === "queued" ? t("prompt.queued") : job.stage === "refining-prompt" ? t("prompt.refining", { percent: Math.round(job.progress * 100) }) : job.stage === "removing-background" ? t("prompt.removingBackground", { percent: Math.round(job.progress * 100) }) : t("prompt.generating", { percent: Math.round(job.progress * 100) }) : t("prompt.generate")}
       </ProgressButton>

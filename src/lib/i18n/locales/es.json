@@ -690,7 +690,7 @@
     "fromPrompt": "Generada desde un prompt",
     "fromPromptSeed": "Generada desde un prompt · semilla {{seed}}",
     "readyHint": "Ctrl+Enter en el prompt también genera.",
-    "networkHint": "Usa la red y tu cuenta externa, y puede consumir tu cuota. Solo se envía el prompt; el consentimiento se reinicia tras cada generación.",
+    "networkHint": "Usa la red y tu cuenta externa, y puede consumir tu cuota. Forma pide permiso antes de cada generación.",
     "styleSettings": "Ajustes de estilo de SDXL",
     "styleLabel": "Estilo visual compartido",
     "stylePlaceholder": "Low-poly, colores pastel, vista isométrica, luz suave",
@@ -707,7 +707,11 @@
     "viewsPicked": "Vistas en uso (semilla {{seed}})",
     "viewSetIndex": "Juego de vistas {{index}}",
     "useViewsIndex": "Usar el juego {{index}}",
-    "viewsPickedIndex": "Juego {{index}} en uso"
+    "viewsPickedIndex": "Juego {{index}} en uso",
+    "consentTitle": "¿Usar tu cuenta externa?",
+    "consentText": "{{engine}} envía tu prompt a tu cuenta de la CLI externa. Usa la red y puede consumir tu cuota. Forma solo conserva las imágenes que devuelve. Se te preguntará en cada generación.",
+    "consentViews": "Para las vistas trasera, laterales y superior se reenvía la imagen frontal que generó, para que todas muestren el mismo objeto.",
+    "consentAccept": "Permitir y generar"
   },
   "views": {
     "front": "Frontal",

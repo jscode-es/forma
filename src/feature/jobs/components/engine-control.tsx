@@ -179,6 +179,7 @@ export function EngineControl({ task = "image-to-3d" }: { task?: EngineControlTa
             .filter((parameter) => !parameter.tasks || parameter.tasks.includes(task))
             .filter((parameter) => !(parameter.id === "provider" && parameter.type === "enum" && parameter.options.length === 1))
             .filter((parameter) => !(hasStyle && parameter.id === "stylePrompt"))
+            .filter((parameter) => !(forImages && engine.network && parameter.id === "consent"))
             .filter((parameter) => !(task === "image-to-3d" && parameter.id === "steps"))
             .map((parameter) => (
               <ParameterControl
