@@ -250,3 +250,21 @@ test("shows a remove button on hover that clears the view", async () => {
   await expect(slot.getByRole("button", { name: "Add the Left view", exact: true })).toBeVisible();
   await expect(remove).toHaveCount(0);
 });
+
+test("ignores files dropped outside a slot and never navigates away", async () => {
+  const before = page.url();
+  const handled = await page.evaluate(() => {
+    const data = new DataTransfer();
+    data.items.add(new File(["x"], "model.glb", { type: "model/gltf-binary" }));
+    const over = new DragEvent("dragover", { dataTransfer: data, bubbles: true, cancelable: true });
+    document.body.dispatchEvent(over);
+    const drop = new DragEvent("drop", { dataTransfer: data, bubbles: true, cancelable: true });
+    document.body.dispatchEvent(drop);
+    return [over.defaultPrevented, drop.defaultPrevented];
+  });
+  expect(handled).toEqual([true, true]);
+  await page.evaluate(() => { location.href = "file:///C:/"; }).catch(() => undefined);
+  await page.waitForTimeout(500);
+  expect(page.url()).toBe(before);
+  await expect(page.getByRole("tab", { name: "Multi-view", exact: true })).toBeVisible();
+});
