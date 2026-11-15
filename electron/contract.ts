@@ -196,8 +196,9 @@ export type PluginState = {
   description: LocalizedText;
   license: string;
   licenseNotice: LocalizedText | null;
-  weights: { id: string; name: string; license: LicenseInfo }[];
+  weights: { id: string; name: string; license: LicenseInfo; sizeBytes: number; optional: boolean }[];
   requirements: { vramGb: number; cuda: boolean; python: string; diskGb: number };
+  runtime: { id: string; ready: boolean } | null;
   status: "available" | "installing" | "installed" | "outdated" | "failed";
   stage: string | null;
   progress: number | null;
@@ -274,6 +275,7 @@ export type IpcChannels = {
   "plugins:cancel": { args: [string]; result: void };
   "plugins:uninstall": { args: [string]; result: PluginState };
   "plugins:choose-python": { args: []; result: string | null };
+  "plugins:python": { args: []; result: string | null };
   "weights:list": { args: []; result: WeightsState[] };
   "weights:accept-license": { args: [string]; result: WeightsState };
   "weights:download": { args: [string]; result: void };
@@ -363,6 +365,7 @@ export type FormaApi = {
     cancel: (id: string) => Promise<void>;
     uninstall: (id: string) => Promise<PluginState>;
     choosePython: () => Promise<string | null>;
+    python: () => Promise<string | null>;
     onUpdate: (callback: (state: PluginState) => void) => () => void;
   };
   weights: {

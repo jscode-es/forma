@@ -189,7 +189,7 @@ Decision (2026-11-15): Forma only ships engines that run natively on the user's 
 
 Target: a first-time user goes from an idea to a validated engine package without reading the manual, and the quality of what was built in phases 9–17 is guarded by CI.
 
-- [ ] First-run assistant: hardware check, engines recommended for the GPU and system, shared runtime and weights prepared in one flow
+- [x] First-run assistant: hardware check, engines recommended for the GPU and system, shared runtime and weights prepared in one flow
 - [ ] Guided recipe: text or image → reference → 3D → texture → ambient occlusion → package, queued as one pipeline with review and retry at every step
 - [ ] Large models: automatic viewer LOD and memory guard above a triangle budget, with a suggestion to optimize before texturing or rigging
 - [ ] Prompt helper: improve a reference prompt with Codex, Claude or Copilot CLI under the same consent and validation rules

@@ -28,7 +28,7 @@ import {
 import { importReference, importReferenceBytes, readReference, stageReferenceBytes } from "./images";
 import { clearStaging, exportModel, importModel, readModel, stageModelBytes } from "./models";
 import { engineId, imageSource, jobRequest, modelSource, projectId, projectInput, projectName } from "./schemas";
-import { cancelInstall, choosePython, listPlugins, startInstall, uninstallPlugin } from "./plugins";
+import { cancelInstall, choosePython, defaultPython, listPlugins, startInstall, uninstallPlugin } from "./plugins";
 import { getSystemInfo, openDataDir } from "./system";
 import { acceptLicense, cancelDownload, checkUpdates, downloadWeights, listWeights, removeWeights, verifyWeights } from "./weights";
 
@@ -128,6 +128,7 @@ function registerIpc() {
   handle("references:stage-bytes", z.tuple([z.instanceof(Uint8Array).refine((bytes) => bytes.byteLength > 0 && bytes.byteLength <= 20 * 1024 * 1024)]), stageReferenceBytes);
   handle("engines:list", none, async () => (await listEngines()).map((e) => e.info));
   handle("plugins:list", none, listPlugins);
+  handle("plugins:python", none, defaultPython);
   handle("plugins:install", z.tuple([engineId, z.string().max(1024).nullable()]), startInstall);
   handle("plugins:cancel", z.tuple([engineId]), cancelInstall);
   handle("plugins:uninstall", z.tuple([engineId]), uninstallPlugin);

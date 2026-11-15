@@ -18,7 +18,7 @@ export async function launch(dataDir: string): Promise<{ app: ElectronApplicatio
   const executablePath = process.env.FORMA_E2E_EXECUTABLE;
   const app = await electron.launch(executablePath ? { executablePath, env } : { args: [ROOT], cwd: ROOT, env });
   const page = await app.firstWindow();
-  await page.evaluate(() => localStorage.setItem("forma-settings", JSON.stringify({ state: { locale: "en", theme: "dark" }, version: 0 })));
+  await page.evaluate(() => localStorage.setItem("forma-settings", JSON.stringify({ state: { locale: "en", theme: "dark", onboardingDone: true }, version: 0 })));
   await page.reload();
   await expect(page.getByLabel("Model statistics")).toBeVisible();
   return { app, page };

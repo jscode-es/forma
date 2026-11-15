@@ -1045,5 +1045,55 @@
     "validator": "Cada GLB validado con el validador glTF de Khronos {{version}} para {{target}}.",
     "export": "Exportar carpeta…",
     "done": "Exportados {{files}} archivos en {{path}}"
+  },
+  "onboarding": {
+    "title": "Asistente de configuración",
+    "steps": {
+      "hardware": "Forma ha revisado tu equipo. Los motores funcionan en local, así que la GPU decide cuáles encajan.",
+      "engines": "Elige los motores a instalar. El conjunto recomendado cubre texto → imagen → 3D → textura en tu GPU.",
+      "install": "Instalando los motores elegidos. Puedes cerrar esta ventana: la instalación continúa en Modelos.",
+      "done": "Listo."
+    },
+    "python": "Python 3.11",
+    "pythonMissing": "No encontrado: instala Python 3.11 para activar los motores de IA",
+    "blender": "Blender (herramientas de malla y rig)",
+    "blenderMissing": "No encontrado: instala Blender 4+ para las herramientas de malla y el rig",
+    "clis": "CLI externas",
+    "clisMissing": "Ninguna (opcional: Codex para imágenes, Codex o Claude para movimiento)",
+    "missing": "No detectado",
+    "gpuReady": "Tu GPU NVIDIA con CUDA puede ejecutar los motores de IA locales.",
+    "gpuMissing": "No se encontró una GPU con CUDA: los motores de IA locales necesitan una GPU NVIDIA. Puedes usar el motor demo, las importaciones, las herramientas de malla y las CLI externas.",
+    "enginesLabel": "Motores",
+    "fit": {
+      "installed": "Instalado",
+      "recommended": "Recomendado",
+      "optional": "Opcional",
+      "incompatible": "No compatible"
+    },
+    "reason": {
+      "cuda": "Necesita una GPU NVIDIA con CUDA",
+      "vram": "Necesita al menos {{vram}} GB de VRAM",
+      "python": "Necesita Python 3.11"
+    },
+    "disk": "Hasta {{size}} GB de disco ({{free}} GB libres). El entorno PyTorch compartido se descarga una sola vez para todos los motores de GPU.",
+    "accept": "He leído y acepto las licencias de los motores elegidos y de sus pesos",
+    "install_one": "Instalar {{count}} motor",
+    "install_other": "Instalar {{count}} motores",
+    "progressLabel": "Progreso de la instalación",
+    "waiting": "En espera",
+    "ready": "Listo",
+    "weights": "Descargando pesos {{percent}}%",
+    "weightsLabel": "Pesos de {{name}}",
+    "failed": "Ha fallado: {{error}}",
+    "background": "La instalación continúa si cierras esta ventana; síguela en Modelos.",
+    "finished_one": "{{count}} motor de IA listo. Empieza en Referencias → Desde texto, o importa una imagen.",
+    "finished_other": "{{count}} motores de IA listos. Empieza en Referencias → Desde texto, o importa una imagen.",
+    "skip": "Omitir",
+    "next": "Siguiente",
+    "back": "Atrás",
+    "close": "Cerrar",
+    "continueBackground": "Seguir en segundo plano",
+    "reopen": "Abrir el asistente de configuración",
+    "reopenHint": "Vuelve a revisar el equipo e instala los motores recomendados."
   }
 }

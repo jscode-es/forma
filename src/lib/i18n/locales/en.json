@@ -1045,5 +1045,55 @@
     "validator": "Every GLB validated with the Khronos glTF Validator {{version}} for {{target}}.",
     "export": "Export folder…",
     "done": "Exported {{files}} files to {{path}}"
+  },
+  "onboarding": {
+    "title": "Setup assistant",
+    "steps": {
+      "hardware": "Forma checked your computer. Engines run locally, so the GPU decides which ones fit.",
+      "engines": "Choose the engines to install. The recommended set covers text → image → 3D → texture on your GPU.",
+      "install": "Installing the selected engines. You can close this window: the installation continues in Models.",
+      "done": "Done."
+    },
+    "python": "Python 3.11",
+    "pythonMissing": "Not found: install Python 3.11 to activate AI engines",
+    "blender": "Blender (mesh tools and rig)",
+    "blenderMissing": "Not found: install Blender 4+ for mesh tools and rigging",
+    "clis": "External CLIs",
+    "clisMissing": "None (optional: Codex for images, Codex or Claude for motion)",
+    "missing": "Not detected",
+    "gpuReady": "Your NVIDIA GPU with CUDA can run the local AI engines.",
+    "gpuMissing": "No CUDA GPU was found: the local AI engines need an NVIDIA GPU. You can still use the demo engine, imports, mesh tools and the external CLIs.",
+    "enginesLabel": "Engines",
+    "fit": {
+      "installed": "Installed",
+      "recommended": "Recommended",
+      "optional": "Optional",
+      "incompatible": "Not compatible"
+    },
+    "reason": {
+      "cuda": "Needs an NVIDIA GPU with CUDA",
+      "vram": "Needs at least {{vram}} GB of VRAM",
+      "python": "Needs Python 3.11"
+    },
+    "disk": "Up to {{size}} GB of disk ({{free}} GB free). The shared PyTorch runtime is downloaded once for every GPU engine.",
+    "accept": "I have read and accept the licenses of the selected engines and their weights",
+    "install_one": "Install {{count}} engine",
+    "install_other": "Install {{count}} engines",
+    "progressLabel": "Installation progress",
+    "waiting": "Waiting",
+    "ready": "Ready",
+    "weights": "Downloading weights {{percent}}%",
+    "weightsLabel": "{{name}} weights",
+    "failed": "Failed: {{error}}",
+    "background": "The installation continues if you close this window; follow it in Models.",
+    "finished_one": "{{count}} AI engine ready. Start in References → From text, or import an image.",
+    "finished_other": "{{count}} AI engines ready. Start in References → From text, or import an image.",
+    "skip": "Skip",
+    "next": "Next",
+    "back": "Back",
+    "close": "Close",
+    "continueBackground": "Continue in the background",
+    "reopen": "Open the setup assistant",
+    "reopenHint": "Checks the computer again and installs the recommended engines."
   }
 }

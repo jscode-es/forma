@@ -9,7 +9,7 @@ test("system language follows Windows preferences instead of Chromium and surviv
       Object.defineProperty(navigator, "languages", { get: () => ["en-US"] });
       Object.defineProperty(navigator, "language", { get: () => "en-US" });
     });
-    await page.evaluate(() => localStorage.setItem("forma-settings", JSON.stringify({ state: { locale: "system", theme: "dark" }, version: 0 })));
+    await page.evaluate(() => localStorage.setItem("forma-settings", JSON.stringify({ state: { locale: "system", theme: "dark", onboardingDone: true }, version: 0 })));
     await page.reload();
     await expect(page.locator("html")).toHaveAttribute("lang", "es");
     await expect(page.getByRole("button", { name: "Crear 3D", exact: true })).toBeVisible();

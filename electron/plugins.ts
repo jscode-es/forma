@@ -74,8 +74,9 @@ function state(plugin: Plugin): PluginState {
     description: plugin.manifest.description,
     license: plugin.manifest.license,
     licenseNotice: plugin.spec.licenseNotice ?? null,
-    weights: plugin.manifest.weights.map((w) => ({ id: w.id, name: w.name, license: w.license })),
+    weights: plugin.manifest.weights.map((w) => ({ id: w.id, name: w.name, license: w.license, sizeBytes: w.files.reduce((total, file) => total + file.size, 0), optional: w.optional })),
     requirements: { ...plugin.manifest.requirements, python: plugin.spec.python, diskGb: plugin.spec.diskGb },
+    runtime: runtimeState(plugin.spec.base),
     status,
     stage: current?.stage ?? null,
     progress: current?.progress ?? null,
@@ -87,6 +88,21 @@ function state(plugin: Plugin): PluginState {
 function emit(plugin: Plugin) {
   const snapshot = state(plugin);
   for (const window of BrowserWindow.getAllWindows()) window.webContents.send("plugins:update", snapshot);
+}
+
+function runtimeState(base: string | undefined) {
+  if (!base) return null;
+  try {
+    return { id: base, ready: runtimeReady(readRuntime(base)) };
+  } catch {
+    return { id: base, ready: false };
+  }
+}
+
+export async function defaultPython(): Promise<string | null> {
+  const versions = new Set(readPlugins().map((plugin) => plugin.spec.python));
+  const version = versions.size === 1 ? [...versions][0] : "3.11";
+  return findPython311(version).catch(() => null);
 }
 
 export function listPlugins(): PluginState[] {
