@@ -169,8 +169,10 @@ The independent SQLite library imports/exports validated portable clips. Local T
 ## Phase 16 · More engines and plugins
 
 - [x] Public plugin guide and template (`plugin:new`, `plugin:check`, `plugin:weights`, CI validation)
-- [ ] Additional engines as community plugins (TRELLIS family, Pixal3D, gaussian splats)
-- [ ] WSL/Linux engine environments
+- [ ] ~~Additional engines as community plugins (TRELLIS family, Pixal3D, gaussian splats)~~ deferred
+- [ ] ~~WSL/Linux engine environments~~ deferred
+
+Decision (2026-11-15): Forma only ships engines that run natively on the user's system and improve quality. On the reference RTX 5070 (12 GB), the prototype comparisons recommended Hunyuan3D 2.0 and 2 MV over TRELLIS (more irregular bands, edges and relief), while TRELLIS.2 and Pixal3D only ran in low-VRAM mode at reduced resolution (300–534 s) without a clear quality gain; gaussian splats do not produce editable meshes. Linux-only engines can still be contributed with the [plugin guide](plugin-guide.md) and will be reconsidered when they run natively or clearly beat the current engines.
 - [x] Engine comparison with common captures
 
 **Compare versions** renders up to six versions with the same four cameras, lighting and framing into a PNG sheet with engine, topology, size, materials, file size and parameters. Verified with real Hunyuan3D 2.0, Hunyuan3D 2 MV and Paint 2.1 results of the same SDXL-Lightning reference.
