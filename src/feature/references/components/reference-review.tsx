@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@kivora/nextjs";
 import { useTranslation } from "react-i18next";
+import { HelpHint } from "@/components/help-hint";
 import { errorMessage, useJobsStore } from "@/feature/jobs";
 import { useProjectStore } from "@/stores/project-store";
 import type { ReferenceImage } from "@/lib/forma";
@@ -56,12 +57,14 @@ export function ReferenceReview() {
     finally { setBusy(false); }
   }
   return <div className={styles.list}>
-    <span className={styles.hint}>{t("references.reviewHint")}</span>
     {references.map((r) => <span key={r.id} className={styles.hint}>
       {t(`viewport.presets.${r.view}`)}: {reviews[r.id] ? t(!reviews[r.id].bounds ? "references.empty" : reviews[r.id].opaque ? "references.opaque" : "references.silhouetteReady") : t("references.reviewing")}
     </span>)}
     {scaleWarning && <span role="status">{t("references.scaleWarning")}</span>}
     {(different(front, back) || different(left, right)) && <span role="status">{t("references.silhouetteWarning")}</span>}
-    <Button size="sm" variant="outline" disabled={!canMatch || busy} onClick={match}>{t(busy ? "references.matching" : "references.matchHeight")}</Button>
+    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+      <Button size="sm" variant="outline" disabled={!canMatch || busy} onClick={match}>{t(busy ? "references.matching" : "references.matchHeight")}</Button>
+      <HelpHint label={`${t("common.help")}: ${t("references.matchHeight")}`} text={t("references.reviewHint")} />
+    </div>
   </div>;
 }

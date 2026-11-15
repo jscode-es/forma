@@ -1,53 +1,40 @@
 "use client";
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button, Icon, Tabs, TabsContent, TabsList, TabsTrigger } from "@kivora/nextjs";
-import { ArrowRight, ImageIcon } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Icon, Tabs, TabsContent, TabsList, TabsTrigger } from "@kivora/nextjs";
+import { ImageIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { HelpHint } from "@/components/help-hint";
+import { ProgressButton } from "@/components/progress-button";
 import { ACTIVE, generateImages, useJobsStore } from "@/feature/jobs";
 import { PromptControl, PromptHistory } from "@/feature/prompt";
 import { ReferencePanel, ReferenceReview, ViewSlots } from "@/feature/references";
 import { useProjectStore } from "@/stores/project-store";
 import { useWorkspaceStore, type ReferenceTab } from "@/stores/workspace-store";
 import styles from "../shell.module.css";
-import { HelpHint } from "./help-hint";
 
 function ReferenceFooter() {
   const { t } = useTranslation();
   const prompt = useProjectStore((s) => s.prompt.trim());
-  const sessionId = useProjectStore((s) => s.sessionId);
   const engineId = useProjectStore((s) => s.imageEngine.id);
   const engine = useJobsStore((s) => s.engines.find((e) => e.id === engineId && e.tasks.includes("text-to-image")));
   const job = useJobsStore((s) => s.jobs.find((j) => ACTIVE.has(j.status) && j.task === "text-to-image"));
-  const picked = useJobsStore((s) => s.candidates?.sessionId === sessionId && s.candidates.picked !== null);
   const error = useJobsStore((s) => s.enqueueError);
   const ready = Boolean(engine?.available) && prompt.length > 0 && !job;
   const hint = error
     ? t(`errors.${error}`, { defaultValue: error })
-    : job
-      ? t("prompt.generating", { percent: Math.round(job.progress * 100) })
-      : !engine?.available
+    : !job && !engine?.available
         ? t("prompt.noEngine")
-        : !prompt
-          ? t("prompt.writeHint")
-          : picked
-            ? t("prompt.pickedHint")
-            : t("prompt.readyHint");
+        : null;
 
   return (
     <div className={styles.inspectorFooter}>
-      <Button size="lg" disabled={!ready} onClick={() => generateImages()}>
+      <ProgressButton size="lg" disabled={!ready} progress={job?.progress} onClick={() => generateImages()}>
         <Icon icon={ImageIcon} size={16} />
-        {t("prompt.generate")}
-      </Button>
-      {picked && !job && (
-        <Button variant="outline" onClick={() => useWorkspaceStore.getState().setSection("create3d")}>
-          {t("prompt.continue")}
-          <Icon icon={ArrowRight} size={15} />
-        </Button>
-      )}
-      <span className={styles.hint} style={{ textAlign: "center", color: error ? "var(--color-destructive)" : undefined }}>
+        {job ? job.status === "queued" ? t("prompt.queued") : job.stage === "refining-prompt" ? t("prompt.refining", { percent: Math.round(job.progress * 100) }) : job.stage === "removing-background" ? t("prompt.removingBackground", { percent: Math.round(job.progress * 100) }) : t("prompt.generating", { percent: Math.round(job.progress * 100) }) : t("prompt.generate")}
+      </ProgressButton>
+      {hint && <span className={styles.hint} style={{ textAlign: "center", color: error ? "var(--color-destructive)" : undefined }}>
         {hint}
-      </span>
+      </span>}
     </div>
   );
 }
@@ -58,9 +45,9 @@ export function ReferenceWorkspace() {
   const setTab = useWorkspaceStore((s) => s.setReferenceTab);
   return <section className={styles.block} aria-labelledby="references-title">
     <div className={styles.blockHeader}>
-      <span id="references-title" className={styles.referenceTitle}>
-        {t("references.title")}
-        <HelpHint text={t("references.help")} />
+      <span className={styles.referenceTitle}>
+        <span id="references-title">{t("references.title")}</span>
+        <HelpHint label={`${t("common.help")}: ${t("references.title")}`} text={[t("references.help"), ...(tab === "text" ? [t("prompt.readyHint"), t("prompt.pickedHint")] : [t("references.dropHint"), t("references.slotHint"), ...(tab === "multi" ? [t("references.viewsHint")] : [])])].join("\n\n")} />
       </span>
     </div>
     <Tabs value={tab} onValueChange={(value) => setTab(value as ReferenceTab)} className={styles.referenceWorkspace}>

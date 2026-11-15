@@ -1,13 +1,15 @@
 "use client";
 
 import { useMemo } from "react";
-import { Button, Icon, Textarea } from "@kivora/nextjs";
-import { Check, RotateCcw } from "lucide-react";
+import { Button, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, Icon, Textarea } from "@kivora/nextjs";
+import { Check, Expand, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { HelpHint } from "@/components/help-hint";
 import { ACTIVE, EngineControl, generateImages, pickCandidate, useJobsStore, type Candidates } from "@/feature/jobs";
 import { useBlobUrl } from "@/hooks/use-blob-url";
 import type { PromptEntry } from "@/lib/forma";
 import { useProjectStore } from "@/stores/project-store";
+import { useSettingsStore } from "@/stores/settings-store";
 import styles from "../prompt.module.css";
 
 function Candidate({ candidates, file, index }: { candidates: Candidates; file: Candidates["files"][number]; index: number }) {
@@ -15,22 +17,40 @@ function Candidate({ candidates, file, index }: { candidates: Candidates; file: 
   const url = useBlobUrl(`${candidates.jobId}:${file.path}`, () => window.forma?.jobs.readFile(candidates.jobId, file.path));
   const picked = candidates.picked === file.path;
   const label = file.seed === null ? t("prompt.useImage", { index: index + 1 }) : t("prompt.use", { seed: file.seed });
+  const previewTitle = t("prompt.previewTitle", { index: index + 1 });
+  const expandLabel = t("prompt.expandImage", { index: index + 1 });
 
   return (
-    <button
-      type="button"
-      className={`${styles.candidate} ${picked ? styles.picked : ""}`}
-      aria-pressed={picked}
-      aria-label={label}
-      title={label}
-      onClick={() => pickCandidate(file.path)}
-    >
-      {url ? <img src={url} alt="" /> : <span className={styles.placeholder} />}
-      <span className={styles.caption}>
-        {picked && <Icon icon={Check} size={12} />}
-        {picked ? t("prompt.picked") : file.seed === null ? index + 1 : t("prompt.seed", { seed: file.seed })}
-      </span>
-    </button>
+    <Dialog>
+      <div className={styles.candidateCard}>
+        <button
+          type="button"
+          className={`${styles.candidate} ${picked ? styles.picked : ""}`}
+          aria-pressed={picked}
+          aria-label={label}
+          title={label}
+          onClick={() => pickCandidate(file.path)}
+        >
+          {url ? <img src={url} alt="" /> : <span className={styles.placeholder} />}
+          <span className={styles.caption}>
+            {picked && <Icon icon={Check} size={12} />}
+            {picked ? t("prompt.picked") : file.seed === null ? index + 1 : t("prompt.seed", { seed: file.seed })}
+          </span>
+        </button>
+        <DialogTrigger asChild>
+          <Button className={styles.expandButton} size="icon" variant="secondary" disabled={!url} aria-label={expandLabel} title={expandLabel}>
+            <Icon icon={Expand} size={16} />
+          </Button>
+        </DialogTrigger>
+      </div>
+      <DialogContent className={styles.imageDialog}>
+        <DialogHeader>
+          <DialogTitle>{previewTitle}</DialogTitle>
+          <DialogDescription className={styles.previewPrompt}>{candidates.prompt}</DialogDescription>
+        </DialogHeader>
+        {url && <img className={styles.previewImage} src={url} alt={previewTitle} />}
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -67,16 +87,17 @@ export function PromptControl() {
         />
       </div>
       <EngineControl task="text-to-image" />
-      {engine?.network && <span className={styles.hint}>{t("prompt.networkHint")}</span>}
       {candidates && candidates.files.length > 0 && (
         <div className={styles.field}>
-          <span className={styles.subtitle}>{t("prompt.candidates")}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span className={styles.subtitle}>{t("prompt.candidates")}</span>
+            <HelpHint label={`${t("common.help")}: ${t("prompt.candidates")}`} text={`${t("prompt.pickHint")}\n\n${t("prompt.transparentHint")}`} />
+          </div>
           <div className={styles.grid} role="group" aria-label={t("prompt.candidates")}>
             {candidates.files.map((file, index) => (
               <Candidate key={file.path} candidates={candidates} file={file} index={index} />
             ))}
           </div>
-          {!candidates.picked && <span className={styles.hint}>{t("prompt.pickHint")}</span>}
         </div>
       )}
     </div>
@@ -87,6 +108,9 @@ function reuse(entry: PromptEntry) {
   const project = useProjectStore.getState();
   project.setPrompt(entry.text);
   project.setImageEngine({ id: entry.engineId, parameters: { ...entry.params } });
+  if (entry.engineId === "sdxl-lightning" && typeof entry.params.stylePrompt === "string") {
+    useSettingsStore.getState().setSdxlStyle(entry.params.stylePrompt);
+  }
 }
 
 export function PromptHistory() {

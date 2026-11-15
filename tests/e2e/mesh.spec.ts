@@ -7,11 +7,18 @@ import { launch, quit, tempDataDir, stubOpenDialog, stubSaveDialog, waitForJob, 
 test.describe.configure({ mode: "serial" });
 const dataDir = tempDataDir();
 const fixture = path.join(dataDir, "Sphere.glb");
+const installedInstant = process.platform === "win32" ? path.join(process.env.APPDATA!, "forma", "engines", "instant-meshes") : null;
+const instantReady = installedInstant !== null && fs.existsSync(path.join(installedInstant, "InstantMeshes.exe")) && fs.existsSync(path.join(installedInstant, "python.json"));
 let app: ElectronApplication;
 let page: Page;
 let originalHash: string;
 
 test.beforeAll(async () => {
+  if (instantReady) {
+    const target = path.join(dataDir, "engines", "instant-meshes");
+    fs.mkdirSync(target, { recursive: true });
+    for (const file of ["forma-engine.json", "main.py", "setup_runtime.py", "python.json", "InstantMeshes.exe"]) fs.copyFileSync(path.join(installedInstant!, file), path.join(target, file));
+  }
   ({ app, page } = await launch(dataDir));
   test.skip(!(await page.evaluate(() => window.forma!.system.blender(false))), "Install Blender 4+ to run real mesh tests");
   const positions = [0, 1, 0];
@@ -56,11 +63,12 @@ test("inspects a real mesh without creating a model variant", async () => {
 });
 
 test("retopology produces a preview with a verified quad budget", async () => {
+  test.skip(!instantReady, "Activate Instant Meshes locally to exercise its real binary");
   await page.getByLabel("Quad face budget", { exact: true }).fill("256");
   await page.getByRole("button", { name: "Preview retopology", exact: true }).click();
   const job = await waitForJob(page, "retopology");
   const report = await page.evaluate(async (job) => JSON.parse(new TextDecoder().decode(await window.forma!.jobs.readFile(job.id, job.results.find((f) => f.kind === "mesh-report")!.path))), job);
-  expect(report.details.method).toBe("quadriflow");
+  expect(report.details.method).toBe("instant-meshes");
   expect(report.details.quadFaces).toBeLessThanOrEqual(256);
   expect(report.result.triangles).toBeLessThanOrEqual(512);
   await expect(page.getByText(/^Preview:.*retopology$/)).toBeVisible();

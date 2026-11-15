@@ -140,6 +140,7 @@
     "search": "Buscar herramienta...",
     "noResults": "Ninguna herramienta coincide con la búsqueda.",
     "generate": "Generar modelo",
+    "generating": "Generando modelo… {{percent}}%",
     "generateHint": "Elige un motor disponible.",
     "tabs": {
       "text": "Desde texto",
@@ -274,7 +275,7 @@
       }
     },
     "generateReady": "El trabajo se ejecuta en local y aparece en la cola.",
-    "generateQueued": "Ya hay un trabajo de este motor en la cola.",
+    "generateQueued": "Modelo en cola…",
     "createAnimation": "Crear animación"
   },
   "quality": {
@@ -299,6 +300,7 @@
     "hint": "Usa la versión activa y la referencia seleccionada. Necesita un motor de texturas instalado, como Hunyuan3D Paint 2.1 PBR (Modelos → Motores)."
   },
   "engine": {
+    "details": "Acerca de {{name}}",
     "none": "No hay motores instalados",
     "noneHint": "Los motores se instalan desde el gestor de modelos.",
     "choose": "Elige un motor",
@@ -309,7 +311,8 @@
       "python-missing": "No se encuentra Python",
       "cuda-missing": "CUDA no disponible",
       "vram-insufficient": "VRAM insuficiente",
-      "weights-missing": "Faltan pesos obligatorios por descargar"
+      "weights-missing": "Faltan pesos obligatorios por descargar",
+      "platform-unsupported": "No compatible con este sistema operativo"
     },
     "activateHint": "Activa un motor en Modelos.",
     "views": "Multivista: usa {{views}}"
@@ -344,6 +347,7 @@
     "issue": "Informar de un problema o proponer una idea"
   },
   "settings": {
+    "general": "General",
     "title": "Ajustes",
     "description": "Preferencias de este equipo.",
     "language": "Idioma",
@@ -355,6 +359,9 @@
     "dataDirHint": "Aquí se guardan los proyectos, los modelos y la base de datos.",
     "openDataDir": "Abrir carpeta",
     "hardware": {
+      "blender": "Blender",
+      "blenderHint": "Forma usa Blender en segundo plano para retopología, UV, horneado y rig. Una vez detectado, no necesitas configurarlo de nuevo.",
+      "changeBlender": "Cambiar ejecutable de Blender",
       "title": "Hardware y motores",
       "gpu": "GPU",
       "vram": "VRAM",
@@ -419,6 +426,7 @@
       "cancelled": "Cancelado"
     },
     "stage": {
+      "refining-prompt": "Mejorando el prompt en local",
       "preparing": "Preparando",
       "sampling": "Muestreando",
       "exporting": "Exportando",
@@ -429,14 +437,16 @@
       "lod": "Creando LOD",
       "neutralizing-lighting": "Neutralizando la iluminación",
       "reducing": "Reduciendo caras",
-      "unwrapping": "Desplegando UV",
+      "unwrapping": "Generando UV",
       "rendering-geometry": "Renderizando vistas de la geometría",
       "encoding-reference": "Codificando la referencia",
       "baking": "Horneando el atlas",
       "packaging": "Empaquetando y validando",
-      "planning": "Planificando el movimiento"
+      "planning": "Planificando el movimiento",
+      "remeshing": "Reconstruyendo topología"
     },
     "error": {
+      "prompt-refinement-invalid": "El modelo local no ha podido preparar un prompt válido. Reformula la descripción y reintenta.",
       "interrupted": "Interrumpido: la aplicación se cerró mientras se ejecutaba",
       "timeout": "Se superó el tiempo límite",
       "no-result": "El motor terminó sin resultado",
@@ -463,7 +473,16 @@
       "motion-provider-failed": "La CLI ha fallado; comprueba que has iniciado sesión",
       "motion-plan-invalid": "La CLI devolvió un plan de movimiento no válido; inténtalo de nuevo o reformúlalo",
       "cli-image-missing": "Codex no devolvió ninguna imagen generada",
-      "cli-image-invalid": "Codex devolvió una imagen no válida"
+      "cli-image-invalid": "Codex devolvió una imagen no válida",
+      "instant-meshes-missing": "Activa o repara Instant Meshes en Modelos primero.",
+      "retopology-budget-exceeded": "Instant Meshes no ha alcanzado el presupuesto de caras. Prueba otro presupuesto.",
+      "retopology-degenerate": "Instant Meshes ha producido caras degeneradas. El modelo original se conserva.",
+      "unsupported-model-retopology": "La retopología admite una malla estática sin extensiones, rig ni animaciones.",
+      "uv-atlas-overflow": "El atlas UV necesita más espacio. Elige una resolución de textura mayor.",
+      "instant-meshes-stalled": "Instant Meshes ha dejado de responder tras tres intentos. El modelo original se conserva.",
+      "retopology-timeout": "La retopología ha superado su tiempo límite. Prueba una malla o presupuesto menor.",
+      "image-background-not-transparent": "La imagen no contiene un fondo transparente válido. No se ha publicado la candidata.",
+      "prompt-too-long": "La descripción del objeto es demasiado larga para el modelo de imagen. Acorta el prompt principal."
     }
   },
   "models": {
@@ -626,23 +645,35 @@
     "error": {
       "git-missing": "Git no está instalado. Instálalo desde git-scm.com y vuelve a intentarlo.",
       "python-missing": "Python 3.11 no está instalado. Instálalo desde python.org y vuelve a intentarlo.",
-      "python-invalid": "El ejecutable de Python elegido no existe."
+      "python-invalid": "El ejecutable de Python elegido no existe.",
+      "platform-unsupported": "No compatible con este sistema operativo"
     },
     "warn": {
       "cuda": "No se ha detectado CUDA en este equipo.",
       "vram": "Esta GPU tiene menos de {{required}} GB de VRAM."
     },
-    "empty": "No hay motores disponibles en esta versión."
+    "empty": "No hay motores disponibles en esta versión.",
+    "reqCpu": "CPU; no necesita GPU NVIDIA",
+    "reqPlatforms": "Plataformas: {{platforms}}",
+    "platform": {
+      "win32": "Windows x64",
+      "linux": "Linux",
+      "darwin": "macOS"
+    }
   },
   "prompt": {
+    "expandImage": "Ampliar candidata {{index}}",
+    "previewTitle": "Candidata {{index}}",
     "label": "Prompt",
     "placeholder": "Una silla de madera roja con patas curvas",
     "engine": "Motor de imagen",
     "generate": "Generar imágenes",
     "generating": "Generando imágenes… {{percent}}%",
+    "refining": "Mejorando prompt… {{percent}}%",
+    "queued": "Imágenes en cola…",
     "candidates": "Candidatas",
     "pickHint": "Elige una imagen para usarla como referencia del 3D.",
-    "pickedHint": "Referencia lista. Continúa en Crear 3D para generar el modelo.",
+    "pickedHint": "Referencia lista. Pulsa Generar modelo para crear el modelo 3D.",
     "use": "Usar la imagen con semilla {{seed}}",
     "useImage": "Usar la imagen {{index}}",
     "picked": "Referencia",
@@ -654,10 +685,15 @@
     "images": "{{count}} imágenes",
     "fromPrompt": "Generada desde un prompt",
     "fromPromptSeed": "Generada desde un prompt · semilla {{seed}}",
-    "writeHint": "Escribe un prompt que describa el objeto.",
     "readyHint": "Ctrl+Enter en el prompt también genera.",
-    "continue": "Continuar en Crear 3D",
-    "networkHint": "Usa la red y tu cuenta externa, y puede consumir tu cuota. Solo se envía el prompt; el consentimiento se reinicia tras cada generación."
+    "networkHint": "Usa la red y tu cuenta externa, y puede consumir tu cuota. Solo se envía el prompt; el consentimiento se reinicia tras cada generación.",
+    "styleSettings": "Ajustes de estilo de SDXL",
+    "styleLabel": "Estilo visual compartido",
+    "stylePlaceholder": "Low-poly, colores pastel, vista isométrica, luz suave",
+    "styleHint": "Se guarda automáticamente para SDXL. Se aplica solo al objeto solicitado: acabado, formas, técnica y colores. No añade escenarios, decorados ni otros objetos. Déjalo vacío para desactivarlo.",
+    "styleClear": "Borrar estilo",
+    "removingBackground": "Quitando fondo… {{percent}}%",
+    "transparentHint": "Las candidatas son PNG con un canal alfa real. La cuadrícula pertenece al visor y no se guarda en la imagen."
   },
   "views": {
     "front": "Frontal",
@@ -766,7 +802,7 @@
     "source": "Origen activo: {{name}}",
     "blenderReady": "Blender {{version}} disponible",
     "checkingBlender": "Comprobando Blender…",
-    "blenderMissing": "Las herramientas de malla requieren Blender.",
+    "blenderMissing": "Se necesita Blender. Configúralo en Ajustes → Hardware y motores.",
     "configureBlender": "Configurar Blender",
     "runtimeFailed": "No se pudo configurar Blender. Selecciona un ejecutable compatible.",
     "needsModel": "Importa o genera un modelo para usar las herramientas de malla.",
@@ -783,7 +819,7 @@
       "occlusion-map-replaced": "Se sustituyó el mapa de oclusión anterior"
     },
     "faceBudget": "Presupuesto de cuadriláteros",
-    "retopologyPolicy": "QuadriFlow utiliza un presupuesto de cuadriláteros y regenera las UV. El GLB se exporta triangulado, con un máximo del doble de triángulos. Se rechazan modelos con varios materiales, materiales complejos o texturas y modelos con rig para evitar pérdidas de datos.",
+    "retopologyPolicy": "Instant Meshes reconstruye quads y XAtlas regenera las UV. El GLB se triangula, hasta el doble del presupuesto de caras. Se rechazan texturas, varios materiales y modelos con rig para evitar perder datos.",
     "retopology": "Previsualizar retopología",
     "previewHint": "Los cambios crean una previsualización vinculada al original. Aplícala en Versiones para activarla.",
     "resolution": "Resolución de textura",
@@ -819,7 +855,9 @@
     },
     "occlusion": "Previsualizar oclusión ambiental",
     "occlusionSamples": "Muestras",
-    "occlusionHint": "Necesita una sola malla con UV. La malla, las UV y los mapas existentes se conservan byte a byte; solo se añade o sustituye el mapa de oclusión. Más muestras reducen el ruido y tardan más."
+    "occlusionHint": "Necesita una sola malla con UV. La malla, las UV y los mapas existentes se conservan byte a byte; solo se añade o sustituye el mapa de oclusión. Más muestras reducen el ruido y tardan más.",
+    "instantRuntime": "Instant Meshes + XAtlas · CPU",
+    "activateInstant": "Activar Instant Meshes"
   },
   "rigging": {
     "axes": {
@@ -832,7 +870,7 @@
     "source": "Origen visible: {{name}}",
     "configureBlender": "Configurar Blender",
     "runtimeFailed": "No se pudo configurar Blender. Elige un ejecutable de Blender compatible.",
-    "blenderMissing": "Configura Blender para usar las herramientas de rig.",
+    "blenderMissing": "Para usar las herramientas de rig, configura Blender en Ajustes → Hardware y motores.",
     "needsModel": "Importa o genera un modelo para crear su rig.",
     "humanoidHint": "Para humanoides de pie en pose T o A, con +Y hacia arriba y +Z hacia delante.",
     "guide": "Punto del cuerpo",
@@ -1073,7 +1111,8 @@
     "reason": {
       "cuda": "Necesita una GPU NVIDIA con CUDA",
       "vram": "Necesita al menos {{vram}} GB de VRAM",
-      "python": "Necesita Python 3.11"
+      "python": "Necesita Python 3.11",
+      "platform": "No compatible con este sistema operativo."
     },
     "disk": "Hasta {{size}} GB de disco ({{free}} GB libres). El entorno PyTorch compartido se descarga una sola vez para todos los motores de GPU.",
     "accept": "He leído y acepto las licencias de los motores elegidos y de sus pesos",

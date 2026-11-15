@@ -22,7 +22,7 @@ function Choice({ label, options, value, disabled, onChange }: { label: string; 
     <Label htmlFor={id}>{label}</Label>
     <Select inputId={id} options={options} value={options.find((option) => option.value === value) ?? null} isSearchable={false} isDisabled={disabled}
       placeholder={t("animation.choose")} noOptionsMessage={() => t("animation.empty")}
-      menuPortalTarget={typeof document === "undefined" ? null : document.body} menuPosition="fixed" styles={{ menuPortal: (base) => ({ ...base, zIndex: 60 }) }}
+      menuPortalTarget={typeof document === "undefined" ? null : document.body} menuPosition="fixed" menuPlacement="auto" styles={{ menuPortal: (base) => ({ ...base, zIndex: 60 }) }}
       onChange={(option) => { if (option) onChange(option.value); }} />
   </div>;
 }
@@ -60,7 +60,6 @@ export function AnimationLibraryControl() {
     <Button variant="outline" disabled={disabled || animation.dirty} onClick={() => attempt(loadAnimationSource())}>{t("animation.loadSource")}</Button>
     {animation.source && <span className={styles.hint}>{t("animation.source", { name: animation.source.label })}</span>}
     <Choice label={t("animation.sourceClip")} options={clips.map((clip, index) => ({ value: String(index), label: clip.name }))} value={String(clips.findIndex((clip) => clip.name === animation.draft?.name))} disabled={editingDisabled || animation.dirty || !clips.length} onChange={(value) => selectSourceClip(Number(value))} />
-    <span className={styles.hint}>{t("animation.presetHint")}</span>
     <div className={styles.actions}>{(["idle", "walk", "run"] as const).map((kind) => <Button key={kind} size="sm" variant="outline" disabled={disabled || animation.dirty} onClick={() => attempt(createPreset(kind))}>{t(`animation.presets.${kind}`)}</Button>)}</div>
     <LibraryChoice value={selected} disabled={disabled} onChange={setSelection} />
     <div className={styles.actions}>
@@ -123,7 +122,6 @@ export function AnimationEditorControl() {
         <Button disabled={locked || !animation.dirty} onClick={() => attempt(saveAnimationVariant())}>{t("animation.saveVariant")}</Button>
         <Button variant="outline" disabled={disabled} onClick={discardAnimation}>{t("animation.discard")}</Button>
       </div>
-      <span className={styles.hint}>{t("animation.saveHint")}</span>
     </>}
   </div>;
 }
@@ -144,7 +142,6 @@ export function AnimationRetargetControl() {
   }, [selection]);
   return <div className={styles.stack} aria-busy={animation.busy}>
     <AnimationError />
-    <span className={styles.hint}>{t("animation.retargetHint")}</span>
     <Button variant="outline" disabled={disabled || animation.dirty} onClick={() => attempt(loadAnimationSource())}>{t("animation.loadSource")}</Button>
     <LibraryChoice value={selection} disabled={disabled} onChange={setSelection} />
     {failed && <span className={styles.error} role="alert">{t("animation.failed")}</span>}
@@ -160,7 +157,6 @@ export function AnimationVideoControl() {
   const available = useJobsStore((state) => state.engines.some((engine) => engine.tasks.includes("video-to-motion") && engine.available));
   return <div className={styles.stack} aria-busy={animation.busy}>
     <AnimationError />
-    <span className={styles.hint}>{t("animation.videoHint")}</span>
     <Button variant="outline" disabled={disabled} onClick={() => attempt(chooseAnimationVideo())}>{t("animation.chooseVideo")}</Button>
     {animation.video && <span className={styles.hint}>{animation.video.name}</span>}
     {!available && <><span className={styles.hint}>{t("animation.videoUnavailable")}</span><Button variant="outline" onClick={() => useModelsStore.getState().setOpen(true)}>{t("animation.openModels")}</Button></>}

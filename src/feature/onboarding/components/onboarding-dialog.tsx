@@ -11,7 +11,7 @@ import { estimateDiskGb, recommend } from "../recommend";
 import { installSelected, useOnboardingStore } from "../store";
 import styles from "../onboarding.module.css";
 
-type Extras = { python: string | null; blender: BlenderInfo | null; providers: MotionProvider[] };
+type Extras = { python: string | null; blender: BlenderInfo | null; providers: MotionProvider[]; platform: string };
 
 export function OnboardingDialog() {
   const open = useOnboardingStore((s) => s.open);
@@ -54,15 +54,15 @@ function OnboardingContent({ onClose }: { onClose: () => void }) {
     const api = window.forma;
     if (!api) return;
     let active = true;
-    void Promise.all([api.plugins.python(), api.system.blender(false), api.system.motionProviders()]).then(([python, blender, providers]) => {
-      if (active) setExtras({ python, blender, providers });
+    void Promise.all([api.plugins.python(), api.system.blender(false), api.system.motionProviders(), api.system.info()]).then(([python, blender, providers, info]) => {
+      if (active) setExtras({ python, blender, providers, platform: info.platform });
     });
     return () => {
       active = false;
     };
   }, []);
 
-  const recommendations = useMemo(() => recommend(plugins, hardware, extras?.python ?? null), [plugins, hardware, extras]);
+  const recommendations = useMemo(() => recommend(plugins, hardware, extras?.python ?? null, extras?.platform), [plugins, hardware, extras]);
   const chosen = selected ?? recommendations.filter((entry) => entry.fit === "recommended").map((entry) => entry.plugin.id);
   const chosenPlugins = plugins.filter((plugin) => chosen.includes(plugin.id));
   const diskGb = estimateDiskGb(chosenPlugins, weights);

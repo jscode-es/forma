@@ -42,7 +42,7 @@ export const projectName = z.string().trim().min(1).max(120);
 
 export const engineId = z.string().regex(/^[a-z0-9][a-z0-9-]{1,63}$/);
 
-const parameterValue = z.union([z.number().finite(), z.boolean(), z.string().max(256)]);
+const parameterValue = z.union([z.number().finite(), z.boolean(), z.string().max(2000)]);
 
 export const parameterValues = z.record(z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]{0,63}$/), parameterValue);
 
@@ -166,7 +166,7 @@ export const engineManifest = z.object({
   }),
   timeoutSeconds: z.number().int().min(10).max(24 * 3600).default(1800),
   requirements: z
-    .object({ vramGb: z.number().min(0).default(0), cuda: z.boolean().default(false) })
+    .object({ vramGb: z.number().min(0).default(0), cuda: z.boolean().default(false), platforms: z.array(z.enum(["win32", "linux", "darwin"])).min(1).optional() })
     .default({ vramGb: 0, cuda: false }),
   demo: z.boolean().default(false),
   network: z.boolean().default(false),
@@ -213,6 +213,14 @@ export const engineManifest = z.object({
   parameters: z
     .array(
       z.discriminatedUnion("type", [
+        z.object({
+          id: parameterId,
+          type: z.literal("string"),
+          label: localizedText,
+          tasks: z.array(engineTask).optional(),
+          maxLength: z.number().int().min(1).max(2000),
+          default: z.string().max(2000),
+        }).refine((parameter) => parameter.default.length <= parameter.maxLength, "default exceeds maxLength"),
         z.object({
           id: parameterId,
           type: z.enum(["integer", "number"]),

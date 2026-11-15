@@ -132,12 +132,14 @@ Material inspection, five-map import, provenance and preview variants are implem
 ## Phase 12 · Mesh tools (done)
 
 - [x] Mesh inspection: degenerate faces, open borders, non-manifold edges, components
-- [x] Retopology with face budget and UV regeneration (headless Blender)
+- [x] Retopology with face budget and UV regeneration (Instant Meshes + XAtlas, independent CPU plugin)
 - [x] UV unwrap and pack with template export
 - [x] Normals: recalculation and baking from a detailed source
 - [x] Every modifying operation produces a variant before being applied
 
 Validated with Blender 5.2.1 LTS on Windows, including real QuadriFlow, packed UVs, PNG template export and CPU normal baking. Inspection produces a report without changing the model. Retopology budgets count quads (the exported GLB can contain twice as many triangles). Retopology and UV replacement reject textured/complex materials; modifying operations reject rigs, morph targets and animations. Baking requires a target with UVs and a spatially aligned detailed variant. See [engine evidence](superpowers/evidence/phase12-blender-mesh.md) and the manuals for limits.
+
+Retopology was subsequently replaced with the independent Instant Meshes + XAtlas CPU plugin; the current Windows integration and its limits are recorded in [retopology evidence](superpowers/evidence/instant-meshes-retopology.md). Blender remains responsible for inspection, standalone UVs and baking.
 
 ## Phase 13 · Paint 3D (done)
 
@@ -190,7 +192,6 @@ Decision (2026-11-15): Forma only ships engines that run natively on the user's 
 Target: a first-time user goes from an idea to a validated engine package without reading the manual, and the quality of what was built in phases 9–17 is guarded by CI.
 
 - [x] First-run assistant: hardware check, engines recommended for the GPU and system, shared runtime and weights prepared in one flow
-- [ ] Guided recipe: text or image → reference → 3D → texture → ambient occlusion → package, queued as one pipeline with review and retry at every step
 - [ ] Large models: automatic viewer LOD and memory guard above a triangle budget, with a suggestion to optimize before texturing or rigging
 - [ ] Prompt helper: improve a reference prompt with Codex, Claude or Copilot CLI under the same consent and validation rules
 - [x] i18n checks in CI: English/Spanish key parity, valid UTF-8 without broken accents, no hard-coded UI strings (`npm run i18n:check`)

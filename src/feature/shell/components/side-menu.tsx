@@ -3,6 +3,7 @@
 import { Button, Icon } from "@kivora/nextjs";
 import { Box, Boxes, CircleHelp, LibraryBig, Settings, Upload } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { HelpHint } from "@/components/help-hint";
 import { useModelsStore } from "@/feature/models";
 import { useViewerStore } from "@/feature/viewport";
 import { displayedVariant, useProjectStore, variantName } from "@/stores/project-store";
@@ -69,7 +70,10 @@ export function SideMenu({ onOpenDialog }: { onOpenDialog: (dialog: ShellDialog)
 
           <section className={styles.block} aria-labelledby="scene-title">
             <div className={styles.blockHeader}>
-              <span id="scene-title">{t("scene.title")}</span>
+              <span className={styles.referenceTitle}>
+                <span id="scene-title">{t("scene.title")}</span>
+                <HelpHint label={`${t("common.help")}: ${t("scene.title")}`} text={t("scene.importHint")} />
+              </span>
               <span className={styles.hint}>{t("scene.objects", { count: 1 })}</span>
             </div>
             <div className={`${styles.navItem} ${styles.navItemActive}`} style={{ cursor: "default" }}>
@@ -85,9 +89,6 @@ export function SideMenu({ onOpenDialog }: { onOpenDialog: (dialog: ShellDialog)
               <Icon icon={Upload} size={15} />
               {t("scene.import")}
             </Button>
-            <p className={styles.hint} style={{ margin: 0 }}>
-              {t("scene.importHint")}
-            </p>
           </section>
 
 

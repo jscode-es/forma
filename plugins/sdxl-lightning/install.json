@@ -8,10 +8,10 @@
     "README.md"
   ],
   "licenseNotice": {
-    "en": "Stable Diffusion XL 1.0 (Stability AI) and SDXL-Lightning (ByteDance) weights are licensed under the CreativeML Open RAIL++-M License, which allows commercial use but forbids the uses listed in its Attachment A. You are responsible for following it.",
-    "es": "Los pesos de Stable Diffusion XL 1.0 (Stability AI) y SDXL-Lightning (ByteDance) están licenciados bajo la CreativeML Open RAIL++-M License, que permite el uso comercial pero prohíbe los usos de su Anexo A. Eres responsable de cumplirla."
+    "en": "Stable Diffusion XL 1.0 (Stability AI) and SDXL-Lightning (ByteDance) weights are licensed under the CreativeML Open RAIL++-M License, which allows commercial use but forbids the uses listed in its Attachment A. You are responsible for following it. Qwen3-1.7B prompt refinement weights use Apache License 2.0. BiRefNet background-removal weights and code use MIT.",
+    "es": "Los pesos de Stable Diffusion XL 1.0 (Stability AI) y SDXL-Lightning (ByteDance) están licenciados bajo la CreativeML Open RAIL++-M License, que permite el uso comercial pero prohíbe los usos de su Anexo A. Eres responsable de cumplirla. Los pesos Qwen3-1.7B para mejorar prompts usan Apache License 2.0. Los pesos y el código BiRefNet para quitar el fondo usan MIT."
   },
-  "check": "import torch, diffusers; print('cuda', torch.cuda.is_available())",
+  "check": "import torch, diffusers, torchvision, timm, kornia, einops; from transformers import Qwen3ForCausalLM; print('cuda', torch.cuda.is_available())",
   "base": "torch-cu128",
-  "diskGb": 12
+  "diskGb": 18
 }

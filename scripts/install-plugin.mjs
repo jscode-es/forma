@@ -23,6 +23,7 @@ if (!existsSync(join(source, "install.json"))) {
 }
 const install = JSON.parse(readFileSync(join(source, "install.json"), "utf8"));
 const manifest = JSON.parse(readFileSync(join(source, "forma-engine.json"), "utf8"));
+if (manifest.requirements?.platforms && !manifest.requirements.platforms.includes(process.platform)) throw new Error("platform-unsupported");
 
 if (install.licenseNotice) {
   console.log(`\n${install.licenseNotice.en}\n`);
@@ -103,7 +104,7 @@ if (python) {
 }
 
 if (install.check) {
-  const env = { ...process.env, PYTHONPATH: (install.vendor ?? []).map((v) => join(target, v.dir)).join(process.platform === "win32" ? ";" : ":") };
+  const env = { ...process.env, PYTHONPATH: [target, ...(install.vendor ?? []).map((v) => join(target, v.dir))].join(process.platform === "win32" ? ";" : ":") };
   run(python, ["-c", install.check], { env });
 }
 

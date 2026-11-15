@@ -22,11 +22,10 @@ export function TextureControl() {
     <EngineControl task="texture" />
     <Label>{t("texture.reference")}</Label>
     <Select aria-label={t("texture.reference")} options={options} value={options.find((o) => o.value === referenceId) ?? null}
-      isSearchable={false} menuPortalTarget={typeof document === "undefined" ? null : document.body} menuPosition="fixed"
+      isSearchable={false} menuPortalTarget={typeof document === "undefined" ? null : document.body} menuPosition="fixed" menuPlacement="auto"
       styles={{ menuPortal: (base) => ({ ...base, zIndex: 60 }) }}
       onChange={(option) => useProjectStore.getState().setTextureReferenceId(option?.value ?? null)} />
     <Button disabled={!ready} onClick={() => void textureModel()}>{t(busy ? "texture.running" : "texture.run")}</Button>
-    <span className={styles.hint}>{t("texture.hint")}</span>
     {error && <span role="alert" className={styles.error}>{t(`errors.${error}`, { defaultValue: error })}</span>}
   </div>;
 }

@@ -140,6 +140,7 @@
     "search": "Search tool...",
     "noResults": "No tools match your search.",
     "generate": "Generate model",
+    "generating": "Generating model… {{percent}}%",
     "generateHint": "Choose an available engine.",
     "tabs": {
       "text": "From text",
@@ -274,7 +275,7 @@
       }
     },
     "generateReady": "The job runs locally and appears in the job queue.",
-    "generateQueued": "A job of this engine is already in the queue.",
+    "generateQueued": "Model queued…",
     "createAnimation": "Create animation"
   },
   "quality": {
@@ -299,6 +300,7 @@
     "hint": "Uses the active version and the selected reference. Needs an installed texture engine, such as Hunyuan3D Paint 2.1 PBR (Models → Engines)."
   },
   "engine": {
+    "details": "About {{name}}",
     "none": "No engines installed",
     "noneHint": "Engines are installed from the model manager.",
     "choose": "Choose an engine",
@@ -309,7 +311,8 @@
       "python-missing": "Python not found",
       "cuda-missing": "CUDA not available",
       "vram-insufficient": "Not enough VRAM",
-      "weights-missing": "Required weights not downloaded"
+      "weights-missing": "Required weights not downloaded",
+      "platform-unsupported": "Not supported on this operating system"
     },
     "activateHint": "Activate an engine in Models.",
     "views": "Multi-view: uses {{views}}"
@@ -344,6 +347,7 @@
     "issue": "Report a problem or suggest an idea"
   },
   "settings": {
+    "general": "General",
     "title": "Settings",
     "description": "Preferences of this computer.",
     "language": "Language",
@@ -355,6 +359,9 @@
     "dataDirHint": "Projects, models and the database are stored here.",
     "openDataDir": "Open folder",
     "hardware": {
+      "blender": "Blender",
+      "blenderHint": "Forma uses Blender in the background for retopology, UVs, baking and rigging. Once detected, no further configuration is needed.",
+      "changeBlender": "Change Blender executable",
       "title": "Hardware and engines",
       "gpu": "GPU",
       "vram": "VRAM",
@@ -419,6 +426,7 @@
       "cancelled": "Cancelled"
     },
     "stage": {
+      "refining-prompt": "Improving prompt locally",
       "preparing": "Preparing",
       "sampling": "Sampling",
       "exporting": "Exporting",
@@ -429,14 +437,16 @@
       "lod": "Creating LODs",
       "neutralizing-lighting": "Neutralizing lighting",
       "reducing": "Reducing faces",
-      "unwrapping": "Unwrapping UVs",
+      "unwrapping": "Generating UVs",
       "rendering-geometry": "Rendering geometry views",
       "encoding-reference": "Encoding the reference",
       "baking": "Baking the atlas",
       "packaging": "Packaging and validating",
-      "planning": "Planning the motion"
+      "planning": "Planning the motion",
+      "remeshing": "Rebuilding topology"
     },
     "error": {
+      "prompt-refinement-invalid": "The local model could not prepare a valid prompt. Rephrase the description and retry.",
       "interrupted": "Interrupted: the app was closed while it ran",
       "timeout": "Time limit exceeded",
       "no-result": "The engine finished without a result",
@@ -463,7 +473,16 @@
       "motion-provider-failed": "The CLI failed; check that you are signed in",
       "motion-plan-invalid": "The CLI returned an invalid motion plan; try again or rephrase",
       "cli-image-missing": "Codex did not return a generated image",
-      "cli-image-invalid": "Codex returned an invalid image"
+      "cli-image-invalid": "Codex returned an invalid image",
+      "instant-meshes-missing": "Activate or repair Instant Meshes in Models first.",
+      "retopology-budget-exceeded": "Instant Meshes could not meet the face budget. Try another budget.",
+      "retopology-degenerate": "Instant Meshes produced degenerate faces. The original model is unchanged.",
+      "unsupported-model-retopology": "Retopology supports one static mesh without extensions, rig or animations.",
+      "uv-atlas-overflow": "The UV atlas needs more space. Choose a larger texture resolution.",
+      "instant-meshes-stalled": "Instant Meshes stopped responding after three attempts. The original model is unchanged.",
+      "retopology-timeout": "Retopology exceeded its time limit. Try a smaller mesh or face budget.",
+      "image-background-not-transparent": "The image does not contain a valid transparent background. No candidate was published.",
+      "prompt-too-long": "The object description is too long for the image model. Shorten the main prompt."
     }
   },
   "models": {
@@ -626,23 +645,35 @@
     "error": {
       "git-missing": "Git is not installed. Install it from git-scm.com and try again.",
       "python-missing": "Python 3.11 is not installed. Install it from python.org and try again.",
-      "python-invalid": "The chosen Python executable does not exist."
+      "python-invalid": "The chosen Python executable does not exist.",
+      "platform-unsupported": "Not supported on this operating system"
     },
     "warn": {
       "cuda": "CUDA was not detected on this computer.",
       "vram": "This GPU has less than {{required}} GB of VRAM."
     },
-    "empty": "No engines available in this version."
+    "empty": "No engines available in this version.",
+    "reqCpu": "CPU; no NVIDIA GPU required",
+    "reqPlatforms": "Platforms: {{platforms}}",
+    "platform": {
+      "win32": "Windows x64",
+      "linux": "Linux",
+      "darwin": "macOS"
+    }
   },
   "prompt": {
+    "expandImage": "Enlarge candidate {{index}}",
+    "previewTitle": "Candidate {{index}}",
     "label": "Prompt",
     "placeholder": "A red wooden chair with curved legs",
     "engine": "Image engine",
     "generate": "Generate images",
     "generating": "Generating images… {{percent}}%",
+    "refining": "Improving prompt… {{percent}}%",
+    "queued": "Images queued…",
     "candidates": "Candidates",
     "pickHint": "Pick an image to use it as the reference for 3D.",
-    "pickedHint": "Reference ready. Continue in Create 3D to generate the model.",
+    "pickedHint": "Reference ready. Use Generate model to create the 3D model.",
     "use": "Use the image with seed {{seed}}",
     "useImage": "Use image {{index}}",
     "picked": "Reference",
@@ -654,10 +685,15 @@
     "images": "{{count}} images",
     "fromPrompt": "Generated from a prompt",
     "fromPromptSeed": "Generated from a prompt · seed {{seed}}",
-    "writeHint": "Write a prompt to describe the object.",
     "readyHint": "Ctrl+Enter in the prompt also generates.",
-    "continue": "Continue in Create 3D",
-    "networkHint": "Uses the network and your external account, and may consume your quota. Only the prompt is sent; consent resets after each generation."
+    "networkHint": "Uses the network and your external account, and may consume your quota. Only the prompt is sent; consent resets after each generation.",
+    "styleSettings": "SDXL style settings",
+    "styleLabel": "Shared visual style",
+    "stylePlaceholder": "Low-poly, pastel colors, isometric view, soft lighting",
+    "styleHint": "Saved automatically for SDXL. Applies only to the requested object: finish, shapes, technique and colors. Does not add scenery, props or other objects. Leave empty to disable.",
+    "styleClear": "Clear style",
+    "removingBackground": "Removing background… {{percent}}%",
+    "transparentHint": "Candidates are PNGs with a real alpha channel. The checkerboard belongs to the viewer and is not saved in the image."
   },
   "views": {
     "front": "Front",
@@ -766,7 +802,7 @@
     "source": "Active source: {{name}}",
     "blenderReady": "Blender {{version}} ready",
     "checkingBlender": "Checking Blender…",
-    "blenderMissing": "Blender is required for mesh tools.",
+    "blenderMissing": "Blender is required. Set it up in Settings → Hardware and engines.",
     "configureBlender": "Configure Blender",
     "runtimeFailed": "Blender could not be configured. Choose a supported Blender executable.",
     "needsModel": "Import or generate a model to use mesh tools.",
@@ -783,7 +819,7 @@
       "occlusion-map-replaced": "The previous occlusion map was replaced"
     },
     "faceBudget": "Quad face budget",
-    "retopologyPolicy": "QuadriFlow targets a quad-face budget and regenerates UVs. The exported GLB is triangulated, up to twice that triangle count. Multiple materials, textured or complex materials and rigged models are rejected to prevent data loss.",
+    "retopologyPolicy": "Instant Meshes rebuilds quads and XAtlas regenerates UVs. The GLB is triangulated, up to twice the face budget. Textures, multiple materials and rigged models are rejected to avoid data loss.",
     "retopology": "Preview retopology",
     "previewHint": "Changes create a preview linked to the original. Apply it in Versions to make it active.",
     "resolution": "Texture resolution",
@@ -819,7 +855,9 @@
     },
     "occlusion": "Preview ambient occlusion",
     "occlusionSamples": "Samples",
-    "occlusionHint": "Needs one mesh with UVs. The mesh, UVs and existing maps are kept byte for byte; only the occlusion map is added or replaced. More samples reduce noise and take longer."
+    "occlusionHint": "Needs one mesh with UVs. The mesh, UVs and existing maps are kept byte for byte; only the occlusion map is added or replaced. More samples reduce noise and take longer.",
+    "instantRuntime": "Instant Meshes + XAtlas · CPU",
+    "activateInstant": "Activate Instant Meshes"
   },
   "rigging": {
     "axes": {
@@ -832,7 +870,7 @@
     "source": "Displayed source: {{name}}",
     "configureBlender": "Configure Blender",
     "runtimeFailed": "Blender could not be configured. Choose a supported Blender executable.",
-    "blenderMissing": "Configure Blender to use rig tools.",
+    "blenderMissing": "To use rig tools, set up Blender in Settings → Hardware and engines.",
     "needsModel": "Import or generate a model to rig it.",
     "humanoidHint": "For standing humanoids in a T or A pose, with +Y up and +Z facing forward.",
     "guide": "Body landmark",
@@ -1073,7 +1111,8 @@
     "reason": {
       "cuda": "Needs an NVIDIA GPU with CUDA",
       "vram": "Needs at least {{vram}} GB of VRAM",
-      "python": "Needs Python 3.11"
+      "python": "Needs Python 3.11",
+      "platform": "Not supported on this operating system."
     },
     "disk": "Up to {{size}} GB of disk ({{free}} GB free). The shared PyTorch runtime is downloaded once for every GPU engine.",
     "accept": "I have read and accept the licenses of the selected engines and their weights",

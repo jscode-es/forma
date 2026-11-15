@@ -1,15 +1,16 @@
 import type { HardwareInfo, PluginState, WeightsState } from "@/lib/forma";
 
 export type Fit = "installed" | "recommended" | "optional" | "incompatible";
-export type FitReason = "cuda" | "vram" | "python" | null;
+export type FitReason = "cuda" | "vram" | "python" | "platform" | null;
 export type Recommendation = { plugin: PluginState; fit: Fit; reason: FitReason };
 
 const CORE = ["hunyuan3d-2", "sdxl-lightning", "hunyuan3d-2-1-paint"];
 const RUNTIME_GB = 6.5;
 
-export function recommend(plugins: PluginState[], hardware: HardwareInfo | null, python: string | null): Recommendation[] {
+export function recommend(plugins: PluginState[], hardware: HardwareInfo | null, python: string | null, platform?: string): Recommendation[] {
   const vramGb = hardware?.vramMb ? hardware.vramMb / 1024 : null;
   const fits = plugins.map((plugin): Recommendation => {
+    if (plugin.requirements.platforms && !plugin.requirements.platforms.includes(platform ?? "")) return { plugin, fit: "incompatible", reason: "platform" };
     if (plugin.status === "installed") return { plugin, fit: "installed", reason: null };
     if (plugin.requirements.cuda && !hardware?.cuda) return { plugin, fit: "incompatible", reason: "cuda" };
     if (vramGb !== null && vramGb < plugin.requirements.vramGb) return { plugin, fit: "incompatible", reason: "vram" };

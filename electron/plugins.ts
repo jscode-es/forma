@@ -194,6 +194,7 @@ async function installPlugin(id: string, existingPython: string | null) {
   };
 
   try {
+    if (plugin.manifest.requirements.platforms && !plugin.manifest.requirements.platforms.includes(process.platform as "win32" | "linux" | "darwin")) throw new Error("platform-unsupported");
     if (plugin.spec.vendor.length > 0) {
       step("checking");
       await run(plugin, current, "git", ["--version"]).catch(() => {
@@ -242,7 +243,7 @@ async function installPlugin(id: string, existingPython: string | null) {
     if (plugin.spec.check) {
       step("verifying");
       const separator = process.platform === "win32" ? ";" : ":";
-      const pythonPath = plugin.spec.vendor.map((v) => path.join(dir, v.dir)).join(separator);
+      const pythonPath = [dir, ...plugin.spec.vendor.map((v) => path.join(dir, v.dir))].join(separator);
       await run(plugin, current, python, ["-c", plugin.spec.check], { PYTHONPATH: pythonPath });
     }
 

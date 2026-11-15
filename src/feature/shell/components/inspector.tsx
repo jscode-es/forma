@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import type { ParseKeys } from "i18next";
+import { HelpHint } from "@/components/help-hint";
+import { ProgressButton } from "@/components/progress-button";
 import {
   Accordion,
   AccordionContent,
@@ -36,11 +39,29 @@ import { DEFAULT_QUALITY_STEPS, useProjectStore, type Quality } from "@/stores/p
 import { currentTab, useWorkspaceStore, type InspectorTab } from "@/stores/workspace-store";
 import styles from "../shell.module.css";
 import { PLANNED_SECTIONS, SECTION_TABS, type SectionKey } from "../sections";
-import { HelpHint } from "./help-hint";
 
 type SectionDef = { tab: InspectorTab; id: SectionKey; phase?: number; content?: ReactNode; action?: ReactNode };
 
 const QUALITIES: Quality[] = ["fast", "balanced", "high"];
+
+const SECTION_HELP: Partial<Record<SectionKey, ParseKeys[]>> = {
+  engine: ["inspector.generateReady"],
+  retopology: ["mesh.retopologyPolicy", "mesh.previewHint"],
+  optimize: ["optimize.hint"],
+  texture: ["texture.hint"],
+  materials: ["material.previewHint", "material.upscaleHint"],
+  uv: ["mesh.uvPolicy", "mesh.previewHint"],
+  normals: ["mesh.bakeHint", "mesh.previewHint"],
+  occlusion: ["mesh.occlusionHint", "mesh.previewHint"],
+  paint: ["paint.cloneHint", "paint.eyedropperHint", "paint.paintHint", "paint.saveHint"],
+  rig: ["rigging.humanoidHint", "rigging.guideHint", "rigging.clipPolicyHint", "rigging.previewHint", "rigging.offsetHint", "rigging.restHint", "rigging.poseHint"],
+  weights: ["rigging.weightsHint"],
+  presets: ["animation.presetHint"],
+  timeline: ["animation.saveHint"],
+  retarget: ["animation.retargetHint"],
+  video: ["animation.videoHint"],
+  projection: ["references.projectionHint"],
+};
 
 function QualityControl() {
   const { t } = useTranslation();
@@ -162,19 +183,19 @@ function GenerateFooter() {
   const { t } = useTranslation();
   const engineId = useProjectStore((s) => s.engine.id);
   const engine = useJobsStore((s) => s.engines.find((e) => e.id === engineId));
-  const busy = useJobsStore((s) => s.jobs.some((j) => ACTIVE.has(j.status) && j.engineId === engineId));
+  const job = useJobsStore((s) => s.jobs.find((j) => ACTIVE.has(j.status) && j.engineId === engineId && j.task === "image-to-3d"));
   const error = useJobsStore((s) => s.enqueueError);
   const ready = Boolean(engine?.available);
 
   return (
     <div className={styles.inspectorFooter}>
-      <Button size="lg" disabled={!ready} onClick={() => generateModel()}>
+      <ProgressButton size="lg" disabled={!ready} progress={job?.progress} onClick={() => generateModel()}>
         <Icon icon={Sparkles} size={16} />
-        {t("inspector.generate")}
-      </Button>
-      <span className={styles.hint} style={{ textAlign: "center", color: error ? "var(--color-destructive)" : undefined }}>
-        {error ? t(`errors.${error}`, { defaultValue: error }) : (!ready ? t("inspector.generateHint") : busy ? t("inspector.generateQueued") : t("inspector.generateReady"))}
-      </span>
+        {job ? job.status === "queued" ? t("inspector.generateQueued") : t("inspector.generating", { percent: Math.round(job.progress * 100) }) : t("inspector.generate")}
+      </ProgressButton>
+      {(error || !ready) && <span className={styles.hint} style={{ textAlign: "center", color: error ? "var(--color-destructive)" : undefined }}>
+        {error ? t(`errors.${error}`, { defaultValue: error }) : t("inspector.generateHint")}
+      </span>}
     </div>
   );
 }
@@ -187,15 +208,11 @@ function AnimationFooter() {
         <Icon icon={Play} size={16} />
         {t("inspector.createAnimation")}
       </Button>
-      <span className={styles.hint} style={{ textAlign: "center" }}>
-        {t("animation.editorHint")}
-      </span>
     </div>
   );
 }
 
 const SECTIONS: SectionDef[] = [
-  { tab: "create", id: "retopology", content: <RetopologyControl /> },
   { tab: "model", id: "retopology", content: <RetopologyControl /> },
   { tab: "model", id: "inspect", content: <MeshInspectControl /> },
   { tab: "finish", id: "texture", content: <TextureControl /> },
@@ -319,21 +336,20 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
             >
               {visible.map((s) => (
                 <AccordionItem key={`${s.tab}-${s.id}`} value={`${s.tab}-${s.id}`}>
+                  <div className={styles.inspectorSectionHeader}>
                   <AccordionTrigger className={styles.sectionTrigger}>
                     <span className={styles.sectionTitle}>
                       {t(`inspector.sections.${s.id}.title`)}
                       {needle && <Badge variant="secondary">{t(`inspector.tabs.${s.tab}`)}</Badge>}
                     </span>
                   </AccordionTrigger>
+                    <div className={styles.sectionActions}>
+                      {s.action}
+                      <HelpHint label={`${t("common.help")}: ${t(`inspector.sections.${s.id}.title`)}`} text={[t(`inspector.sections.${s.id}.help`), ...(SECTION_HELP[s.id] ?? []).map((key) => t(key))].join("\n\n")} />
+                    </div>
+                  </div>
                   <AccordionContent>
                     <div className={styles.sectionBody}>
-                      <div className={styles.row}>
-                        <span className={styles.hint}>{t(`inspector.sections.${s.id}.help`)}</span>
-                        <span className={styles.sectionActions}>
-                          {s.action}
-                          <HelpHint text={t(`inspector.sections.${s.id}.help`)} />
-                        </span>
-                      </div>
                       {s.content}
                       {s.phase && !s.content && (
                         <Badge variant="outline" style={{ justifySelf: "start" }}>

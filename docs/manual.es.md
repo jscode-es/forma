@@ -2,13 +2,27 @@
 
 [English](manual.md)
 
-Forma convierte imágenes en modelos 3D en tu propio equipo. No se sube nada: la generación, los proyectos y los archivos se quedan en local.
+Forma convierte texto e imágenes de referencia en recursos 3D, con herramientas de malla, materiales, animación y exportación. Los motores locales ejecutan la inferencia en tu equipo; los motores opcionales con CLI externa envían la entrada solicitada a su servicio tras tu consentimiento explícito.
+
+## Encuentra tu flujo de trabajo
+
+- Conoce [el estudio](#el-estudio) y [activa un motor](#activar-un-motor).
+- Crea un modelo [desde una imagen](#crear-un-modelo-desde-una-imagen) o [desde texto](#crear-un-modelo-desde-texto) y organiza [varias vistas](#varias-vistas-y-revisión-de-referencias).
+- Revisa [versiones](#versiones), edita [materiales y texturas](#materiales-y-texturas) o utiliza las [herramientas de malla](#herramientas-de-malla).
+- Crea un [esqueleto humanoide](#esqueleto-humanoide) y trabaja con [clips de animación](#animación-y-biblioteca-de-clips).
+- [Exporta](#exportar), organiza [proyectos](#proyectos) o cambia los [ajustes](#ajustes-y-datos).
+
+Consulta los requisitos de hardware y plataformas en el [README](../README.md#requirements).
 
 ## Instalación
 
 Descarga el instalador de tu sistema desde la [página de versiones](https://github.com/jscode-es/forma/releases): `.exe` para Windows, `.dmg` para macOS (Apple Silicon), `.AppImage` o `.deb` para Linux. Los instaladores aún no están firmados, así que SmartScreen de Windows y Gatekeeper de macOS piden confirmación la primera vez (en macOS: clic derecho → Abrir).
 
 ## El estudio
+
+![Estudio de Forma: menú izquierdo, visor central, Configuración a la derecha y Versiones debajo](images/studio.png)
+
+*Modelo Toy Car importado, no generado con IA. Las capturas muestran la interfaz en inglés; puedes cambiar el idioma en Ajustes.*
 
 | Zona | Qué hace |
 | --- | --- |
@@ -22,6 +36,10 @@ Descarga el instalador de tu sistema desde la [página de versiones](https://git
 Cada proyecto nuevo empieza con un cubo de 1 m. Se recuerdan los proyectos, los ajustes y la disposición de los paneles; al arrancar se abre el último proyecto.
 
 ## Activar un motor
+
+![Gestor de motores con el catálogo y los botones de activación](images/engines.png)
+
+Abre **Modelos → Motores** para elegir uno. Su entorno y sus pesos se descargan por separado de la aplicación.
 
 La primera vez que abres Forma, el **asistente de configuración** revisa la GPU, la VRAM, CUDA, el disco libre, Python 3.11, Blender y las CLI externas, marca cada motor como recomendado, opcional o no compatible (con el motivo), estima el disco necesario e instala los elegidos uno tras otro cuando aceptas sus licencias. Puedes cerrarlo mientras instala y volver a abrirlo desde **Ajustes**.
 
@@ -55,13 +73,25 @@ En una RTX 5070 (12 GB), Hunyuan3D 2.0 tarda unos 2 minutos con 30 pasos.
 2. En **Referencias → Desde texto → Prompt**, describe un objeto y elige el motor de imagen. *Imágenes* fija cuántas candidatas obtienes y *Semilla* las hace reproducibles; la candidata *n* usa semilla + *n*.
 3. Pulsa **Generar imágenes** (o Ctrl+Enter en el prompt). Las candidatas aparecen bajo el prompt.
 4. Pulsa la candidata que te guste: se convierte en la referencia, con su prompt y su semilla.
-5. Pulsa **Continuar en Crear 3D** y sigue como en [Crear un modelo desde una imagen](#crear-un-modelo-desde-una-imagen), desde el paso 3.
+5. Configura el motor de generación y pulsa **Generar modelo**, como en [Crear un modelo desde una imagen](#crear-un-modelo-desde-una-imagen), desde el paso 3.
 
 **Codex images (external CLI)** es un segundo motor de imagen que usa la generación de imágenes de tu propia cuenta de Codex CLI (instalada y con sesión iniciada). Activa **Permitir esta generación con mi cuenta externa** en cada generación: usa la red y puede consumir tu cuota, y se desactiva tras cada ejecución. Solo se envía el prompt; Codex se ejecuta con sandbox de solo lectura y Forma solo acepta la imagen que Codex guarda en su carpeta de imágenes generadas. Dos candidatas tardaron unos 50 s. Claude Code no genera imágenes y Copilot CLI aún no está soportado.
+
+Con **SDXL-Lightning**, Qwen3 traduce primero el objeto al inglés y extrae por separado una lista breve de atributos visuales del estilo. El objeto solicitado permanece al principio; se excluyen escenarios, decorados y otros sujetos procedentes del estilo. Se respetan los límites de ambos codificadores de texto. El botón muestra **Mejorando prompt…**, el progreso de generación y después **Quitando fondo…**. Tras liberar SDXL, BiRefNet crea un PNG RGBA con alfa real en local. No necesitas llama.cpp ni un servidor Ollama. El prompt original y el estilo completo permanecen en el historial; el prompt utilizado aparece en el registro.
+
+Al pasar el ratón por una candidata aparece **Ampliar candidata** para verla en un modal. Cerrar el modal no la selecciona: pulsa la tarjeta para usarla como referencia.
+
+Para mantener una estética común al generar con SDXL, pulsa el **engranaje junto al ? del motor** y escribe un **Estilo visual compartido**, por ejemplo `low-poly, colores pastel, vista isométrica, luz suave`. El campo ampliado admite **2000 caracteres** y muestra `actual/máximo`. Se guarda automáticamente en este equipo y afecta solo al acabado, las formas, la técnica y los colores del objeto solicitado. Déjalo vacío o pulsa **Borrar estilo** para desactivarlo. Los trabajos y el historial conservan el estilo utilizado; al reutilizar un prompt también se restaura su estilo. El texto se resume para el modelo de imagen, por lo que un estilo largo puede perder atributos secundarios.
+
+Todas las candidatas generadas que se publican deben ser PNG no vacíos con transparencia real. Se rechazan imágenes opacas, totalmente transparentes o con una cuadrícula dibujada sin máscara alfa. La cuadrícula de la previsualización pertenece al visor y no se guarda en el PNG. A Codex también se le pide un PNG transparente; si devuelve una imagen sin alfa válido, el trabajo falla en lugar de publicarla. Esta validación no modifica las imágenes generadas anteriormente ni las referencias importadas.
 
 El **Historial de prompts** guarda todos los prompts del proyecto con los ajustes del motor y la semilla. **Reutilizar** recupera el prompt y los ajustes para repetirlo o variarlo.
 
 ## Varias vistas y revisión de referencias
+
+![Zona Referencias con pestañas Desde texto, Una vista y Multivista y casillas para cada ángulo](images/references.png)
+
+Las casillas identifican el ángulo de cámara. Aquí están vacías: añade tus imágenes antes de ejecutar un motor multivista.
 
 1. Abre **Referencias > Multivista**. La cuadrícula de dos columnas reserva un espacio para las imágenes frontal, trasera, izquierda, derecha y superior opcional, cada una con su icono de cara. Pulsa una tarjeta o arrastra una imagen sobre ella para añadir o sustituir esa vista. El clic derecho permite quitar el fondo, elegir la imagen preparada, reasignar o eliminar. Asignar una vista ocupada intercambia las dos imágenes.
 2. Quita el fondo de cada imagen. **Revisión de referencias** comprueba los límites de las siluetas transparentes: avisa si la ocupación vertical difiere más del 15 % o la proporción de vistas opuestas difiere más del 25 %. Son avisos aproximados; un fondo opaco impide revisar la silueta de forma fiable.
@@ -85,6 +115,10 @@ La pestaña **Versiones** lista todas las versiones con origen, triángulos, par
 
 ## Materiales y texturas
 
+![Pestaña Acabado con selección de material, propiedades de superficie y mapas de textura](images/materials.png)
+
+El **?** de cada apartado abre su explicación. Usa el buscador de herramientas para localizar un control dentro de la sección actual.
+
 En **Crear 3D > Acabado > Materiales**, selecciona un material para consultar sus factores y mapas integrados de albedo, metalicidad, rugosidad, normales y AO. Importar sustituye un mapa en una nueva vista previa; la malla necesita el canal UV indicado. Se muestra la procedencia del mapa cuando se conoce. **Previsualizar cambios** edita color, metalicidad, rugosidad y opacidad. **Aislar material** solo afecta al visor; **Comparar** muestra la versión activa. Aplica la vista previa antes de exportarla.
 
 **Ampliar 2×/4×** remuestrea los mapas con interpolación bilineal y un límite de 4096 píxeles por lado. No reconstruye detalle mediante IA. El albedo se interpola en RGB lineal y se normalizan los vectores de normales. Esta ruta rechaza mapas de datos con transparencia: utiliza imágenes opacas para normales, metalicidad, rugosidad y AO.
@@ -93,15 +127,19 @@ En **Crear 3D > Acabado > Materiales**, selecciona un material para consultar su
 
 ## Optimizar y LOD
 
+![Pestaña Modelo con retopología, inspección de malla y presupuestos de triángulos para LOD](images/model-tools.png)
+
 **Crear 3D → Modelo → Optimizar y LOD** reduce la versión activa a un presupuesto de triángulos y puede crear hasta tres niveles de detalle. Se conservan las UV, los materiales y las texturas, y cada archivo se verifica. Si un presupuesto no se puede alcanzar sin dañar la malla, no se publica nada. Los modelos con esqueleto aún no se admiten.
 
 ## Herramientas de malla
 
-Estas operaciones necesitan Blender 4 o posterior instalado; se han probado con Blender 5.2.1 LTS. Si Forma no lo encuentra, pulsa **Configurar Blender** y selecciona su ejecutable. No hace falta instalar paquetes Python ni descargar pesos.
+![Controles de retopología con Instant Meshes y XAtlas en CPU, activación y presupuesto de quads](images/retopology.png)
+
+La inspección de malla, las herramientas independientes de UV y el horneado requieren Blender 4 o posterior; se han probado con Blender 5.2.1 LTS. Si no se detecta, abre **Ajustes → Hardware y motores → Configurar Blender** y elige su ejecutable. La retopología utiliza el motor independiente Instant Meshes y no necesita Blender.
 
 En **Crear 3D > Modelo > Inspeccionar malla**, analiza la versión activa: vértices, caras, triángulos, caras degeneradas, bordes abiertos, aristas no manifold y componentes. Los bordes abiertos también cuentan como no manifold. La inspección solo crea un informe.
 
-**Retopología** utiliza QuadriFlow y regenera las UV. El presupuesto cuenta cuadriláteros; el GLB puede tener hasta el doble de triángulos. **Previsualizar retopología** crea una versión candidata. Esta operación admite una malla estática con un material sencillo; rechaza texturas, colores de vértice y materiales complejos para evitar perderlos.
+**Retopología** utiliza **Instant Meshes** en CPU y **XAtlas** para las UV nuevas. Actívalo en **Modelos → Motores** o con **Activar Instant Meshes** en la pestaña Modelo. La activación prepara Python 3.11 y un ejecutable verificado para Windows x64; los trabajos se ejecutan sin conexión, Blender ni GPU. Las demás plataformas se marcan como no compatibles por ahora. El presupuesto es de 128–100000 quads; Forma reintenta con objetivos inferiores y rechaza resultados que superen ese presupuesto. El GLB contiene hasta el doble de triángulos. **Previsualizar retopología** crea una versión candidata y conserva el original. Se admite una malla estática con un material sencillo; se rechazan texturas, colores de vértice, extensiones, rigs y animaciones para evitar perder datos. Revisa la silueta y la topología antes de aplicarlo.
 
 En **Acabado > UV**, selecciona la resolución y pulsa **Previsualizar UV** para desplegar y empaquetar las islas. **Exportar plantilla UV** guarda un PNG mediante el diálogo nativo, disponible para la versión de origen o su resultado durante la sesión. Sustituir UV también rechaza materiales con texturas, colores de vértice o nodos complejos.
 
@@ -151,6 +189,8 @@ La captura estima el movimiento en el sitio: no recupera desplazamiento de raíz
 
 ## Exportar
 
+![Panel Exportar e Intercambio con destino Blender, Unity o Godot y preparación del paquete](images/export.png)
+
 **Exportar** (menú izquierdo) **→ Archivos → Exportar GLB** siempre guarda la versión activa (una versión en vista previa no se exporta hasta que la apliques). El archivo se vuelve a leer y se comprueba su SHA-256. Los LOD se exportan como archivos separados.
 
 **Exportar → Intercambio → Paquetes para motores** prepara una carpeta para **Blender**, **Unity** o **Godot** a partir de la versión activa:
@@ -174,7 +214,9 @@ Las generaciones, texturas, paquetes para motores y la validación glTF también
 
 ## Ajustes y datos
 
-**Ajustes** incluye el idioma (inglés, español o sistema), el tema (claro, oscuro o sistema), la carpeta de datos y un informe de hardware (GPU, VRAM, controlador, CUDA, disco libre, Python, motores). La carpeta de datos guarda la base de datos, los proyectos, los trabajos, los motores y los pesos.
+![Ajustes con navegación lateral y preferencias de idioma y tema](images/settings.png)
+
+**Ajustes** tiene un menú lateral: **General** (idioma y tema), **Carpeta de datos**, **Asistente de configuración**, **Actualizaciones** y **Hardware y motores**. Selecciona un apartado para ver sus controles. El informe muestra GPU, VRAM, controlador, CUDA, disco libre, Python y motores; aquí también puedes configurar Blender si no se detecta automáticamente. La carpeta de datos guarda la base de datos, los proyectos, los trabajos, los motores y los pesos.
 
 **Actualizaciones**: la app instalada consulta las releases de GitHub al abrirse (se desactiva con **Buscar actualizaciones al abrir Forma**) o al pulsar **Buscar ahora**. Solo avisa de la nueva versión: **Descargar** y **Reiniciar e instalar** se ejecutan cuando los pulsas. En macOS, mientras las versiones no estén firmadas, **Descargar desde GitHub** abre la página de la release.
 

@@ -14,6 +14,13 @@ const plugin = (id, extra = {}) => ({
 });
 const gpu = { gpu: "RTX", vramMb: 12227, driver: "1", cuda: "13.4", diskFreeBytes: 500 * GB, python: null };
 
+test("platform-specific plugins are incompatible outside their supported platforms", () => {
+  const instant = plugin("instant-meshes", { requirements: { platforms: ["win32"], vramGb: 0, cuda: false, python: "3.11", diskGb: 0.3 } });
+  assert.equal(recommend([instant], gpu, "python", "linux")[0].reason, "platform");
+  assert.equal(recommend([instant], gpu, "python", "darwin")[0].fit, "incompatible");
+  assert.equal(recommend([instant], gpu, "python", "win32")[0].fit, "optional");
+});
+
 test("recommends the core GPU engines and marks the rest optional", () => {
   const list = recommend([plugin("hunyuan3d-2-mv"), plugin("sdxl-lightning"), plugin("hunyuan3d-2"), plugin("mediapipe-motion", { requirements: { vramGb: 0, cuda: false, python: "3.11", diskGb: 1.2 }, runtime: null })], gpu, "python.exe");
   assert.deepEqual(list.map((entry) => [entry.plugin.id, entry.fit]), [["hunyuan3d-2", "recommended"], ["sdxl-lightning", "recommended"], ["hunyuan3d-2-mv", "optional"], ["mediapipe-motion", "optional"]]);

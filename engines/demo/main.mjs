@@ -79,14 +79,14 @@ function buildPng(key) {
   });
   const size = 256;
   const radius = 60 + (hash >>> 9) % 40;
-  const raw = Buffer.alloc(size * (size * 3 + 1));
+  const raw = Buffer.alloc(size * (size * 4 + 1));
   for (let y = 0; y < size; y++) {
-    const row = y * (size * 3 + 1);
+    const row = y * (size * 4 + 1);
     for (let x = 0; x < size; x++) {
       const inside = (x - 128) ** 2 + (y - 120) ** 2 < radius ** 2;
       const shadow = ((x - 128) / (radius * 1.1)) ** 2 + ((y - 200) / 10) ** 2 < 1;
       const color = inside ? [r, g, b] : shadow ? [215, 215, 220] : [255, 255, 255];
-      raw.set(color, row + 1 + x * 3);
+      raw.set([...color, inside ? 255 : 0], row + 1 + x * 4);
     }
   }
   const chunk = (type, data) => {
@@ -100,7 +100,7 @@ function buildPng(key) {
   const ihdr = Buffer.alloc(13);
   ihdr.writeUInt32BE(size, 0);
   ihdr.writeUInt32BE(size, 4);
-  ihdr.set([8, 2, 0, 0, 0], 8);
+  ihdr.set([8, 6, 0, 0, 0], 8);
   const signature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
   return Buffer.concat([signature, chunk("IHDR", ihdr), chunk("IDAT", deflateSync(raw)), chunk("IEND", Buffer.alloc(0))]);
 }

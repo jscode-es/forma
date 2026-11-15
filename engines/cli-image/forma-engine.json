@@ -1,26 +1,69 @@
 {
   "id": "forma-cli-image",
   "name": "Codex images (external CLI)",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "MIT",
   "description": {
     "en": "Creates reference candidates with the image generation of your Codex CLI account. Only the prompt is sent; Forma keeps just the image Codex saves in its generated images folder.",
     "es": "Crea candidatas de referencia con la generación de imágenes de tu cuenta de Codex CLI. Solo se envía el prompt; Forma conserva únicamente la imagen que Codex guarda en su carpeta de imágenes generadas."
   },
-  "tasks": ["text-to-image"],
-  "runtime": { "type": "node", "entry": "main.cjs" },
+  "tasks": [
+    "text-to-image"
+  ],
+  "runtime": {
+    "type": "node",
+    "entry": "main.cjs"
+  },
   "network": true,
   "timeoutSeconds": 900,
   "parameters": [
     {
       "id": "provider",
       "type": "enum",
-      "label": { "en": "Provider", "es": "Proveedor" },
+      "label": {
+        "en": "Provider",
+        "es": "Proveedor"
+      },
       "default": "codex",
-      "options": [{ "value": "codex", "label": { "en": "Codex CLI", "es": "Codex CLI" } }]
+      "options": [
+        {
+          "value": "codex",
+          "label": {
+            "en": "Codex CLI",
+            "es": "Codex CLI"
+          }
+        }
+      ]
     },
-    { "id": "count", "type": "integer", "label": { "en": "Images", "es": "Imágenes" }, "min": 1, "max": 4, "step": 1, "default": 2 },
-    { "id": "objectFraming", "type": "boolean", "label": { "en": "Isolated object on a plain background", "es": "Objeto aislado sobre fondo liso" }, "default": true },
-    { "id": "consent", "type": "boolean", "label": { "en": "Allow this generation with my external account", "es": "Permitir esta generación con mi cuenta externa" }, "default": false }
+    {
+      "id": "count",
+      "type": "integer",
+      "label": {
+        "en": "Images",
+        "es": "Imágenes"
+      },
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "id": "objectFraming",
+      "type": "boolean",
+      "label": {
+        "en": "Isolated object on a plain background",
+        "es": "Objeto aislado sobre fondo liso"
+      },
+      "default": true
+    },
+    {
+      "id": "consent",
+      "type": "boolean",
+      "label": {
+        "en": "Allow this generation with my external account",
+        "es": "Permitir esta generación con mi cuenta externa"
+      },
+      "default": false
+    }
   ]
 }

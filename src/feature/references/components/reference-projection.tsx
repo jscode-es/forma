@@ -15,8 +15,8 @@ export function ReferenceProjection() {
   const selected = projection?.sessionId === sessionId && references.some((r) => r.id === projection.referenceId) ? projection : null;
   const options = references.map((r) => ({ value: r.id, label: t(`viewport.presets.${r.view}`) }));
   return <div className={styles.list}>
-    <span className={styles.hint}>{t("references.projectionHint")}</span>
     <Select aria-label={t("references.projectView")} options={options} isSearchable={false}
+      menuPortalTarget={typeof document === "undefined" ? null : document.body} menuPosition="fixed" menuPlacement="auto" styles={{ menuPortal: (base) => ({ ...base, zIndex: 60 }) }}
       value={options.find((o) => o.value === selected?.referenceId) ?? null}
       onChange={(option) => useViewerStore.setState({ projection: option ? { referenceId: option.value, sessionId, opacity: 0.5, scale: 1, x: 0, y: 0 } : null })} />
     {selected && <>

@@ -142,6 +142,7 @@ export type EngineTask =
 type ParameterBase = { id: string; label: LocalizedText; tasks?: EngineTask[] };
 
 export type EngineParameter =
+  | (ParameterBase & { type: "string"; maxLength: number; default: string })
   | (ParameterBase & { type: "integer" | "number"; min: number; max: number; step?: number; default: number })
   | (ParameterBase & { type: "boolean"; default: boolean })
   | (ParameterBase & { type: "enum"; options: { value: string; label: LocalizedText }[]; default: string });
@@ -154,7 +155,7 @@ export type EngineInfo = {
   description: LocalizedText;
   tasks: EngineTask[];
   parameters: EngineParameter[];
-  requirements: { vramGb: number; cuda: boolean; python: boolean };
+  requirements: { vramGb: number; cuda: boolean; python: boolean; platforms?: string[] };
   inputs: { images: { min: number; max: number }; models: { min: number; max: number }; views: ReferenceView[]; videos?: { min: number; max: number } };
   builtin: boolean;
   demo: boolean;
@@ -197,7 +198,7 @@ export type PluginState = {
   license: string;
   licenseNotice: LocalizedText | null;
   weights: { id: string; name: string; license: LicenseInfo; sizeBytes: number; optional: boolean }[];
-  requirements: { vramGb: number; cuda: boolean; python: string; diskGb: number };
+  requirements: { vramGb: number; cuda: boolean; python: string; diskGb: number; platforms?: string[] };
   runtime: { id: string; ready: boolean } | null;
   status: "available" | "installing" | "installed" | "outdated" | "failed";
   stage: string | null;

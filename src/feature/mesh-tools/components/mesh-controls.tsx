@@ -3,7 +3,8 @@
 import { useEffect, useId, useState, type ReactNode } from "react";
 import { Button, Input, Label, Select } from "@kivora/nextjs";
 import { useTranslation } from "react-i18next";
-import { ACTIVE, enqueueMeshTask, refreshEngines, useJobsStore } from "@/feature/jobs";
+import { ACTIVE, enqueueMeshTask, useJobsStore } from "@/feature/jobs";
+import { useModelsStore } from "@/feature/models";
 import { activeVariant, useProjectStore } from "@/stores/project-store";
 import { useMeshToolsStore, type MeshTopology } from "../store";
 import styles from "../mesh-tools.module.css";
@@ -23,6 +24,7 @@ function MeshFrame({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
   const { source, busy } = useMeshContext();
   const error = useJobsStore((state) => state.enqueueError);
+  const engines = useJobsStore((state) => state.engines);
   const [runtime, setRuntime] = useState<{ version: string } | null>(null);
   const [checking, setChecking] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -31,34 +33,21 @@ function MeshFrame({ children }: { children: ReactNode }) {
     let current = true;
     void useMeshToolsStore.persist.rehydrate();
     void Promise.resolve(window.forma?.system.blender(false)).then((info) => {
-      if (current) setRuntime(info ?? null);
+      if (current) {
+        setRuntime(info ?? null);
+        setFailed(false);
+      }
     }).catch(() => {
       if (current) setFailed(true);
     }).finally(() => {
       if (current) setChecking(false);
     });
     return () => { current = false; };
-  }, []);
-
-  async function configure() {
-    if (!window.forma) return;
-    setChecking(true);
-    setFailed(false);
-    try {
-      const info = await window.forma.system.chooseBlender();
-      if (info) setRuntime(info);
-      await refreshEngines();
-    } catch {
-      setFailed(true);
-    } finally {
-      setChecking(false);
-    }
-  }
+  }, [engines]);
 
   return <div className={styles.stack} aria-busy={busy || checking}>
     <span className={styles.hint}>{t("mesh.source", { name: source.label })}</span>
     <span className={styles.hint}>{t(runtime ? "mesh.blenderReady" : checking ? "mesh.checkingBlender" : "mesh.blenderMissing", { version: runtime?.version })}</span>
-    <Button variant="outline" size="sm" disabled={checking || busy} onClick={() => void configure()}>{t("mesh.configureBlender")}</Button>
     {failed && <span className={styles.error} role="alert">{t("mesh.runtimeFailed")}</span>}
     {source.model.type === "default-cube" && <span className={styles.hint}>{t("mesh.needsModel")}</span>}
     {children}
@@ -74,7 +63,7 @@ function ResolutionControl({ disabled }: { disabled: boolean }) {
   return <div className={styles.stack}>
     <Label htmlFor={inputId}>{t("mesh.resolution")}</Label>
     <Select inputId={inputId} options={options} value={options.find((option) => option.value === resolution)} isSearchable={false} isDisabled={disabled}
-      menuPortalTarget={typeof document === "undefined" ? null : document.body} menuPosition="fixed" styles={{ menuPortal: (base) => ({ ...base, zIndex: 60 }) }}
+      menuPortalTarget={typeof document === "undefined" ? null : document.body} menuPosition="fixed" menuPlacement="auto" styles={{ menuPortal: (base) => ({ ...base, zIndex: 60 }) }}
       onChange={(option) => { if (option) useMeshToolsStore.getState().setDraft({ resolution: option.value }); }} />
   </div>;
 }
@@ -98,19 +87,26 @@ export function MeshInspectControl() {
 export function RetopologyControl() {
   const { t } = useTranslation();
   const inputId = useId();
-  const { busy, ready } = useMeshContext();
+  const { busy, source } = useMeshContext();
+  const engine = useJobsStore((state) => state.engines.find((entry) => entry.id === "instant-meshes"));
+  const ready = source.model.type !== "default-cube" && engine?.available && !busy;
   const faceBudget = useMeshToolsStore((state) => state.faceBudget);
-  return <MeshFrame>
+  const error = useJobsStore((state) => state.enqueueError);
+  useEffect(() => { void useMeshToolsStore.persist.rehydrate(); }, []);
+  return <div className={styles.stack} aria-busy={busy}>
+    <span className={styles.hint}>{t("mesh.source", { name: source.label })}</span>
+    <span className={styles.hint}>{t("mesh.instantRuntime")}</span>
+    {source.model.type === "default-cube" && <span className={styles.hint}>{t("mesh.needsModel")}</span>}
+    {!engine?.available && <Button size="sm" variant="outline" onClick={() => useModelsStore.getState().setOpen(true)}>{t("mesh.activateInstant")}</Button>}
     <Label htmlFor={inputId}>{t("mesh.faceBudget")}</Label>
-    <Input id={inputId} type="number" min={128} max={2000000} step={1} value={faceBudget} disabled={busy}
+    <Input id={inputId} type="number" min={128} max={100000} step={1} value={faceBudget} disabled={busy}
       onChange={(event) => {
         const value = Number(event.target.value);
-        if (Number.isInteger(value) && value >= 128 && value <= 2000000) useMeshToolsStore.getState().setDraft({ faceBudget: value });
+        if (Number.isInteger(value) && value >= 128 && value <= 100000) useMeshToolsStore.getState().setDraft({ faceBudget: value });
       }} />
-    <span className={styles.hint}>{t("mesh.retopologyPolicy")}</span>
-    <Button disabled={!ready} onClick={() => void enqueueMeshTask("retopology", { faceBudget })}>{t(busy ? "mesh.running" : "mesh.retopology")}</Button>
-    <span className={styles.hint}>{t("mesh.previewHint")}</span>
-  </MeshFrame>;
+    <Button disabled={!ready || faceBudget > 100000} onClick={() => void enqueueMeshTask("retopology", { faceBudget, resolution: useMeshToolsStore.getState().resolution })}>{t(busy ? "mesh.running" : "mesh.retopology")}</Button>
+    {error && <span className={styles.error} role="alert">{t(`errors.${error}`, { defaultValue: error })}</span>}
+  </div>;
 }
 
 export function UvControl() {
@@ -135,11 +131,9 @@ export function UvControl() {
   }
   return <MeshFrame>
     <ResolutionControl disabled={busy} />
-    <span className={styles.hint}>{t("mesh.uvPolicy")}</span>
     <Button disabled={!ready} onClick={() => void enqueueMeshTask("uv-unwrap", { resolution })}>{t(busy ? "mesh.running" : "mesh.uv")}</Button>
     <Button variant="outline" disabled={!template || exporting} onClick={() => void exportTemplate()}>{t("mesh.exportTemplate")}</Button>
     {failed && <span className={styles.error} role="alert">{t("mesh.exportFailed")}</span>}
-    <span className={styles.hint}>{t("mesh.previewHint")}</span>
   </MeshFrame>;
 }
 
@@ -158,18 +152,16 @@ export function NormalsControl() {
   return <MeshFrame>
     <Label htmlFor={modeId}>{t("mesh.normalMode")}</Label>
     <Select inputId={modeId} options={modes} value={modes.find((option) => option.value === mode)} isSearchable={false} isDisabled={busy}
-      menuPortalTarget={typeof document === "undefined" ? null : document.body} menuPosition="fixed" styles={{ menuPortal: (base) => ({ ...base, zIndex: 60 }) }}
+      menuPortalTarget={typeof document === "undefined" ? null : document.body} menuPosition="fixed" menuPlacement="auto" styles={{ menuPortal: (base) => ({ ...base, zIndex: 60 }) }}
       onChange={(option) => { if (option) useMeshToolsStore.getState().setDraft({ normalMode: option.value }); }} />
     {mode === "bake" && <>
       <Label htmlFor={highId}>{t("mesh.highVariant")}</Label>
       <Select inputId={highId} options={highOptions} value={highOptions.find((option) => option.value === highVariantId) ?? null} placeholder={t("mesh.chooseHighVariant")} isSearchable={false} isDisabled={busy}
-        menuPortalTarget={typeof document === "undefined" ? null : document.body} menuPosition="fixed" styles={{ menuPortal: (base) => ({ ...base, zIndex: 60 }) }}
+        menuPortalTarget={typeof document === "undefined" ? null : document.body} menuPosition="fixed" menuPlacement="auto" styles={{ menuPortal: (base) => ({ ...base, zIndex: 60 }) }}
         onChange={(option) => useMeshToolsStore.getState().setDraft({ highVariantId: option?.value ?? null })} />
       <ResolutionControl disabled={busy} />
-      <span className={styles.hint}>{t("mesh.bakeHint")}</span>
     </>}
     <Button disabled={!ready || (mode === "bake" && !highValid)} onClick={() => void enqueueMeshTask("normals", { mode, resolution }, mode === "bake" ? highVariantId! : undefined)}>{t(busy ? "mesh.running" : "mesh.normals")}</Button>
-    <span className={styles.hint}>{t("mesh.previewHint")}</span>
   </MeshFrame>;
 }
 
@@ -187,8 +179,6 @@ export function OcclusionControl() {
         const value = Number(event.target.value);
         if (Number.isInteger(value) && value >= 8 && value <= 512) useMeshToolsStore.getState().setDraft({ occlusionSamples: value });
       }} />
-    <span className={styles.hint}>{t("mesh.occlusionHint")}</span>
     <Button disabled={!ready} onClick={() => void enqueueMeshTask("ambient-occlusion", { resolution, samples })}>{t(busy ? "mesh.running" : "mesh.occlusion")}</Button>
-    <span className={styles.hint}>{t("mesh.previewHint")}</span>
   </MeshFrame>;
 }

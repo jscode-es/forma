@@ -58,6 +58,24 @@ export function inspectImage(file: string) {
   return info;
 }
 
+export function validateGeneratedImage(file: string) {
+  const info = inspectImage(file);
+  if (info.format !== "png") throw new Error("image-background-not-transparent");
+  const image = nativeImage.createFromPath(file);
+  if (image.isEmpty()) throw new Error("image-unsupported");
+  const { width, height } = image.getSize();
+  if (width !== info.width || height !== info.height) throw new Error("image-unsupported");
+  const bitmap = image.toBitmap();
+  let clear = 0;
+  let solid = 0;
+  for (let index = 3; index < bitmap.length; index += 4) {
+    if (bitmap[index] === 0) clear++;
+    if (bitmap[index] >= 250) solid++;
+  }
+  const minimum = width * height * 0.01;
+  if (clear < minimum || solid < minimum) throw new Error("image-background-not-transparent");
+}
+
 function stagedFile(stagingId: string) {
   return path.join(stagingRoot(), `${stagingId}.image`);
 }

@@ -1,15 +1,14 @@
 {
   "id": "forma-blender-mesh",
   "name": "Forma Blender mesh",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "MIT",
   "description": {
-    "en": "Local Blender mesh inspection, QuadriFlow retopology, UV atlases, tangent normal baking and ambient occlusion baking. UV regeneration rejects textured materials to preserve appearance.",
-    "es": "Inspección local, retopología QuadriFlow, atlas UV, horneado de normales tangentes y de oclusión ambiental con Blender. La regeneración UV rechaza materiales texturados para conservar su apariencia."
+    "en": "Local Blender mesh inspection, UV atlases, tangent normal baking and ambient occlusion baking. UV regeneration rejects textured materials to preserve appearance.",
+    "es": "Inspección local, atlas UV, horneado de normales tangentes y de oclusión ambiental con Blender. La regeneración UV rechaza materiales texturados para conservar su apariencia."
   },
   "tasks": [
     "mesh-inspect",
-    "retopology",
     "uv-unwrap",
     "normals",
     "ambient-occlusion"
@@ -31,25 +30,9 @@
   },
   "parameters": [
     {
-      "id": "faceBudget",
-      "type": "integer",
-      "tasks": [
-        "retopology"
-      ],
-      "label": {
-        "en": "Quad face budget",
-        "es": "Presupuesto de caras cuadrangulares"
-      },
-      "min": 128,
-      "max": 2000000,
-      "step": 1,
-      "default": 10000
-    },
-    {
       "id": "resolution",
       "type": "enum",
       "tasks": [
-        "retopology",
         "uv-unwrap",
         "normals",
         "ambient-occlusion"

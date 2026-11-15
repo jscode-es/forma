@@ -2,7 +2,7 @@
 
 ## Setup
 
-See [Getting started](README.md#getting-started). Before opening a PR run:
+See [Run from source](README.md#run-from-source). Before opening a PR run:
 
 ```bash
 npm run typecheck && npm run lint && npm run build

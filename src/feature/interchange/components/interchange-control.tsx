@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button, Icon, Label, Switch, ToggleGroup, ToggleGroupItem } from "@kivora/nextjs";
 import { FolderDown, PackageCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { HelpHint } from "@/components/help-hint";
 import { ACTIVE, engineFor, errorMessage, packageModel, useJobsStore, type PackageTarget } from "@/feature/jobs";
 import type { PackageResult } from "@/lib/forma";
 import { activeVariant, useProjectStore } from "@/stores/project-store";
@@ -57,14 +58,16 @@ export function InterchangeControl() {
 
   return (
     <div className={styles.stack}>
-      <ToggleGroup type="single" value={target} onValueChange={(value) => value && setTarget(value as PackageTarget)} aria-label={t("interchange.target")} style={{ width: "100%" }}>
+      <div className={styles.row}>
+      <ToggleGroup type="single" value={target} onValueChange={(value) => value && setTarget(value as PackageTarget)} aria-label={t("interchange.target")} style={{ flex: 1 }}>
         {TARGETS.map((value) => (
           <ToggleGroupItem key={value} value={value} style={{ flex: 1 }}>
             {t(`interchange.targets.${value}`)}
           </ToggleGroupItem>
         ))}
       </ToggleGroup>
-      <span className={styles.hint}>{t(`interchange.targetHints.${target}`)}</span>
+      <HelpHint label={`${t("common.help")}: ${t("interchange.target")}`} text={t(`interchange.targetHints.${target}`)} />
+      </div>
       <div className={styles.row}>
         <Label htmlFor="package-lods">{t("interchange.includeLods", { count: variant.lods.length })}</Label>
         <Switch id="package-lods" checked={includeLods && variant.lods.length > 0} disabled={variant.lods.length === 0} onCheckedChange={setIncludeLods} />

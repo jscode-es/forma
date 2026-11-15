@@ -35,7 +35,7 @@ Reference run on an RTX 5070 (12 GB): background removal 30 s, generation at 30 
 | --- | --- | --- |
 | Steps | 30 | Quality presets set 15 / 30 / 50 |
 | Guidance (CFG) | 5 | |
-| Surface resolution | 380 | Marching cubes grid; 512 needs more VRAM and time |
+| Surface resolution | 512 | Select: 128, 256, 380 or 512; higher values need more VRAM and time |
 | Seed | 42 | Same inputs and seed reproduce the result |
 | Remove background | on | Only when the image has no transparency |
 

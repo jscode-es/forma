@@ -104,7 +104,7 @@ export function MaterialControl() {
       <div className={styles.stack}>
         <Label htmlFor="material-select">{t("material.select")}</Label>
         <Select inputId="material-select" options={options} value={options.find((option) => option.value === String(selected.index))} isSearchable={false} isDisabled={busy}
-          menuPortalTarget={typeof document === "undefined" ? null : document.body} menuPosition="fixed"
+          menuPortalTarget={typeof document === "undefined" ? null : document.body} menuPosition="fixed" menuPlacement="auto"
           styles={{ menuPortal: (base) => ({ ...base, zIndex: 60 }) }}
           onChange={(option) => { if (option) useMaterialsStore.getState().select(source.id, Number(option.value)); }} />
       </div>
@@ -127,7 +127,6 @@ export function MaterialControl() {
         <Button variant="outline" aria-pressed={isolated} onClick={() => useViewerStore.setState({ materialIsolation: isolated ? null : { sessionId, variantId: source.id, materialIndex: selected.index } })}>{t("material.isolate")}</Button>
         <Button variant="outline" disabled={!previewVariantId} aria-pressed={comparing} onClick={() => useProjectStore.getState().setComparing(!comparing)}>{t("material.compare")}</Button>
       </div>
-      <span className={styles.hint}>{t("material.previewHint")}</span>
       {MAPS.map((map) => {
         const info = selected.maps[map];
         return <div key={map} className={styles.map}>
@@ -144,7 +143,6 @@ export function MaterialControl() {
         {([2, 4] as const).map((factor) => <Button key={factor} variant="outline" disabled={busy || !selected.editable || availableMaps.length === 0 || availableMaps.some((map) => Math.max(selected.maps[map].width, selected.maps[map].height) * factor > 4096)}
           onClick={() => void preview({ upscale: { factor, maps: availableMaps } })}>{t("material.upscale", { factor })}</Button>)}
       </div>
-      <span className={styles.hint}>{t("material.upscaleHint")}</span>
     </>}
   </div>;
 }

@@ -3,7 +3,7 @@
 import { useId, useState } from "react";
 import { Button, Input, Label, Select, Switch } from "@kivora/nextjs";
 import { useTranslation } from "react-i18next";
-import { ACTIVE, refreshEngines, useJobsStore } from "@/feature/jobs";
+import { ACTIVE, useJobsStore } from "@/feature/jobs";
 import { useViewerStore } from "@/feature/viewport/viewer-store";
 import { displayedVariant, useProjectStore, variantName } from "@/stores/project-store";
 import { autoRig, editRig, resetRigGuides, resetRigPose, setRigOptions, updateRigGuide, useRigStore } from "../store";
@@ -14,6 +14,7 @@ const AXES = [0, 1, 2] as const;
 const SELECT_PROPS = {
   isSearchable: false,
   menuPosition: "fixed" as const,
+  menuPlacement: "auto" as const,
   styles: { menuPortal: (base: Record<string, unknown>) => ({ ...base, zIndex: 60 }) },
 };
 
@@ -66,7 +67,6 @@ function RigClips() {
     <Select {...SELECT_PROPS} inputId={id} options={policies} value={policies.find((option) => option.value === rig.clipPolicy)} isDisabled={busy}
       menuPortalTarget={typeof document === "undefined" ? null : document.body}
       onChange={(option) => { if (option) setRigOptions({ clipPolicy: option.value }); }} />
-    <span className={styles.hint}>{t("rigging.clipPolicyHint")}</span>
     {sameSource && <>
       <span className={styles.hint}>{t("rigging.clips", { count: rig.clips.length })}</span>
       {rig.clips.length > 0 && <ul className={styles.clips}>{rig.clips.map((clip, index) => <li key={`${index}-${clip}`}>{clip || t("rigging.unnamedClip", { index: index + 1 })}</li>)}</ul>}
@@ -79,46 +79,25 @@ export function RigControl() {
   const { source, rig, sameSource, busy, available, ready } = useRigContext();
   const id = useId();
   const [guide, setGuide] = useState<string>(GUIDES[0]);
-  const [checking, setChecking] = useState(false);
-  const [failed, setFailed] = useState(false);
   const error = useJobsStore((state) => state.enqueueError);
   const guides = GUIDES.map((value) => ({ value, label: t(`rigging.guides.${value}`) }));
   const replacingRig = sameSource && (rig.bones.length > 0 || rig.hasSkin);
 
-  async function configure() {
-    if (!window.forma) return;
-    setChecking(true);
-    setFailed(false);
-    try {
-      await window.forma.system.chooseBlender();
-      await refreshEngines();
-    } catch {
-      setFailed(true);
-    } finally {
-      setChecking(false);
-    }
-  }
-
-  return <div className={styles.stack} aria-busy={busy || checking}>
+  return <div className={styles.stack} aria-busy={busy}>
     <span className={styles.hint}>{t("rigging.source", { name: variantName(source, t("scene.cube")) })}</span>
-    <Button variant="outline" size="sm" disabled={checking || busy} onClick={() => void configure()}>{t("rigging.configureBlender")}</Button>
     {!available && <span className={styles.hint}>{t("rigging.blenderMissing")}</span>}
-    {failed && <span className={styles.error} role="alert">{t("rigging.runtimeFailed")}</span>}
     {source.model.type === "default-cube" && <span className={styles.hint}>{t("rigging.needsModel")}</span>}
-    <span className={styles.hint}>{t("rigging.humanoidHint")}</span>
     <Label htmlFor={`${id}-guide`}>{t("rigging.guide")}</Label>
     <Select {...SELECT_PROPS} inputId={`${id}-guide`} options={guides} value={guides.find((option) => option.value === guide)} isDisabled={!ready}
       menuPortalTarget={typeof document === "undefined" ? null : document.body}
       onChange={(option) => { if (option) setGuide(option.value); }} />
     <VectorFields label={t("rigging.guidePosition")} values={rig.guides[guide] ?? [0, 0, 0]} min={[-0.75, -0.1, -0.75]} max={[0.75, 1.1, 0.75]} step={0.01} disabled={!ready}
       onChange={(axis, value) => updateRigGuide(guide, axis, value)} />
-    <span className={styles.hint}>{t("rigging.guideHint")}</span>
     <div className={styles.toggle}><Label htmlFor={`${id}-guides`}>{t("rigging.showGuides")}</Label><Switch id={`${id}-guides`} checked={rig.showGuides} disabled={!ready} onCheckedChange={(showGuides) => setRigOptions({ showGuides })} /></div>
     <Button variant="outline" disabled={!ready} onClick={resetRigGuides}>{t("rigging.resetGuides")}</Button>
     <RigClips />
     {replacingRig && <span className={styles.hint}>{t("rigging.replaceHint")}</span>}
     <Button disabled={!ready || (replacingRig && rig.clipPolicy !== "discard")} onClick={() => void autoRig()}>{t(busy ? "rigging.running" : "rigging.preview")}</Button>
-    <span className={styles.hint}>{t("rigging.previewHint")}</span>
     {error && <span className={styles.error} role="alert">{t("rigging.failed")}</span>}
   </div>;
 }
@@ -154,13 +133,10 @@ export function RigEditorControl() {
     {(!sameSource || !rig.bones.length) && <span className={styles.hint}>{t("rigging.noBones")}</span>}
     <div className={styles.toggle}><Label htmlFor={`${id}-bones`}>{t("rigging.showBones")}</Label><Switch id={`${id}-bones`} checked={rig.showBones} disabled={disabled} onCheckedChange={(showBones) => setRigOptions({ showBones })} /></div>
     <VectorFields label={t("rigging.offset")} values={rig.offset} min={-0.5} max={0.5} step={0.01} disabled={disabled} onChange={(axis, value) => updateVector("offset", axis, value)} />
-    <span className={styles.hint}>{t("rigging.offsetHint")}</span>
     <RigClips />
     <Button disabled={disabled} onClick={() => void editRig()}>{t(busy ? "rigging.running" : "rigging.previewEdit")}</Button>
-    <span className={styles.hint}>{t("rigging.restHint")}</span>
     <VectorFields label={t("rigging.pose")} values={rig.pose} min={-90} max={90} step={1} disabled={disabled} onChange={(axis, value) => updateVector("pose", axis, value)} />
     <Button variant="outline" disabled={disabled} onClick={resetRigPose}>{t("rigging.resetPose")}</Button>
-    <span className={styles.hint}>{t("rigging.poseHint")}</span>
     {error && <span className={styles.error} role="alert">{t("rigging.failed")}</span>}
   </div>;
 }
@@ -173,7 +149,6 @@ export function RigWeightsControl() {
   return <div className={styles.stack}>
     <BoneSelect disabled={!ready || !sameSource || !rig.hasSkin || !rig.bones.length} />
     <div className={styles.toggle}><Label htmlFor={id}>{t("rigging.showWeights")}</Label><Switch id={id} checked={rig.showWeights} disabled={disabled} onCheckedChange={(showWeights) => setRigOptions({ showWeights })} /></div>
-    <span className={styles.hint}>{t("rigging.weightsHint")}</span>
     {(!sameSource || !rig.hasSkin) && <span className={styles.hint}>{t("rigging.noSkin")}</span>}
   </div>;
 }

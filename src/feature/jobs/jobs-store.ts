@@ -5,6 +5,7 @@ import type { EngineInfo, EngineTask, HardwareInfo, ImageSource, JobInfo, Locali
 import { acceptVideoMotion, refreshAnimationLibrary, useAnimationStore, readAnimationModel, validateAnimationClip } from "@/feature/animation";
 import { activeImage, activeVariant, displayedVariant, mainReference, useProjectStore } from "@/stores/project-store";
 import { useWorkspaceStore } from "@/stores/workspace-store";
+import { useSettingsStore } from "@/stores/settings-store";
 import { scaleGlbToHeight } from "./scale";
 import { parseMeshReport } from "./mesh-report";
 
@@ -81,6 +82,22 @@ export async function refreshEngines(refreshHardware = false) {
   useJobsStore.setState({ engines, hardware });
 }
 
+export function selectDefaultEngines() {
+  const { engines } = useJobsStore.getState();
+  const project = useProjectStore.getState();
+  const defaults: Partial<Pick<typeof project, "engine" | "imageEngine" | "textureEngine">> = {};
+  for (const [key, task] of [["engine", "image-to-3d"], ["imageEngine", "text-to-image"], ["textureEngine", "texture"]] as const) {
+    const supported = engines.filter((engine) => engine.tasks.includes(task));
+    if (supported.some((engine) => engine.id === project[key].id)) continue;
+    const engine = supported.find((entry) => entry.available && !entry.demo)
+      ?? supported.find((entry) => entry.available)
+      ?? supported.find((entry) => !entry.demo)
+      ?? supported[0];
+    if (engine) defaults[key] = { id: engine.id, parameters: {} };
+  }
+  if (Object.keys(defaults).length > 0) useProjectStore.setState(defaults);
+}
+
 export function errorMessage(error: unknown) {
   return error instanceof Error ? error.message.replace(/^Error invoking remote method '[^']+': (Error: )?/, "") : String(error);
 }
@@ -146,8 +163,12 @@ export async function generateImages() {
   const engine = useJobsStore.getState().engines.find((e) => e.id === project.imageEngine.id);
   const prompt = project.prompt.trim();
   if (!window.forma || !engine || !prompt) return;
+  const parameters = { ...project.imageEngine.parameters };
+  if (engine.id === "sdxl-lightning" && engine.parameters.some((parameter) => parameter.id === "stylePrompt" && parameter.type === "string")) {
+    parameters.stylePrompt = useSettingsStore.getState().sdxlStyle.trim();
+  }
   try {
-    const job = await enqueue("text-to-image", engine, { ...project.imageEngine.parameters }, { kind: "candidates", prompt, engineId: engine.id }, [], prompt);
+    const job = await enqueue("text-to-image", engine, parameters, { kind: "candidates", prompt, engineId: engine.id }, [], prompt);
     if (engine.network) useProjectStore.getState().setImageEngineParameter("consent", false);
     useProjectStore.getState().addPrompt({
       id: crypto.randomUUID(),
@@ -246,7 +267,7 @@ export async function textureModel() {
 export async function enqueueMeshTask(task: MeshTask, parameters: JobInfo["parameters"], highVariantId?: string): Promise<void> {
   const project = useProjectStore.getState();
   const source = activeVariant(project);
-  const engine = engineFor(task);
+  const engine = task === "retopology" ? useJobsStore.getState().engines.find((entry) => entry.id === "instant-meshes" && entry.available) : engineFor(task);
   if (!window.forma || !engine) return;
   const high = highVariantId ? project.variants.find((v) => v.id === highVariantId) : undefined;
   if (source.model.type === "default-cube" || (task === "normals" && parameters.mode === "bake" && (!high || high.id === source.id || high.model.type === "default-cube"))) {
@@ -413,6 +434,7 @@ export async function applyFinishedJob(job: JobInfo) {
 
   if (target.kind === "prepared") {
     const prepared = await api.jobs.stageImage(job.id);
+    if (useProjectStore.getState().sessionId !== target.sessionId) return;
     useProjectStore.getState().updateReference(target.referenceId, { prepared, usePrepared: true });
     return;
   }
@@ -425,6 +447,7 @@ export async function applyFinishedJob(job: JobInfo) {
   if (target.kind === "optimize") {
     const model = await api.jobs.stageResult(job.id);
     const lods = await Promise.all(job.results.filter((r) => r.kind === "lod").map((r) => api.jobs.stageFile(job.id, r.path)));
+    if (useProjectStore.getState().sessionId !== target.sessionId) return;
     useProjectStore.getState().addVariant(
       { label: `${activeVariant(project).label} · ${target.budget}`, origin: "optimize", engineId: job.engineId, model, lods, params: job.parameters },
       false,
@@ -437,6 +460,7 @@ export async function applyFinishedJob(job: JobInfo) {
     const bytes = await api.models.read({ type: "staged", stagingId: model.stagingId });
     model = await api.models.stageBytes(await scaleGlbToHeight(bytes, project.heightMeters), model.name);
   }
+  if (useProjectStore.getState().sessionId !== target.sessionId) return;
   useProjectStore.getState().addVariant(
     { label: target.engineName, origin: "generation", engineId: job.engineId, model, lods: [], params: job.parameters },
     false,

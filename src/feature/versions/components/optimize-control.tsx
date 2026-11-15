@@ -58,7 +58,6 @@ export function OptimizeControl() {
         <Icon icon={Shrink} size={15} />
         {busy ? t("optimize.running") : t("optimize.run")}
       </Button>
-      <span className={styles.hint}>{t("optimize.hint")}</span>
     </div>
   );
 }

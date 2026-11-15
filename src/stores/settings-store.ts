@@ -6,6 +6,8 @@ import type { LocalePreference } from "@/lib/i18n";
 type SettingsState = {
   locale: LocalePreference;
   theme: ColorMode;
+  sdxlStyle: string;
+  setSdxlStyle: (style: string) => void;
   onboardingDone: boolean;
   hydrated: boolean;
   setOnboardingDone: (done: boolean) => void;
@@ -18,6 +20,8 @@ export const useSettingsStore = create<SettingsState>()(
     (set) => ({
       locale: "system",
       theme: "system",
+      sdxlStyle: "",
+      setSdxlStyle: (sdxlStyle) => set({ sdxlStyle }),
       onboardingDone: false,
       hydrated: false,
       setOnboardingDone: (onboardingDone) => set({ onboardingDone }),
@@ -27,7 +31,7 @@ export const useSettingsStore = create<SettingsState>()(
     {
       name: "forma-settings",
       skipHydration: true,
-      partialize: ({ locale, theme, onboardingDone }) => ({ locale, theme, onboardingDone }),
+      partialize: ({ locale, theme, onboardingDone, sdxlStyle }) => ({ locale, theme, onboardingDone, sdxlStyle }),
       onRehydrateStorage: () => () => useSettingsStore.setState({ hydrated: true }),
     },
   ),

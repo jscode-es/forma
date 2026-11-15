@@ -89,21 +89,6 @@ class MeshEngineTests(unittest.TestCase):
         doc = self.engine.read_glb(output / "model.glb")
         self.assertTrue(all("TEXCOORD_0" in p["attributes"] for m in doc["meshes"] for p in m["primitives"]))
 
-    def test_retopology_is_real_quad_remesh_with_verified_budget(self):
-        bpy.ops.mesh.primitive_uv_sphere_add(segments=32, ring_count=16)
-        material = bpy.data.materials.new("plain material")
-        material.use_nodes = True
-        material.node_tree.nodes.get("Principled BSDF").inputs["Roughness"].default_value = 0.27
-        bpy.context.object.data.materials.append(material)
-        source = self.save()
-        output, report, _ = self.job("retopology", [source], {"faceBudget": 256})
-        self.assertEqual(report["details"]["method"], "quadriflow")
-        self.assertLessEqual(report["details"]["quadFaces"], 256)
-        self.assertLessEqual(report["result"]["triangles"], 512)
-        self.assertTrue((output / "model.glb").exists())
-        doc = self.engine.read_glb(output / "model.glb")
-        self.assertAlmostEqual(doc["materials"][0]["pbrMetallicRoughness"]["roughnessFactor"], 0.27, places=5)
-
     def test_uv_regeneration_rejects_textured_material_without_publishing(self):
         bpy.ops.mesh.primitive_cube_add()
         material = bpy.data.materials.new("textured")
@@ -150,9 +135,6 @@ class MeshEngineTests(unittest.TestCase):
     def test_parameter_bounds_rejected(self):
         bpy.ops.mesh.primitive_cube_add()
         source = self.save()
-        for budget in (127, 2000001, 256.5, True):
-            with self.assertRaisesRegex(ValueError, "invalid-face-budget"):
-                self.job("retopology", [source], {"faceBudget": budget})
         with self.assertRaisesRegex(ValueError, "invalid-resolution"):
             self.job("uv-unwrap", [source], {"resolution": "128"})
         with self.assertRaisesRegex(ValueError, "invalid-normal-mode"):

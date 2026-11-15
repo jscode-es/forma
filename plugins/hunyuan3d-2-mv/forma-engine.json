@@ -1,7 +1,7 @@
 {
   "id": "hunyuan3d-2-mv",
   "name": "Hunyuan3D 2 MV",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "Tencent Hunyuan 3D 2.0 Community License",
   "description": {
     "en": "Multi-view image to 3D geometry with Hunyuan3D 2 MV. Accepts front, back, left and right; top views are not supported.",
@@ -64,8 +64,15 @@
         "en": "Surface resolution",
         "es": "Resolución de superficie"
       },
-      "default": "380",
+      "default": "512",
       "options": [
+        {
+          "value": "128",
+          "label": {
+            "en": "128",
+            "es": "128"
+          }
+        },
         {
           "value": "256",
           "label": {

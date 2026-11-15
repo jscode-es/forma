@@ -35,6 +35,7 @@ function readEngine(dir: string, builtin: boolean): InstalledEngine | null {
     return null;
   }
   const manifest = parsed.data;
+  if (manifest.demo && process.env.FORMA_TEST_ENGINES !== "1") return null;
   return {
     manifest,
     dir,
@@ -70,7 +71,8 @@ export async function listEngines(): Promise<InstalledEngine[]> {
       if (!engine || engines.has(engine.manifest.id)) continue;
 
       const { info, manifest, dir } = engine;
-      if (!fs.existsSync(path.join(dir, manifest.runtime.entry))) info.problem = "entry-missing";
+      if (manifest.requirements.platforms && !manifest.requirements.platforms.includes(process.platform as "win32" | "linux" | "darwin")) info.problem = "platform-unsupported";
+      else if (!fs.existsSync(path.join(dir, manifest.runtime.entry))) info.problem = "entry-missing";
       else if (manifest.runtime.type === "blender" && !(await getBlender())) info.problem = "blender-missing";
       else if (manifest.runtime.type === "python" && !hardware.python && !fs.existsSync(enginePython(dir) ?? "")) info.problem = "python-missing";
       else if (manifest.requirements.cuda && !hardware.cuda) info.problem = "cuda-missing";
@@ -100,6 +102,8 @@ export function resolveParameters(manifest: EngineManifest, values: Record<strin
     const value = values[parameter.id] ?? parameter.default;
     if (parameter.type === "boolean") {
       if (typeof value !== "boolean") throw new Error(`Parameter ${parameter.id} must be a boolean`);
+    } else if (parameter.type === "string") {
+      if (typeof value !== "string" || value.length > parameter.maxLength) throw new Error(`Parameter ${parameter.id} must be a string up to ${parameter.maxLength} characters`);
     } else if (parameter.type === "enum") {
       if (!parameter.options.some((o) => o.value === value)) throw new Error(`Parameter ${parameter.id} has an invalid option`);
     } else {

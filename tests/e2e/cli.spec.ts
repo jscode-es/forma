@@ -8,7 +8,7 @@ const dataDir = tempDataDir();
 const electronPath = require("electron") as unknown as string;
 
 function cli(...args: string[]) {
-  const env: NodeJS.ProcessEnv = { ...process.env, FORMA_USER_DATA: dataDir };
+  const env: NodeJS.ProcessEnv = { ...process.env, FORMA_USER_DATA: dataDir, FORMA_TEST_ENGINES: "1" };
   delete env.ELECTRON_RUN_AS_NODE;
   const executable = process.env.FORMA_E2E_EXECUTABLE;
   const result = spawnSync(executable ?? electronPath, executable ? ["--cli", ...args] : [ROOT, "--cli", ...args], { cwd: ROOT, env, encoding: "utf8", timeout: 120_000 });
