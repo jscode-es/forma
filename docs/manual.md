@@ -54,6 +54,8 @@ On an RTX 5070 (12 GB), Hunyuan3D 2.0 needs about 2 minutes at 30 steps.
 4. Click the candidate you like: it becomes the reference, with its prompt and seed.
 5. Click **Continue in Create 3D** and go on as in [Create a model from an image](#create-a-model-from-an-image), from step 3.
 
+**Codex images (external CLI)** is a second image engine that uses the image generation of your own Codex CLI account (installed and signed in). Turn on **Allow this generation with my external account** for each generation: it uses the network and may consume your quota, and it switches off again after every run. Only the prompt is sent; Codex runs in a read-only sandbox and Forma only accepts the image Codex saves in its own generated images folder. Two candidates took about 50 s. Claude Code does not generate images and Copilot CLI is not supported yet.
+
 **Prompt history** keeps every prompt of the project with its engine settings and seed. **Reuse** puts the prompt and settings back so you can repeat or vary it.
 
 ## Multiple views and reference review

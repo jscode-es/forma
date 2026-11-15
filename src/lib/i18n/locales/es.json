@@ -461,7 +461,9 @@
       "motion-rig-required": "El movimiento desde texto necesita un modelo con esqueleto",
       "motion-provider-missing": "La CLI elegida no está instalada",
       "motion-provider-failed": "La CLI ha fallado; comprueba que has iniciado sesión",
-      "motion-plan-invalid": "La CLI devolvió un plan de movimiento no válido; inténtalo de nuevo o reformúlalo"
+      "motion-plan-invalid": "La CLI devolvió un plan de movimiento no válido; inténtalo de nuevo o reformúlalo",
+      "cli-image-missing": "Codex no devolvió ninguna imagen generada",
+      "cli-image-invalid": "Codex devolvió una imagen no válida"
     }
   },
   "models": {
@@ -524,7 +526,9 @@
     "motion-rig-required": "El movimiento desde texto necesita un modelo con esqueleto",
     "motion-provider-missing": "La CLI elegida no está instalada",
     "motion-provider-failed": "La CLI ha fallado; comprueba que has iniciado sesión",
-    "motion-plan-invalid": "La CLI devolvió un plan de movimiento no válido; inténtalo de nuevo o reformúlalo"
+    "motion-plan-invalid": "La CLI devolvió un plan de movimiento no válido; inténtalo de nuevo o reformúlalo",
+    "cli-image-missing": "Codex no devolvió ninguna imagen generada",
+    "cli-image-invalid": "Codex devolvió una imagen no válida"
   },
   "versions": {
     "title": "Versiones",
@@ -652,7 +656,8 @@
     "fromPromptSeed": "Generada desde un prompt · semilla {{seed}}",
     "writeHint": "Escribe un prompt que describa el objeto.",
     "readyHint": "Ctrl+Enter en el prompt también genera.",
-    "continue": "Continuar en Crear 3D"
+    "continue": "Continuar en Crear 3D",
+    "networkHint": "Usa la red y tu cuenta externa, y puede consumir tu cuota. Solo se envía el prompt; el consentimiento se reinicia tras cada generación."
   },
   "views": {
     "front": "Frontal",
