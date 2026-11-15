@@ -99,7 +99,7 @@
     "frame": "Frame model",
     "camera": "Camera views",
     "grid": "Grid",
-    "hint": "Drag to orbit · Wheel to zoom · Right button to pan",
+    "hint": "Drag or middle button to orbit · Wheel to zoom · Right button or Shift + middle to pan",
     "presets": {
       "perspective": "Perspective",
       "front": "Front",

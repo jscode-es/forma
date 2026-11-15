@@ -43,11 +43,11 @@ function ParameterControl({ parameter, value, idPrefix, setParameter }: Paramete
   if (parameter.type === "enum") {
     if (parameter.id === "octreeResolution") {
       const options = parameter.options.map((option) => ({ value: option.value, label: localized(option.label, i18n.language) }));
-      return <div className={styles.paramStack}>
+      return <div className={styles.paramRow}>
         <Label htmlFor={inputId}>{label}</Label>
-        <Select inputId={inputId} options={options} value={options.find((option) => option.value === (value ?? parameter.default)) ?? null}
+        <div style={{ width: "7rem", flexShrink: 0 }}><Select inputId={inputId} options={options} value={options.find((option) => option.value === (value ?? parameter.default)) ?? null}
           isSearchable={false} menuPortalTarget={typeof document === "undefined" ? null : document.body} menuPosition="fixed" menuPlacement="auto"
-          styles={{ menuPortal: (base) => ({ ...base, zIndex: 60 }) }} onChange={(option) => option && setParameter(parameter.id, option.value)} />
+          styles={{ menuPortal: (base) => ({ ...base, zIndex: 60 }) }} onChange={(option) => option && setParameter(parameter.id, option.value)} /></div>
       </div>;
     }
     return (

@@ -58,6 +58,26 @@ test("paints a real mesh, undoes and redoes a stroke", async () => {
   expect(sha256(fixture)).toBe(originalHash);
 });
 
+test("orbits with the middle button while the brush is active without painting", async () => {
+  const canvas = page.locator("main canvas");
+  const bounds = (await canvas.boundingBox())!;
+  const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
+  const undo = page.getByRole("button", { name: "Undo paint", exact: true });
+  await undo.click();
+  await expect(undo).toBeDisabled();
+  const before = await canvas.screenshot();
+  await page.mouse.move(center.x, center.y);
+  await page.mouse.down({ button: "middle" });
+  await page.mouse.move(center.x + 120, center.y + 30, { steps: 8 });
+  await page.mouse.up({ button: "middle" });
+  await page.waitForTimeout(600);
+  expect((await canvas.screenshot()).equals(before)).toBe(false);
+  await expect(undo).toBeDisabled();
+  await page.getByRole("button", { name: "Redo paint", exact: true }).click();
+  await page.getByRole("button", { name: "Camera views", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Front", exact: true }).click();
+});
+
 test("saving the project includes pending paint as a protected variant", async () => {
   await page.keyboard.press("Control+s");
   await page.getByLabel("Project name", { exact: true }).fill("Paint project");

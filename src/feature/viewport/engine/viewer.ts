@@ -17,6 +17,7 @@ import {
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
+  MOUSE,
   Object3D,
   OrthographicCamera,
   PerspectiveCamera,
@@ -146,6 +147,8 @@ export class Viewer {
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
+    // Middle button orbits (Shift pans) so the view can move while the left button paints.
+    this.controls.mouseButtons = { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.ROTATE, RIGHT: MOUSE.PAN };
     this.controls.addEventListener("change", () => this.requestRender());
     this.renderer.domElement.addEventListener("pointerdown", this.onPaintDown, true);
     this.renderer.domElement.addEventListener("pointermove", this.onPaintMove, true);
