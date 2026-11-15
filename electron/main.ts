@@ -60,11 +60,15 @@ protocol.registerSchemesAsPrivileged([
   { scheme: "app", privileges: { standard: true, secure: true, supportFetchAPI: true } },
 ]);
 
+const APP_ICON = path.join(app.getAppPath(), "build", "icon.png");
+if (process.platform === "win32") app.setAppUserModelId("es.jscode.forma");
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
     height: 800,
     title: "Forma",
+    icon: APP_ICON,
     show: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
@@ -178,6 +182,7 @@ app.whenReady().then(async () => {
     app.exit(code);
     return;
   }
+  if (!app.isPackaged) app.dock?.setIcon(APP_ICON);
   registerIpc();
   jobs.recover();
 
