@@ -232,3 +232,21 @@ test("drops images into single and multi-view slots without changing their size"
   await transfer.dispose();
   await invalid.dispose();
 });
+
+test("shows a remove button on hover that clears the view", async () => {
+  const file = path.join(dataDir, "view-0.png");
+  await page.getByRole("tab", { name: "Multi-view", exact: true }).click();
+  const slot = page.getByRole("group", { name: "Left", exact: true });
+  if (await slot.getByRole("button", { name: "Remove the Left view", exact: true }).count()) await slot.getByRole("button", { name: "Remove the Left view", exact: true }).click({ force: true });
+  await stubOpenDialog(app, file);
+  await slot.getByRole("button", { name: "Add the Left view", exact: true }).click();
+  const remove = slot.getByRole("button", { name: "Remove the Left view", exact: true });
+  await page.mouse.move(0, 0);
+  await expect(remove).toHaveCSS("opacity", "0");
+  await slot.hover();
+  await expect(remove).toHaveCSS("opacity", "1");
+  await slot.screenshot({ path: "test-results/reference-remove-hover.png" });
+  await remove.click();
+  await expect(slot.getByRole("button", { name: "Add the Left view", exact: true })).toBeVisible();
+  await expect(remove).toHaveCount(0);
+});
