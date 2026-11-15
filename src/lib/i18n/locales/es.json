@@ -366,6 +366,26 @@
       "enginesHint": "Los motores se leen de la carpeta engines dentro de la carpeta de datos. Cada uno se ejecuta en su propio proceso y sin acceso a la red.",
       "refresh": "Volver a comprobar",
       "notFound": "No encontrado"
+    },
+    "updates": {
+      "title": "Actualizaciones",
+      "automatic": "Buscar actualizaciones al abrir Forma",
+      "current": "Versión {{version}}",
+      "status": {
+        "idle": "Aún sin comprobar",
+        "unsupported": "Las actualizaciones están disponibles en la app instalada",
+        "checking": "Comprobando…",
+        "not-available": "Forma está al día"
+      },
+      "available": "La versión {{version}} está disponible",
+      "downloading": "Descargando… {{percent}}%",
+      "downloaded": "La versión {{version}} está lista para instalar",
+      "error": "No se pudo comprobar: {{message}}",
+      "check": "Buscar ahora",
+      "download": "Descargar",
+      "openRelease": "Descargar desde GitHub",
+      "install": "Reiniciar e instalar",
+      "hint": "Forma solo consulta las releases de GitHub para comparar versiones; nunca descarga ni instala nada sin tu confirmación. En macOS se abre la página de la release."
     }
   },
   "project": {

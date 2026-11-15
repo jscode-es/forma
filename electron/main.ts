@@ -8,6 +8,7 @@ import { animationClip } from "./animation-schema";
 import { listAnimations, readAnimation, saveAnimation, deleteAnimation, importAnimation, exportAnimation } from "./animations";
 import { importVideo } from "./videos";
 import { saveCapture } from "./captures";
+import { checkForUpdates, checkOnStartup, downloadUpdate, installUpdate, setUpdatesEnabled, updateState } from "./updater";
 import { chooseBlender, getBlender } from "./blender";
 import { listEngines } from "./engines";
 import { getHardware } from "./hardware";
@@ -100,6 +101,11 @@ function registerIpc() {
   handle("animations:delete", id, deleteAnimation);
   handle("animations:import", none, importAnimation);
   handle("animations:export", id, exportAnimation);
+  handle("updates:state", none, updateState);
+  handle("updates:check", none, checkForUpdates);
+  handle("updates:download", none, downloadUpdate);
+  handle("updates:install", none, installUpdate);
+  handle("updates:set-enabled", z.tuple([z.boolean()]), setUpdatesEnabled);
   handle("captures:save", z.tuple([z.instanceof(Uint8Array).refine((bytes) => bytes.byteLength > 0 && bytes.byteLength <= 64 * 1024 * 1024), z.string().min(1).max(120)]), saveCapture);
   handle("videos:import", none, importVideo);
 
@@ -181,6 +187,7 @@ app.whenReady().then(async () => {
   });
 
   createWindow();
+  checkOnStartup();
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });

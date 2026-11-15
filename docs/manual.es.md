@@ -169,6 +169,8 @@ Las generaciones, texturas, paquetes para motores y la validación glTF también
 
 **Ajustes** incluye el idioma (inglés, español o sistema), el tema (claro, oscuro o sistema), la carpeta de datos y un informe de hardware (GPU, VRAM, controlador, CUDA, disco libre, Python, motores). La carpeta de datos guarda la base de datos, los proyectos, los trabajos, los motores y los pesos.
 
+**Actualizaciones**: la app instalada consulta las releases de GitHub al abrirse (se desactiva con **Buscar actualizaciones al abrir Forma**) o al pulsar **Buscar ahora**. Solo avisa de la nueva versión: **Descargar** y **Reiniciar e instalar** se ejecutan cuando los pulsas. En macOS, mientras las versiones no estén firmadas, **Descargar desde GitHub** abre la página de la release.
+
 ## Problemas frecuentes
 
 | Problema | Qué hacer |

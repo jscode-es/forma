@@ -10,6 +10,9 @@ files:
   - package.json
   - engines/**
   - plugins/**
+publish:
+  provider: generic
+  url: https://github.com/jscode-es/forma/releases/latest/download
 asarUnpack:
   - engines/**
   - plugins/**

@@ -24,6 +24,14 @@ const api: FormaApi = {
   },
   videos: { import: () => invoke("videos:import") },
   captures: { save: (bytes, name) => invoke("captures:save", bytes, name) },
+  updates: {
+    state: () => invoke("updates:state"),
+    check: () => invoke("updates:check"),
+    download: () => invoke("updates:download"),
+    install: () => invoke("updates:install"),
+    setEnabled: (enabled) => invoke("updates:set-enabled", enabled),
+    onUpdate: (callback) => subscribe("updates:update", callback),
+  },
   projects: {
     list: () => invoke("projects:list"),
     create: (input) => invoke("projects:create", input),

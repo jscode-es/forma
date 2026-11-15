@@ -88,6 +88,16 @@ export type ExportResult = { path: string; sha256: string; size: number };
 
 export type PackageResult = { path: string; files: number; size: number };
 
+export type UpdateState = {
+  status: "idle" | "unsupported" | "checking" | "available" | "not-available" | "downloading" | "downloaded" | "error";
+  version: string | null;
+  progress: number | null;
+  error: string | null;
+  enabled: boolean;
+  canInstall: boolean;
+  current: string;
+};
+
 export type SystemInfo = {
   version: string;
   platform: string;
@@ -232,6 +242,11 @@ export type IpcChannels = {
   "animations:import": { args: []; result: AnimationLibraryItem | null };
   "animations:export": { args: [string]; result: ExportResult | null };
   "captures:save": { args: [Uint8Array, string]; result: ExportResult | null };
+  "updates:state": { args: []; result: UpdateState };
+  "updates:check": { args: []; result: UpdateState };
+  "updates:download": { args: []; result: void };
+  "updates:install": { args: []; result: void };
+  "updates:set-enabled": { args: [boolean]; result: UpdateState };
   "videos:import": { args: []; result: VideoSource | null };
   "projects:list": { args: []; result: ProjectSummary[] };
   "projects:create": { args: [ProjectInput]; result: Project };
@@ -288,6 +303,7 @@ export type IpcChannel = keyof IpcChannels;
 export type IpcEvents = {
   "app:close-requested": [];
   "jobs:update": [JobInfo];
+  "updates:update": [UpdateState];
   "weights:update": [WeightsState];
   "plugins:update": [PluginState];
 };
@@ -303,6 +319,14 @@ export type FormaApi = {
   };
   videos: { import: () => Promise<VideoSource | null> };
   captures: { save: (bytes: Uint8Array, name: string) => Promise<ExportResult | null> };
+  updates: {
+    state: () => Promise<UpdateState>;
+    check: () => Promise<UpdateState>;
+    download: () => Promise<void>;
+    install: () => Promise<void>;
+    setEnabled: (enabled: boolean) => Promise<UpdateState>;
+    onUpdate: (callback: (state: UpdateState) => void) => () => void;
+  };
   projects: {
     list: () => Promise<ProjectSummary[]>;
     create: (input: ProjectInput) => Promise<Project>;
