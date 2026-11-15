@@ -132,12 +132,14 @@ Material inspection, five-map import, provenance and preview variants are implem
 ## Phase 12 · Mesh tools (done)
 
 - [x] Mesh inspection: degenerate faces, open borders, non-manifold edges, components
-- [x] Retopology with face budget and UV regeneration (headless Blender)
+- [x] Retopology with face budget and UV regeneration (Instant Meshes + XAtlas, independent CPU plugin)
 - [x] UV unwrap and pack with template export
 - [x] Normals: recalculation and baking from a detailed source
 - [x] Every modifying operation produces a variant before being applied
 
 Validated with Blender 5.2.1 LTS on Windows, including real QuadriFlow, packed UVs, PNG template export and CPU normal baking. Inspection produces a report without changing the model. Retopology budgets count quads (the exported GLB can contain twice as many triangles). Retopology and UV replacement reject textured/complex materials; modifying operations reject rigs, morph targets and animations. Baking requires a target with UVs and a spatially aligned detailed variant. See [engine evidence](superpowers/evidence/phase12-blender-mesh.md) and the manuals for limits.
+
+Retopology was subsequently replaced with the independent Instant Meshes + XAtlas CPU plugin; the current Windows integration and its limits are recorded in [retopology evidence](superpowers/evidence/instant-meshes-retopology.md). Blender remains responsible for inspection, standalone UVs and baking.
 
 ## Phase 13 · Paint 3D (done)
 

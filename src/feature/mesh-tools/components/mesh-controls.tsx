@@ -4,6 +4,7 @@ import { useEffect, useId, useState, type ReactNode } from "react";
 import { Button, Input, Label, Select } from "@kivora/nextjs";
 import { useTranslation } from "react-i18next";
 import { ACTIVE, enqueueMeshTask, useJobsStore } from "@/feature/jobs";
+import { useModelsStore } from "@/feature/models";
 import { activeVariant, useProjectStore } from "@/stores/project-store";
 import { useMeshToolsStore, type MeshTopology } from "../store";
 import styles from "../mesh-tools.module.css";
@@ -86,17 +87,26 @@ export function MeshInspectControl() {
 export function RetopologyControl() {
   const { t } = useTranslation();
   const inputId = useId();
-  const { busy, ready } = useMeshContext();
+  const { busy, source } = useMeshContext();
+  const engine = useJobsStore((state) => state.engines.find((entry) => entry.id === "instant-meshes"));
+  const ready = source.model.type !== "default-cube" && engine?.available && !busy;
   const faceBudget = useMeshToolsStore((state) => state.faceBudget);
-  return <MeshFrame>
+  const error = useJobsStore((state) => state.enqueueError);
+  useEffect(() => { void useMeshToolsStore.persist.rehydrate(); }, []);
+  return <div className={styles.stack} aria-busy={busy}>
+    <span className={styles.hint}>{t("mesh.source", { name: source.label })}</span>
+    <span className={styles.hint}>{t("mesh.instantRuntime")}</span>
+    {source.model.type === "default-cube" && <span className={styles.hint}>{t("mesh.needsModel")}</span>}
+    {!engine?.available && <Button size="sm" variant="outline" onClick={() => useModelsStore.getState().setOpen(true)}>{t("mesh.activateInstant")}</Button>}
     <Label htmlFor={inputId}>{t("mesh.faceBudget")}</Label>
-    <Input id={inputId} type="number" min={128} max={2000000} step={1} value={faceBudget} disabled={busy}
+    <Input id={inputId} type="number" min={128} max={100000} step={1} value={faceBudget} disabled={busy}
       onChange={(event) => {
         const value = Number(event.target.value);
-        if (Number.isInteger(value) && value >= 128 && value <= 2000000) useMeshToolsStore.getState().setDraft({ faceBudget: value });
+        if (Number.isInteger(value) && value >= 128 && value <= 100000) useMeshToolsStore.getState().setDraft({ faceBudget: value });
       }} />
-    <Button disabled={!ready} onClick={() => void enqueueMeshTask("retopology", { faceBudget })}>{t(busy ? "mesh.running" : "mesh.retopology")}</Button>
-  </MeshFrame>;
+    <Button disabled={!ready || faceBudget > 100000} onClick={() => void enqueueMeshTask("retopology", { faceBudget, resolution: useMeshToolsStore.getState().resolution })}>{t(busy ? "mesh.running" : "mesh.retopology")}</Button>
+    {error && <span className={styles.error} role="alert">{t(`errors.${error}`, { defaultValue: error })}</span>}
+  </div>;
 }
 
 export function UvControl() {

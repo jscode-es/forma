@@ -1,0 +1,11 @@
+{
+  "python": "3.11",
+  "requirements": "requirements.txt",
+  "files": ["forma-engine.json", "main.py", "setup_runtime.py", "requirements.txt", "README.md", "LICENSE.txt"],
+  "licenseNotice": {
+    "en": "Instant Meshes uses BSD-3-Clause, XAtlas uses MIT and trimesh uses MIT. Activation downloads the official Windows x64 binary and verifies pinned archive and executable SHA-256 hashes. Retopology runs locally on CPU without Blender or network access.",
+    "es": "Instant Meshes usa BSD-3-Clause, XAtlas usa MIT y trimesh usa MIT. La activación descarga el binario oficial Windows x64 y verifica los SHA-256 fijados del archivo y el ejecutable. La retopología se ejecuta en CPU sin Blender ni acceso a la red."
+  },
+  "check": "import numpy, trimesh, xatlas, networkx, PIL; from setup_runtime import prepare; print(prepare())",
+  "diskGb": 0.3
+}

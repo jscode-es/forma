@@ -8,6 +8,7 @@ These are real captures of Forma, taken with Playwright against the built Electr
 | `references.png` | Multi-view reference slots |
 | `materials.png` | Finish tab and material controls |
 | `model-tools.png` | Mesh tools and LOD budgets |
+| `retopology.png` | Independent Instant Meshes activation and quad budget |
 | `export.png` | Engine-package export controls |
 | `engines.png` | Engine catalog before activation |
 | `settings.png` | Settings sidebar and general preferences |

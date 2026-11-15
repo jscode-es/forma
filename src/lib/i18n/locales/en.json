@@ -311,7 +311,8 @@
       "python-missing": "Python not found",
       "cuda-missing": "CUDA not available",
       "vram-insufficient": "Not enough VRAM",
-      "weights-missing": "Required weights not downloaded"
+      "weights-missing": "Required weights not downloaded",
+      "platform-unsupported": "Not supported on this operating system"
     },
     "activateHint": "Activate an engine in Models.",
     "views": "Multi-view: uses {{views}}"
@@ -436,12 +437,13 @@
       "lod": "Creating LODs",
       "neutralizing-lighting": "Neutralizing lighting",
       "reducing": "Reducing faces",
-      "unwrapping": "Unwrapping UVs",
+      "unwrapping": "Generating UVs",
       "rendering-geometry": "Rendering geometry views",
       "encoding-reference": "Encoding the reference",
       "baking": "Baking the atlas",
       "packaging": "Packaging and validating",
-      "planning": "Planning the motion"
+      "planning": "Planning the motion",
+      "remeshing": "Rebuilding topology"
     },
     "error": {
       "prompt-refinement-invalid": "The local model could not prepare a valid prompt. Rephrase the description and retry.",
@@ -471,7 +473,14 @@
       "motion-provider-failed": "The CLI failed; check that you are signed in",
       "motion-plan-invalid": "The CLI returned an invalid motion plan; try again or rephrase",
       "cli-image-missing": "Codex did not return a generated image",
-      "cli-image-invalid": "Codex returned an invalid image"
+      "cli-image-invalid": "Codex returned an invalid image",
+      "instant-meshes-missing": "Activate or repair Instant Meshes in Models first.",
+      "retopology-budget-exceeded": "Instant Meshes could not meet the face budget. Try another budget.",
+      "retopology-degenerate": "Instant Meshes produced degenerate faces. The original model is unchanged.",
+      "unsupported-model-retopology": "Retopology supports one static mesh without extensions, rig or animations.",
+      "uv-atlas-overflow": "The UV atlas needs more space. Choose a larger texture resolution.",
+      "instant-meshes-stalled": "Instant Meshes stopped responding after three attempts. The original model is unchanged.",
+      "retopology-timeout": "Retopology exceeded its time limit. Try a smaller mesh or face budget."
     }
   },
   "models": {
@@ -634,13 +643,21 @@
     "error": {
       "git-missing": "Git is not installed. Install it from git-scm.com and try again.",
       "python-missing": "Python 3.11 is not installed. Install it from python.org and try again.",
-      "python-invalid": "The chosen Python executable does not exist."
+      "python-invalid": "The chosen Python executable does not exist.",
+      "platform-unsupported": "Not supported on this operating system"
     },
     "warn": {
       "cuda": "CUDA was not detected on this computer.",
       "vram": "This GPU has less than {{required}} GB of VRAM."
     },
-    "empty": "No engines available in this version."
+    "empty": "No engines available in this version.",
+    "reqCpu": "CPU; no NVIDIA GPU required",
+    "reqPlatforms": "Platforms: {{platforms}}",
+    "platform": {
+      "win32": "Windows x64",
+      "linux": "Linux",
+      "darwin": "macOS"
+    }
   },
   "prompt": {
     "expandImage": "Enlarge candidate {{index}}",
@@ -798,7 +815,7 @@
       "occlusion-map-replaced": "The previous occlusion map was replaced"
     },
     "faceBudget": "Quad face budget",
-    "retopologyPolicy": "QuadriFlow targets a quad-face budget and regenerates UVs. The exported GLB is triangulated, up to twice that triangle count. Multiple materials, textured or complex materials and rigged models are rejected to prevent data loss.",
+    "retopologyPolicy": "Instant Meshes rebuilds quads and XAtlas regenerates UVs. The GLB is triangulated, up to twice the face budget. Textures, multiple materials and rigged models are rejected to avoid data loss.",
     "retopology": "Preview retopology",
     "previewHint": "Changes create a preview linked to the original. Apply it in Versions to make it active.",
     "resolution": "Texture resolution",
@@ -834,7 +851,9 @@
     },
     "occlusion": "Preview ambient occlusion",
     "occlusionSamples": "Samples",
-    "occlusionHint": "Needs one mesh with UVs. The mesh, UVs and existing maps are kept byte for byte; only the occlusion map is added or replaced. More samples reduce noise and take longer."
+    "occlusionHint": "Needs one mesh with UVs. The mesh, UVs and existing maps are kept byte for byte; only the occlusion map is added or replaced. More samples reduce noise and take longer.",
+    "instantRuntime": "Instant Meshes + XAtlas · CPU",
+    "activateInstant": "Activate Instant Meshes"
   },
   "rigging": {
     "axes": {
@@ -1088,7 +1107,8 @@
     "reason": {
       "cuda": "Needs an NVIDIA GPU with CUDA",
       "vram": "Needs at least {{vram}} GB of VRAM",
-      "python": "Needs Python 3.11"
+      "python": "Needs Python 3.11",
+      "platform": "Not supported on this operating system."
     },
     "disk": "Up to {{size}} GB of disk ({{free}} GB free). The shared PyTorch runtime is downloaded once for every GPU engine.",
     "accept": "I have read and accept the licenses of the selected engines and their weights",

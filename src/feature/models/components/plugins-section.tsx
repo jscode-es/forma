@@ -125,7 +125,8 @@ function ActivateContent({ plugin, onClose, onError }: { plugin: PluginState; on
 
       <div className={styles.license}>
         <strong>{t("plugins.requirements")}</strong>
-        <span>{t("plugins.reqGpu", { vram: plugin.requirements.vramGb })}</span>
+        <span>{plugin.requirements.cuda ? t("plugins.reqGpu", { vram: plugin.requirements.vramGb }) : t("plugins.reqCpu")}</span>
+        {plugin.requirements.platforms && <span>{t("plugins.reqPlatforms", { platforms: plugin.requirements.platforms.map((platform) => t(`plugins.platform.${platform}`, { defaultValue: platform })).join(", ") })}</span>}
         <span>{t("plugins.reqTools", { python: plugin.requirements.python })}</span>
         <span>{t("plugins.reqDisk", { size: plugin.requirements.diskGb })}</span>
         {warnings.map((w) => (

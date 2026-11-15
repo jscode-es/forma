@@ -166,7 +166,7 @@ export const engineManifest = z.object({
   }),
   timeoutSeconds: z.number().int().min(10).max(24 * 3600).default(1800),
   requirements: z
-    .object({ vramGb: z.number().min(0).default(0), cuda: z.boolean().default(false) })
+    .object({ vramGb: z.number().min(0).default(0), cuda: z.boolean().default(false), platforms: z.array(z.enum(["win32", "linux", "darwin"])).min(1).optional() })
     .default({ vramGb: 0, cuda: false }),
   demo: z.boolean().default(false),
   network: z.boolean().default(false),

@@ -46,6 +46,7 @@ try {
   const inspector = page.getByRole("complementary", { name: "Configuration", exact: true });
   await inspector.screenshot({ animations: "disabled", path: path.join(images, "materials.png") });
   await page.getByRole("tab", { name: "Model", exact: true }).click();
+  await page.getByRole("region", { name: "Automatic retopology", exact: true }).screenshot({ animations: "disabled", path: path.join(images, "retopology.png") });
   await page.getByRole("button", { name: "Automatic retopology", exact: true }).click();
   await page.getByRole("button", { name: "Inspect mesh", exact: true }).and(page.locator("[aria-expanded]")).click();
   await inspector.screenshot({ animations: "disabled", path: path.join(images, "model-tools.png") });

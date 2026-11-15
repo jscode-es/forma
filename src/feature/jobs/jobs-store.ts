@@ -267,7 +267,7 @@ export async function textureModel() {
 export async function enqueueMeshTask(task: MeshTask, parameters: JobInfo["parameters"], highVariantId?: string): Promise<void> {
   const project = useProjectStore.getState();
   const source = activeVariant(project);
-  const engine = engineFor(task);
+  const engine = task === "retopology" ? useJobsStore.getState().engines.find((entry) => entry.id === "instant-meshes" && entry.available) : engineFor(task);
   if (!window.forma || !engine) return;
   const high = highVariantId ? project.variants.find((v) => v.id === highVariantId) : undefined;
   if (source.model.type === "default-cube" || (task === "normals" && parameters.mode === "bake" && (!high || high.id === source.id || high.model.type === "default-cube"))) {

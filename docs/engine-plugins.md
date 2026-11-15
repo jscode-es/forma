@@ -50,6 +50,8 @@ The built-in `forma-blender-rig` engine implements task `rig` with one GLB. `mod
 
 Text parameters use `type: "string"`, a `default` string and `maxLength` from 1 to 256. Main validates the value's type and length before enqueueing; defaults must fit the same limit. For example, SDXL's `stylePrompt` declares a 256-character string with an empty default. The shared style editor supplies it for each job, so retry and prompt history retain the exact style used.
 
+`requirements.platforms`, when present, lists supported desktop platform IDs (`win32`, `linux`, `darwin`). Main disables an engine and rejects activation on other platforms; the setup assistant also marks the plugin incompatible. The Instant Meshes integration currently declares `win32` because only its official Windows executable has been pinned and tested.
+
 ## Weights
 
 Engines declare the files they need in `weights`. Forma downloads them on request into `<data folder>/models/<id>/<revision>/`, never during a job.

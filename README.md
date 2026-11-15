@@ -38,7 +38,8 @@ Importing and inspecting GLB files, editing materials, managing projects and exp
 | SDXL-Lightning reference images | NVIDIA CUDA, **8 GB VRAM**, Python **3.11**; about **10 GB available system RAM** for Qwen3 prompt preparation and **17 GB free disk** installation budget |
 | Hunyuan3D 2.0 / 2 MV image to 3D | NVIDIA CUDA, **8 GB VRAM**, Python **3.11**, Git and space for the environment and weights |
 | Hunyuan3D Paint 2.1 PBR textures | NVIDIA CUDA, **10 GB VRAM**, Python **3.11**, Git and space for weights |
-| Mesh tools, UVs, baking and humanoid rigging | **Blender 4+**; select its executable in Settings if it is not detected |
+| Retopology: Instant Meshes + XAtlas | Windows x64, Python **3.11**, CPU; about **0.3 GB disk**, no Blender or GPU required |
+| Mesh inspection, standalone UV tools, baking and humanoid rigging | **Blender 4+**; select its executable in Settings if it is not detected |
 | MediaPipe Motion capture | Python **3.11**; CPU inference, no CUDA requirement |
 | Optional external CLI engines | Selected CLI installed and signed in; its own account, network access and usage limits |
 | Development from source | Node.js **20.19+** (**24 recommended**) and npm |
@@ -70,6 +71,7 @@ Activate engines in **Models → Engines**. Forma displays requirements and lice
 | [Hunyuan3D 2 MV](plugins/hunyuan3d-2-mv/README.md) | Multiple reference views to 3D | Tencent Hunyuan 3D 2.0 Community |
 | [Hunyuan3D Paint 2.1 PBR](plugins/hunyuan3d-2-1-paint/README.md) | Albedo, metallic and roughness textures | Tencent Hunyuan 3D 2.1 Community |
 | [MediaPipe Motion](plugins/mediapipe-motion/README.md) | Motion from video | Apache-2.0 |
+| [Instant Meshes](plugins/instant-meshes/README.md) | CPU quad retopology and XAtlas UVs | BSD-3-Clause; XAtlas: MIT |
 
 **The bundled Hunyuan model licenses exclude the EU, UK and South Korea.** Review each engine license before activation. Forma's MIT license does not replace model licenses.
 

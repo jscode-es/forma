@@ -12,7 +12,7 @@ test("opens on first run, explains every engine and is not shown again after ski
     await dialog.getByRole("button", { name: "Next", exact: true }).click();
 
     const engines = dialog.getByRole("list", { name: "Engines" });
-    await expect(engines.getByRole("listitem")).toHaveCount(5);
+    await expect(engines.getByRole("listitem")).toHaveCount(6);
     const hardware = await page.evaluate(() => window.forma!.system.hardware(false));
     if (!hardware.cuda) {
       await expect(engines.getByText("Not compatible").first()).toBeVisible();

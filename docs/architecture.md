@@ -45,6 +45,7 @@ Main process (ipcMain, SQLite, inference runner - planned)
 ## Engines and jobs
 
 - Engines are plugins described in [engine-plugins.md](engine-plugins.md): manifest, process protocol (JSON lines on stdout) and guarantees.
+- Retopology is provided exclusively by the CPU `instant-meshes` Python plugin, independently of Blender. Activation downloads and verifies a pinned Windows executable; workers verify it again without accessing the network. XAtlas regenerates UVs and results are preview variants. The Blender engine handles inspection, standalone UVs, normals and AO.
 - `electron/jobs.ts` runs one job at a time, persists the queue in `jobs`, kills the process tree on cancel, timeout or quit, and marks interrupted jobs on start.
 - `electron/hardware.ts` detects GPU, VRAM, driver and CUDA (`nvidia-smi`), free disk and Python.
 - The renderer receives job updates through the `jobs:update` event. When a job started from the current session succeeds, its model is staged and placed in the scene.

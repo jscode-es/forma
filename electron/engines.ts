@@ -71,7 +71,8 @@ export async function listEngines(): Promise<InstalledEngine[]> {
       if (!engine || engines.has(engine.manifest.id)) continue;
 
       const { info, manifest, dir } = engine;
-      if (!fs.existsSync(path.join(dir, manifest.runtime.entry))) info.problem = "entry-missing";
+      if (manifest.requirements.platforms && !manifest.requirements.platforms.includes(process.platform as "win32" | "linux" | "darwin")) info.problem = "platform-unsupported";
+      else if (!fs.existsSync(path.join(dir, manifest.runtime.entry))) info.problem = "entry-missing";
       else if (manifest.runtime.type === "blender" && !(await getBlender())) info.problem = "blender-missing";
       else if (manifest.runtime.type === "python" && !hardware.python && !fs.existsSync(enginePython(dir) ?? "")) info.problem = "python-missing";
       else if (manifest.requirements.cuda && !hardware.cuda) info.problem = "cuda-missing";

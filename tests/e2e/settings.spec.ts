@@ -8,6 +8,10 @@ test("settings keeps a bounded dialog with sidebar navigation and keyboard acces
     await expect(page.getByRole("button", { name: "Automatic retopology", exact: true })).toHaveCount(0);
     await page.getByRole("tab", { name: "Model", exact: true }).click();
     await expect(page.getByRole("button", { name: "Automatic retopology", exact: true })).toHaveCount(1);
+    const retopology = page.getByRole("region", { name: "Automatic retopology", exact: true });
+    await expect(retopology).toContainText("Instant Meshes + XAtlas");
+    await expect(retopology).not.toContainText("Blender");
+    await expect(retopology.getByRole("button", { name: "Activate Instant Meshes", exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Configure Blender", exact: true })).toHaveCount(0);
     await page.getByRole("button", { name: "Settings", exact: true }).click();
     const dialog = page.getByRole("dialog", { name: "Settings", exact: true });

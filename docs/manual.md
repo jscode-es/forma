@@ -131,11 +131,13 @@ In **Create 3D > Finish > Materials**, select a material to inspect its factors 
 
 ## Mesh tools
 
-These operations require an installed Blender 4 or newer; they were tested with Blender 5.2.1 LTS. If discovery fails, open **Settings → Hardware and engines → Configure Blender** and choose its executable. Once detected, no further configuration is needed. Automatic retopology is available in the **Model** tab. No Python packages or model weights are needed.
+![Retopology controls with Instant Meshes and XAtlas on CPU, activation and quad-face budget](images/retopology.png)
+
+Mesh inspection, standalone UV tools and baking require Blender 4 or newer; they were tested with Blender 5.2.1 LTS. If discovery fails, open **Settings → Hardware and engines → Configure Blender** and choose its executable. Retopology uses the separate Instant Meshes engine and does not require Blender.
 
 Under **Create 3D > Model > Inspect mesh**, inspect the active version's vertices, faces, triangles, degenerate faces, open borders, non-manifold edges and components. Open borders also count as non-manifold. Inspection only creates a report.
 
-**Retopology** uses QuadriFlow and regenerates UVs. The budget counts quads; the exported GLB can contain twice as many triangles. **Preview retopology** creates a candidate version. This operation supports one static mesh with a simple material; textures, vertex colors and complex materials are rejected to avoid losing them.
+**Retopology** uses **Instant Meshes** on CPU and **XAtlas** for new UVs. Activate it from **Models → Engines**, or use **Activate Instant Meshes** in the Model tab. Activation prepares Python 3.11 and a verified Windows x64 executable; jobs run offline without Blender or a GPU. Other platforms are currently marked incompatible. The budget is 128–100000 quads; Forma retries lower targets and rejects results exceeding that budget. The exported GLB contains up to twice as many triangles. **Preview retopology** creates a candidate version, preserving the original. One static mesh with a simple material is supported; textures, vertex colors, extensions, rigs and animation are rejected to avoid data loss. Inspect the silhouette and topology before applying it.
 
 Under **Finish > UV**, choose a resolution and select **Preview UVs** to unwrap and pack the islands. **Export UV template** saves a PNG through the native dialog, available for the source version or its result during the session. UV replacement also rejects textured materials, vertex colors and complex nodes.
 

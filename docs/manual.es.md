@@ -131,11 +131,13 @@ En **Crear 3D > Acabado > Materiales**, selecciona un material para consultar su
 
 ## Herramientas de malla
 
-Estas operaciones necesitan Blender 4 o posterior instalado; se han probado con Blender 5.2.1 LTS. Si Forma no lo encuentra, abre **Ajustes → Hardware y motores → Configurar Blender** y selecciona su ejecutable. Una vez detectado, no necesitas configurarlo de nuevo. La retopología automática está en la pestaña **Modelo**. No hace falta instalar paquetes Python ni descargar pesos.
+![Controles de retopología con Instant Meshes y XAtlas en CPU, activación y presupuesto de quads](images/retopology.png)
+
+La inspección de malla, las herramientas independientes de UV y el horneado requieren Blender 4 o posterior; se han probado con Blender 5.2.1 LTS. Si no se detecta, abre **Ajustes → Hardware y motores → Configurar Blender** y elige su ejecutable. La retopología utiliza el motor independiente Instant Meshes y no necesita Blender.
 
 En **Crear 3D > Modelo > Inspeccionar malla**, analiza la versión activa: vértices, caras, triángulos, caras degeneradas, bordes abiertos, aristas no manifold y componentes. Los bordes abiertos también cuentan como no manifold. La inspección solo crea un informe.
 
-**Retopología** utiliza QuadriFlow y regenera las UV. El presupuesto cuenta cuadriláteros; el GLB puede tener hasta el doble de triángulos. **Previsualizar retopología** crea una versión candidata. Esta operación admite una malla estática con un material sencillo; rechaza texturas, colores de vértice y materiales complejos para evitar perderlos.
+**Retopología** utiliza **Instant Meshes** en CPU y **XAtlas** para las UV nuevas. Actívalo en **Modelos → Motores** o con **Activar Instant Meshes** en la pestaña Modelo. La activación prepara Python 3.11 y un ejecutable verificado para Windows x64; los trabajos se ejecutan sin conexión, Blender ni GPU. Las demás plataformas se marcan como no compatibles por ahora. El presupuesto es de 128–100000 quads; Forma reintenta con objetivos inferiores y rechaza resultados que superen ese presupuesto. El GLB contiene hasta el doble de triángulos. **Previsualizar retopología** crea una versión candidata y conserva el original. Se admite una malla estática con un material sencillo; se rechazan texturas, colores de vértice, extensiones, rigs y animaciones para evitar perder datos. Revisa la silueta y la topología antes de aplicarlo.
 
 En **Acabado > UV**, selecciona la resolución y pulsa **Previsualizar UV** para desplegar y empaquetar las islas. **Exportar plantilla UV** guarda un PNG mediante el diálogo nativo, disponible para la versión de origen o su resultado durante la sesión. Sustituir UV también rechaza materiales con texturas, colores de vértice o nodos complejos.
 

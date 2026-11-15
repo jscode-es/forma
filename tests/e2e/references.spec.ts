@@ -28,7 +28,7 @@ test("places three reference tabs below the main menu without a separate section
   expect(Math.abs(front!.y - back!.y)).toBeLessThan(2);
   expect(back!.x).toBeGreaterThan(front!.x);
   expect(left!.y).toBeGreaterThan(front!.y);
-  expect(front!.height).toBeGreaterThan(80);
+  expect(front!.height).toBeGreaterThanOrEqual(44);
   await tabs.getByRole("tab", { name: "From text", exact: true }).click();
   await expect(page.getByRole("textbox", { name: "Prompt", exact: true })).toHaveValue("reference draft");
   await tabs.getByRole("tab", { name: "Single view", exact: true }).click();

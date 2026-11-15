@@ -84,12 +84,8 @@ def inspect_meshes(objects):
     return totals
 
 
-def require_safe_uv_materials(objects, retopology=False):
+def require_safe_uv_materials(objects):
     materials = {slot.material for obj in objects for slot in obj.material_slots if slot.material}
-    if retopology and len(materials) > 1:
-        raise ValueError("unsupported-multiple-materials-retopology")
-    if retopology and materials and any(not obj.material_slots or any(slot.material is None for slot in obj.material_slots) for obj in objects):
-        raise ValueError("unsupported-multiple-materials-retopology")
     for obj in objects:
         if obj.data.color_attributes:
             raise ValueError("unsupported-material-uv-regeneration")
@@ -144,37 +140,6 @@ def recalculate(objects):
         bm.to_mesh(obj.data)
         bm.free()
         obj.data.update()
-
-
-def retopologize(objects, budget):
-    require_safe_uv_materials(objects, retopology=True)
-    select(objects)
-    bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
-    if len(objects) > 1:
-        bpy.ops.object.join()
-    obj = bpy.context.object
-    bm = bmesh.new()
-    bm.from_mesh(obj.data)
-    bmesh.ops.remove_doubles(bm, verts=list(bm.verts), dist=1e-7)
-    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
-    bm.to_mesh(obj.data)
-    bm.free()
-    original = obj.data.copy()
-    material = obj.data.materials[0] if obj.data.materials else None
-    for factor in (0.9, 0.7, 0.5):
-        obj.data = original.copy()
-        select([obj])
-        status = bpy.ops.object.quadriflow_remesh(target_faces=max(32, int(budget * factor)), use_mesh_symmetry=False, use_preserve_sharp=False, use_preserve_boundary=True, preserve_attributes=False, seed=0)
-        if "FINISHED" not in status or not obj.data.polygons:
-            raise ValueError("retopology-failed")
-        if any(len(face.vertices) != 4 for face in obj.data.polygons):
-            raise ValueError("retopology-not-quads")
-        if len(obj.data.polygons) <= budget:
-            if material:
-                obj.data.materials.clear()
-                obj.data.materials.append(material)
-            return [obj], len(obj.data.polygons)
-    raise ValueError("budget-not-met")
 
 
 def bake_normals(low, high, resolution, output):
@@ -349,7 +314,7 @@ def add_occlusion(source, image, output):
     return triangles, replaced
 
 
-def export_model(objects, output, budget=None, bake=False):
+def export_model(objects, output, bake=False):
     select(objects)
     bpy.ops.export_scene.gltf(filepath=str(output / "model.glb"), export_format="GLB", use_selection=True, export_animations=False, export_skins=False, export_morph=False, export_tangents=True)
     document = read_glb(output / "model.glb")
@@ -367,8 +332,6 @@ def export_model(objects, output, budget=None, bake=False):
         tail = data[20 + old_length:]
         path.write_bytes(struct.pack("<4sII", b"glTF", 2, 20 + len(payload) + len(tail)) + struct.pack("<II", len(payload), 0x4E4F534A) + payload + tail)
     triangles = sum(document["accessors"][p["indices"]]["count"] // 3 for m in document["meshes"] for p in m["primitives"])
-    if budget is not None and triangles > budget * 2:
-        raise ValueError("budget-not-met")
     if bake and (not any(m.get("normalTexture") for m in document.get("materials", [])) or not all("bufferView" in image for image in document.get("images", []))):
         raise ValueError("normal-export-verification-failed")
     return triangles
@@ -376,7 +339,7 @@ def export_model(objects, output, budget=None, bake=False):
 
 def run_job(job):
     task = job.get("task")
-    if task not in {"mesh-inspect", "retopology", "uv-unwrap", "normals", "ambient-occlusion"}:
+    if task not in {"mesh-inspect", "uv-unwrap", "normals", "ambient-occlusion"}:
         raise ValueError("unsupported-task")
     models = job.get("inputs", {}).get("models", [])
     if not 1 <= len(models) <= 2:
@@ -397,9 +360,6 @@ def run_job(job):
     samples = params.get("samples", 64)
     if type(samples) is not int or not 8 <= samples <= 512:
         raise ValueError("invalid-occlusion-samples")
-    budget = params.get("faceBudget", 10000)
-    if type(budget) is not int or not 128 <= budget <= 2000000:
-        raise ValueError("invalid-face-budget")
     output = Path(job["outputDir"])
     output.mkdir(parents=True, exist_ok=True)
     meshes, _ = load_model(models[0], task not in {"mesh-inspect", "ambient-occlusion"})
@@ -407,12 +367,7 @@ def run_job(job):
     report = {"version": 1, "task": task, "source": source, "warnings": [], "details": {}}
     files = []
     send({"type": "progress", "value": 0.2, "stage": "inspecting"})
-    if task == "retopology":
-        meshes, quads = retopologize(meshes, budget)
-        unwrap(meshes, resolution)
-        report["details"] = {"method": "quadriflow", "faceBudget": budget, "quadFaces": quads, "resolution": resolution, "uvBoundsVerified": True}
-        report["warnings"] = ["uv-regenerated", "topology-rebuilt"]
-    elif task == "uv-unwrap":
+    if task == "uv-unwrap":
         require_safe_uv_materials(meshes)
         unwrap(meshes, resolution)
         export_template(meshes, output, resolution)
@@ -441,7 +396,7 @@ def run_job(job):
         files.append({"path": "occlusion.png", "label": "Ambient occlusion", "kind": "image"})
     if task not in {"mesh-inspect", "ambient-occlusion"}:
         send({"type": "progress", "value": 0.85, "stage": "exporting"})
-        triangles = export_model(meshes, output, budget if task == "retopology" else None, bake)
+        triangles = export_model(meshes, output, bake)
         report["result"] = inspect_meshes(meshes)
         report["result"]["triangles"] = triangles
         files.insert(0, {"path": "model.glb", "label": task, "kind": "model"})
