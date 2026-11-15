@@ -154,8 +154,9 @@ class JobRunner {
     if (!engine.info.available) throw new Error(`Engine unavailable: ${engine.info.problem}`);
     if (!engine.manifest.tasks.includes(request.task)) throw new Error("The engine does not support this task");
     const parameters = resolveParameters(engine.manifest, request.parameters);
-    const prompt = request.task === "text-to-image" || request.task === "text-to-3d" ? (request.prompt ?? null) : null;
-    if ((request.task === "text-to-image" || request.task === "text-to-3d") && !prompt) throw new Error("prompt-required");
+    const textTask = request.task === "text-to-image" || request.task === "text-to-3d" || request.task === "text-to-motion";
+    const prompt = textTask ? (request.prompt ?? null) : null;
+    if (textTask && !prompt) throw new Error("prompt-required");
     const limits = engine.manifest.inputs.images;
     if (request.images.length < limits.min) throw new Error("reference-required");
     if (request.images.length > limits.max) throw new Error("Too many reference images");
@@ -460,7 +461,7 @@ class JobRunner {
 
     const child = spawn(command, [...args, "--job", path.join(dir, "job.json")], {
       cwd: engine.dir,
-      env: { ...offlineEnv(dir), ...env },
+      env: { ...(engine.manifest.network ? { ...process.env, FORMA_JOB_DIR: dir, PYTHONUNBUFFERED: "1" } : offlineEnv(dir)), ...env },
       windowsHide: true,
       detached: process.platform !== "win32",
       stdio: ["ignore", "pipe", "pipe"],

@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { Button, Input, Label, Select, Slider, Switch } from "@kivora/nextjs";
+import { Button, Checkbox, Input, Label, Select, Slider, Switch, Textarea, ToggleGroup, ToggleGroupItem } from "@kivora/nextjs";
 import { useTranslation } from "react-i18next";
-import type { AnimationClipData, AnimationTrack } from "@/lib/forma";
+import type { AnimationClipData, AnimationTrack, MotionProvider } from "@/lib/forma";
 import { useJobsStore } from "@/feature/jobs";
 import { useModelsStore } from "@/feature/models";
 import { displayedVariant, useProjectStore } from "@/stores/project-store";
-import { chooseAnimationVideo, createPreset, deleteAnimationKey, deleteLibraryAnimation, discardAnimation, exportLibraryAnimation, generateVideoMotion, getAnimationValues, importLibraryAnimation, loadAnimationSource, loadLibraryAnimation, redoAnimation, refreshAnimationLibrary, resumeAnimationSource, retargetLibraryAnimation, saveAnimationToLibrary, saveAnimationVariant, selectSourceClip, setAnimationKey, setAnimationMapping, setAnimationName, setAnimationPlayback, setAnimationTiming, undoAnimation, useAnimationStore } from "../store";
+import { chooseAnimationVideo, createPreset, generateTextMotion, deleteAnimationKey, deleteLibraryAnimation, discardAnimation, exportLibraryAnimation, generateVideoMotion, getAnimationValues, importLibraryAnimation, loadAnimationSource, loadLibraryAnimation, redoAnimation, refreshAnimationLibrary, resumeAnimationSource, retargetLibraryAnimation, saveAnimationToLibrary, saveAnimationVariant, selectSourceClip, setAnimationKey, setAnimationMapping, setAnimationName, setAnimationPlayback, setAnimationTiming, undoAnimation, useAnimationStore } from "../store";
 import styles from "../animation.module.css";
 
 type Option = { value: string; label: string };
@@ -165,6 +165,53 @@ export function AnimationVideoControl() {
     {animation.video && <span className={styles.hint}>{animation.video.name}</span>}
     {!available && <><span className={styles.hint}>{t("animation.videoUnavailable")}</span><Button variant="outline" onClick={() => useModelsStore.getState().setOpen(true)}>{t("animation.openModels")}</Button></>}
     <Button disabled={disabled || animation.dirty || !available || !animation.video} onClick={() => attempt(generateVideoMotion())}>{t("animation.generateVideo")}</Button>
+  </div>;
+}
+
+export function AnimationTextControl() {
+  const { t } = useTranslation();
+  const id = useId();
+  const { animation, disabled } = useContext();
+  const engine = useJobsStore((state) => state.engines.some((entry) => entry.tasks.includes("text-to-motion") && entry.available));
+  const running = useJobsStore((state) => state.jobs.some((job) => job.task === "text-to-motion" && (job.status === "queued" || job.status === "running")));
+  const [providers, setProviders] = useState<MotionProvider[] | null>(null);
+  const [provider, setProvider] = useState<MotionProvider["id"]>("codex");
+  const [prompt, setPrompt] = useState("");
+  const [seconds, setSeconds] = useState(3);
+  const [consent, setConsent] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    void window.forma?.system.motionProviders().then((list) => {
+      if (!active) return;
+      setProviders(list);
+      const first = list.find((entry) => entry.available);
+      if (first) setProvider(first.id);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const selected = providers?.find((entry) => entry.id === provider);
+  const ready = engine && Boolean(selected?.available) && prompt.trim().length > 0 && consent && !running;
+  return <div className={styles.stack} aria-busy={running}>
+    <AnimationError />
+    <ToggleGroup type="single" value={provider} onValueChange={(value) => { if (value) { setProvider(value as MotionProvider["id"]); setConsent(false); } }} aria-label={t("animation.textProvider")}>
+      {(["codex", "claude", "copilot"] as const).map((value) => <ToggleGroupItem key={value} value={value} size="sm">{t(`animation.textProviders.${value}`)}</ToggleGroupItem>)}
+    </ToggleGroup>
+    <span className={styles.hint}>{providers === null ? t("animation.textChecking") : selected?.available ? t("animation.textReady", { version: selected.version }) : t("animation.textMissing")}</span>
+    <Textarea aria-label={t("animation.textPrompt")} value={prompt} maxLength={2000} minRows={3} autoResize placeholder={t("animation.textPlaceholder")} onChange={(event) => setPrompt(event.target.value)} />
+    <div className={styles.toggle}>
+      <Label htmlFor={`${id}-seconds`}>{t("animation.textSeconds")}</Label>
+      <Input id={`${id}-seconds`} type="number" min={1} max={10} step={1} value={seconds} style={{ width: "5rem" }} onChange={(event) => { const value = Number(event.target.value); if (Number.isInteger(value) && value >= 1 && value <= 10) setSeconds(value); }} />
+    </div>
+    <div className={styles.toggle}>
+      <Checkbox id={`${id}-consent`} checked={consent} onCheckedChange={(value) => setConsent(value === true)} />
+      <Label htmlFor={`${id}-consent`}>{t("animation.textConsent")}</Label>
+    </div>
+    <span className={styles.hint}>{t("animation.textPrivacy")}</span>
+    <Button disabled={disabled || animation.dirty || !ready} onClick={() => { setConsent(false); attempt(generateTextMotion(provider, seconds, prompt.trim())); }}>{running ? t("animation.textRunning") : t("animation.textGenerate")}</Button>
   </div>;
 }
 

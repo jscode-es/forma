@@ -2,7 +2,7 @@ import { create } from "zustand";
 import i18n from "@/lib/i18n";
 import type { AnimationBone, AnimationClipData, AnimationLibraryItem, AnimationTrack, ModelSource, VideoSource } from "@/lib/forma";
 import { displayedVariant, useProjectStore } from "@/stores/project-store";
-import { enqueueVideoMotion } from "@/feature/jobs";
+import { enqueueTextMotion, enqueueVideoMotion } from "@/feature/jobs";
 import { readAnimationModel, writeAnimationClip, createAnimationPreset, retargetAnimationClip, sampleAnimationTrack, eulerToQuaternion, quaternionToEuler, validateAnimationClip } from "./operations";
 
 type Path = AnimationTrack["path"];
@@ -203,6 +203,10 @@ export async function generateVideoMotion() {
   const { video } = useAnimationStore.getState();
   if (!video) return;
   await enqueueVideoMotion(video);
+}
+export async function generateTextMotion(provider: string, seconds: number, prompt: string) {
+  if (!editable() || useAnimationStore.getState().dirty) { errorState(new Error("animation.pendingDraft")); return; }
+  await enqueueTextMotion(provider, seconds, prompt);
 }
 export function acceptVideoMotion(clip: AnimationClipData, source: Source) {
   if (useProjectStore.getState().sessionId !== source.sessionId || useAnimationStore.getState().dirty) throw new Error("animation.pendingDraft");

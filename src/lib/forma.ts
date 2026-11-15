@@ -14,6 +14,7 @@ export type {
   EngineTask,
   ExportResult,
   PackageResult,
+  MotionProvider,
   UpdateState,
   FormaApi,
   HardwareInfo,

@@ -155,14 +155,14 @@ Painting runs interactively in the existing viewer, with a 64 MiB history budget
 
 The built-in Blender rig engine creates a 19-bone standing humanoid skeleton from adjustable body landmarks and real automatic heat weights. Bone rest-position edits produce preview variants; bones, selected-joint weight colors and reversible local pose tests run in the viewer. Compatible edit clips retain their original animation payloads, while replacement requires explicit discard. Inputs are conservatively limited to embedded, extension-free GLB with one skin and valid normalized weights; edit preservation requires identity skinned-mesh/nonjoint ancestor world transforms and matching rest/bind poses. No fingers, IK controls or anatomy inference are included. Real Blender deformation, raw-weight guards and Electron rig/export/clip workflows are verified in [rig evidence](superpowers/evidence/phase14-rig.md).
 
-## Phase 15 · Animation (local workflows done)
+## Phase 15 · Animation (done)
 
 - [x] Animation library independent of projects
 - [x] Presets: idle, walk, run
 - [x] Timeline editor: tracks per bone, keys, interpolation, FPS, undo and redo
 - [x] Retarget with bone mapping and validation
 - [x] Motion from video (local pose estimation)
-- [ ] Text-to-motion through optional external providers
+- [x] Text-to-motion through optional external providers (Codex, Claude or Copilot CLI with per-generation consent)
 
 The independent SQLite library imports/exports validated portable clips. Local TRS key editing supports linear/step interpolation, quaternion playback, source-protected drafts and animated GLB variants; imported cubic clips are sampled to editable keys while unrelated source clips remain intact. Procedural humanoid presets and compatible-rig retargeting are verified against actual skins. The authorized MediaPipe Motion runtime/model is installed and real CPU video inference produces changing joint tracks that deform exported GLB meshes. Capture is in-place, without calibrated root travel, twist, fingers or face tracking. The user chose no external provider, so optional text-to-motion remains unconfigured. See [animation verification](superpowers/evidence/phase15-animation.md) and [local motion evidence](superpowers/evidence/phase15-motion-feasibility.md).
 
