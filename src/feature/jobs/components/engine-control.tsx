@@ -101,9 +101,9 @@ function StyleSettings() {
     <PopoverTrigger className={styles.engineHelp} aria-label={t("prompt.styleSettings")} title={t("prompt.styleSettings")}>
       <Icon icon={Settings} size={16} />
     </PopoverTrigger>
-    <PopoverContent align="end" style={{ width: "min(24rem, calc(100vw - 2rem))", display: "grid", gap: "0.75rem" }}>
+    <PopoverContent align="end" style={{ width: "min(32rem, calc(100vw - 2rem))", maxHeight: "80dvh", overflowY: "auto", display: "grid", gap: "0.75rem" }}>
       <Label htmlFor="sdxl-style">{t("prompt.styleLabel")}</Label>
-      <Textarea id="sdxl-style" value={style} maxLength={256} minRows={4} placeholder={t("prompt.stylePlaceholder")}
+      <Textarea id="sdxl-style" value={style} maxLength={2000} minRows={6} maxRows={14} autoResize showCount placeholder={t("prompt.stylePlaceholder")}
         aria-describedby="sdxl-style-hint" onChange={(event) => setStyle(event.target.value)} />
       <p id="sdxl-style-hint" className={styles.hint}>{t("prompt.styleHint")}</p>
       <Button size="sm" variant="outline" disabled={!style} onClick={() => setStyle("")}>{t("prompt.styleClear")}</Button>

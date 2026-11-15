@@ -480,7 +480,9 @@
       "unsupported-model-retopology": "Retopology supports one static mesh without extensions, rig or animations.",
       "uv-atlas-overflow": "The UV atlas needs more space. Choose a larger texture resolution.",
       "instant-meshes-stalled": "Instant Meshes stopped responding after three attempts. The original model is unchanged.",
-      "retopology-timeout": "Retopology exceeded its time limit. Try a smaller mesh or face budget."
+      "retopology-timeout": "Retopology exceeded its time limit. Try a smaller mesh or face budget.",
+      "image-background-not-transparent": "The image does not contain a valid transparent background. No candidate was published.",
+      "prompt-too-long": "The object description is too long for the image model. Shorten the main prompt."
     }
   },
   "models": {
@@ -688,8 +690,10 @@
     "styleSettings": "SDXL style settings",
     "styleLabel": "Shared visual style",
     "stylePlaceholder": "Low-poly, pastel colors, isometric view, soft lighting",
-    "styleHint": "Saved automatically on this computer and added to every SDXL prompt. Describe the look, not the object. Leave empty to generate without a shared style.",
-    "styleClear": "Clear style"
+    "styleHint": "Saved automatically for SDXL. Applies only to the requested object: finish, shapes, technique and colors. Does not add scenery, props or other objects. Leave empty to disable.",
+    "styleClear": "Clear style",
+    "removingBackground": "Removing background… {{percent}}%",
+    "transparentHint": "Candidates are PNGs with a real alpha channel. The checkerboard belongs to the viewer and is not saved in the image."
   },
   "views": {
     "front": "Front",

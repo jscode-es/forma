@@ -35,7 +35,7 @@ Importing and inspecting GLB files, editing materials, managing projects and exp
 
 | Workflow | Additional requirements |
 | --- | --- |
-| SDXL-Lightning reference images | NVIDIA CUDA, **8 GB VRAM**, Python **3.11**; about **10 GB available system RAM** for Qwen3 prompt preparation and **17 GB free disk** installation budget |
+| SDXL-Lightning reference images | NVIDIA CUDA, **8 GB VRAM**, Python **3.11**; about **10 GB available system RAM** for Qwen3 prompt preparation and **18 GB free disk** installation budget |
 | Hunyuan3D 2.0 / 2 MV image to 3D | NVIDIA CUDA, **8 GB VRAM**, Python **3.11**, Git and space for the environment and weights |
 | Hunyuan3D Paint 2.1 PBR textures | NVIDIA CUDA, **10 GB VRAM**, Python **3.11**, Git and space for weights |
 | Retopology: Instant Meshes + XAtlas | Windows x64, Python **3.11**, CPU; about **0.3 GB disk**, no Blender or GPU required |
@@ -66,7 +66,7 @@ Activate engines in **Models → Engines**. Forma displays requirements and lice
 
 | Engine | Purpose | Model license |
 | --- | --- | --- |
-| [SDXL-Lightning + Qwen3](plugins/sdxl-lightning/README.md) | Prompt preparation and reference images | CreativeML Open RAIL++-M; Qwen3: Apache-2.0 |
+| [SDXL-Lightning + Qwen3](plugins/sdxl-lightning/README.md) | Prompt preparation and reference images | CreativeML Open RAIL++-M; Qwen3: Apache-2.0; BiRefNet: MIT |
 | [Hunyuan3D 2.0](plugins/hunyuan3d-2/README.md) | Image to 3D and background removal | Tencent Hunyuan 3D 2.0 Community |
 | [Hunyuan3D 2 MV](plugins/hunyuan3d-2-mv/README.md) | Multiple reference views to 3D | Tencent Hunyuan 3D 2.0 Community |
 | [Hunyuan3D Paint 2.1 PBR](plugins/hunyuan3d-2-1-paint/README.md) | Albedo, metallic and roughness textures | Tencent Hunyuan 3D 2.1 Community |

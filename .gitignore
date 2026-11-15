@@ -19,3 +19,4 @@ __pycache__/
 *.py[cod]
 /plugins/instant-meshes/InstantMeshes.exe
 /plugins/instant-meshes/InstantMeshes.download
+/plugins/sdxl-lightning/runtime/

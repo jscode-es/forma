@@ -3,7 +3,7 @@ const { copyFileSync, mkdirSync, openSync, readSync, closeSync, readFileSync, re
 const { homedir } = require("node:os");
 const { join, sep } = require("node:path");
 
-const FRAMING = ", single object, centered, full view, plain white background, soft studio lighting, 3d render";
+const FRAMING = ", only the requested object, centered, full view, isolated, soft studio lighting, 3d render";
 const MAX_BYTES = 20 * 1024 * 1024;
 const TIMEOUT_MS = 240_000;
 
@@ -77,7 +77,7 @@ async function main() {
     send({ type: "progress", value: index / count, stage: "sampling" });
     const answerFile = join(folder, `answer-${index}.txt`);
     const variation = count > 1 ? ` This is variation ${index + 1} of ${count}: vary pose, proportions and details while keeping the same subject.` : "";
-    await runCodex(`Generate exactly one image with your image generation tool: ${text}.${variation} Do not write files or run commands. Then reply only with the absolute path of the generated image file.`, folder, answerFile);
+    await runCodex(`Generate exactly one image with your image generation tool: ${text}.${variation} Preserve the requested subject. Do not add unrequested scenery, props, bases or additional objects. Use a real transparent background and save an RGBA PNG; do not draw a checkerboard or a solid backdrop. Do not write files or run commands. Then reply only with the absolute path of the generated image file.`, folder, answerFile);
     const image = generatedImage(readFileSync(answerFile, "utf8"));
     const path = `candidate-${index}.${image.kind}`;
     copyFileSync(image.file, join(job.outputDir, path));

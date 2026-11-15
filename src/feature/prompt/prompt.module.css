@@ -43,7 +43,9 @@
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--color-muted);
+  background-color: var(--color-background);
+  background-image: conic-gradient(var(--color-muted) 25%, transparent 0 50%, var(--color-muted) 0 75%, transparent 0);
+  background-size: 16px 16px;
   cursor: pointer;
 }
 
@@ -116,7 +118,9 @@
   width: 100%;
   object-fit: contain;
   border-radius: var(--radius-md);
-  background: var(--color-muted);
+  background-color: var(--color-background);
+  background-image: conic-gradient(var(--color-muted) 25%, transparent 0 50%, var(--color-muted) 0 75%, transparent 0);
+  background-size: 16px 16px;
 }
 
 .placeholder {

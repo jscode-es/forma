@@ -10,7 +10,7 @@ import { getBlender } from "./blender";
 import { getDb } from "./db";
 import { enginePython, listEngines, resolveParameters, type InstalledEngine } from "./engines";
 import { findPython } from "./hardware";
-import { imageExtension, imagePath, inspectImage, stageImageFile } from "./images";
+import { imageExtension, imagePath, inspectImage, stageImageFile, validateGeneratedImage } from "./images";
 import { modelPath, stageModelFile, stagingRoot } from "./models";
 import { engineMessage } from "./schemas";
 import { installedWeights } from "./weights";
@@ -519,6 +519,13 @@ class JobRunner {
       log.end();
       if (this.running?.cancelled) return this.finish(id, "cancelled", null);
       if (code === 0 && results && !error) {
+        try {
+          if (row.kind === "text-to-image") {
+            for (const file of results.filter((file) => file.kind === "image")) validateGeneratedImage(this.resolveFile(id, file.path));
+          }
+        } catch (validationError) {
+          return this.finish(id, "failed", validationError instanceof Error ? validationError.message : String(validationError));
+        }
         getDb().prepare("UPDATE jobs SET results = ? WHERE id = ?").run(JSON.stringify(results), id);
         return this.finish(id, "succeeded", null);
       }

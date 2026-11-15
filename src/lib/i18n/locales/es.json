@@ -480,7 +480,9 @@
       "unsupported-model-retopology": "La retopología admite una malla estática sin extensiones, rig ni animaciones.",
       "uv-atlas-overflow": "El atlas UV necesita más espacio. Elige una resolución de textura mayor.",
       "instant-meshes-stalled": "Instant Meshes ha dejado de responder tras tres intentos. El modelo original se conserva.",
-      "retopology-timeout": "La retopología ha superado su tiempo límite. Prueba una malla o presupuesto menor."
+      "retopology-timeout": "La retopología ha superado su tiempo límite. Prueba una malla o presupuesto menor.",
+      "image-background-not-transparent": "La imagen no contiene un fondo transparente válido. No se ha publicado la candidata.",
+      "prompt-too-long": "La descripción del objeto es demasiado larga para el modelo de imagen. Acorta el prompt principal."
     }
   },
   "models": {
@@ -688,8 +690,10 @@
     "styleSettings": "Ajustes de estilo de SDXL",
     "styleLabel": "Estilo visual compartido",
     "stylePlaceholder": "Low-poly, colores pastel, vista isométrica, luz suave",
-    "styleHint": "Se guarda automáticamente en este equipo y se añade a cada prompt de SDXL. Describe la estética, no el objeto. Déjalo vacío para generar sin un estilo compartido.",
-    "styleClear": "Borrar estilo"
+    "styleHint": "Se guarda automáticamente para SDXL. Se aplica solo al objeto solicitado: acabado, formas, técnica y colores. No añade escenarios, decorados ni otros objetos. Déjalo vacío para desactivarlo.",
+    "styleClear": "Borrar estilo",
+    "removingBackground": "Quitando fondo… {{percent}}%",
+    "transparentHint": "Las candidatas son PNG con un canal alfa real. La cuadrícula pertenece al visor y no se guarda en la imagen."
   },
   "views": {
     "front": "Frontal",

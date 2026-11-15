@@ -8,7 +8,7 @@ The plugin code in this folder is MIT, like Forma. **The weights are not part of
 
 - NVIDIA GPU with CUDA and at least 8 GB of VRAM
 - Python 3.11
-- About 3 GB for the Python environment and 11 GB for the weights
+- About 3 GB for the Python environment and 12 GB for the weights
 - About 10 GB of available RAM for the CPU prompt model, which is released before SDXL loads
 
 ## Activate
@@ -35,12 +35,16 @@ The 4-step UNet runs without classifier-free guidance, so there is no negative p
 
 ## Local prompt preparation
 
-The gear beside SDXL's help button opens a shared visual-style prompt (up to 256 characters). Forma persists it on this computer and snapshots it into each job's `stylePrompt` parameter. The worker combines the object and style before English prompt preparation; an empty style leaves the normal object workflow unchanged. Reusing a history entry restores its recorded style. This guides aesthetics; it does not guarantee identical rendering across seeds or subjects.
+The gear beside SDXL's help button opens a shared visual-style prompt (up to 2000 characters) with a live character counter. The object request and style are processed separately: Qwen translates the object into English, then extracts a short list of appearance attributes from the style. Scenery, dioramas, props and extra subjects are not style attributes. The subject stays first and only the style is shortened when needed to fit both SDXL text encoders, preserving the requested object and framing.
 
-Before generating candidates, Qwen3-1.7B rewrites the description into a concise English visual prompt, preserving the main object and requested attributes. For example, an origin/style adjective in `Jarron chino` should describe the vase rather than introduce a person. The model runs on CPU through the existing Transformers runtime, with thinking disabled and bounded output. No llama.cpp or Ollama server is required. Its model files are pinned to `Qwen/Qwen3-1.7B@70d244cc86ccca08cf5af4e1e306ecf908b1ad5e` and verified by SHA-256.
+Qwen3-1.7B runs on CPU through the existing Transformers runtime, with thinking disabled and bounded output. No llama.cpp or Ollama server is required. Its model files are pinned to `Qwen/Qwen3-1.7B@70d244cc86ccca08cf5af4e1e306ecf908b1ad5e` and verified by SHA-256. Original prompts and full shared styles remain in job history; the final effective image prompt is logged. Reusing a history entry restores its recorded style.
 
-The original request stays in project history; the effective image prompt is recorded in the job log. Invalid or truncated rewrites fail before loading SDXL. Preparation adds CPU work but no generation-time network access. It improves the supplied description, not a guarantee of image-model adherence. Updating an existing engine also requires the Qwen model weights; the existing SDXL weights are reused.
+## Real transparent output
+
+After generating RGB drafts, Forma releases SDXL and loads BiRefNet to remove the background locally. Only RGBA PNG candidates are published; the temporary RGB drafts are removed. BiRefNet weights and custom model code are pinned to `ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4` under MIT, sharing the existing background-removal files when installed. Jobs force offline Hugging Face/Transformers operation. No generation-time download occurs.
+
+The worker rejects empty or opaque masks. Main also validates every text-to-image candidate before marking a job successful: PNG format, bounded dimensions and file size, decoded alpha, and at least 1% transparent plus 1% opaque pixels. An opaque checkerboard is rejected. The viewer's checkerboard is only UI decoration, not part of the PNG. Prompting alone cannot produce real transparency with this SDXL checkpoint.
+
+Updating an existing engine requires the BiRefNet files if they are not already installed. The new dependency list includes torchvision, timm, einops and kornia; all versions are pinned. The original model weights are reused. Style and identity remain image-model predictions, so inspect the candidates before using them as references.
 
 Pinned versions: `stabilityai/stable-diffusion-xl-base-1.0@4621659` (text encoders, tokenizers, VAE and UNet config) and `ByteDance/SDXL-Lightning@c9a24f4` (`sdxl_lightning_4step_unet.safetensors`).
-
-Local evaluation on this workstation (CPU, FP32): the final instruction rewrote `Jarron chino` to `Chinese vase`, kept `LUNA` lettering and an explicitly requested person, and retained vase/chair/bottle subjects in seven examples. Preparation took roughly 7?14 seconds in preliminary runs and left about 6 GB of process working set. This is a small smoke evaluation, not a semantic guarantee: attributes can still be lost or altered.

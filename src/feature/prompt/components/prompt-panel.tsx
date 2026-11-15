@@ -91,7 +91,7 @@ export function PromptControl() {
         <div className={styles.field}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <span className={styles.subtitle}>{t("prompt.candidates")}</span>
-            <HelpHint label={`${t("common.help")}: ${t("prompt.candidates")}`} text={t("prompt.pickHint")} />
+            <HelpHint label={`${t("common.help")}: ${t("prompt.candidates")}`} text={`${t("prompt.pickHint")}\n\n${t("prompt.transparentHint")}`} />
           </div>
           <div className={styles.grid} role="group" aria-label={t("prompt.candidates")}>
             {candidates.files.map((file, index) => (

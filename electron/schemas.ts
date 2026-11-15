@@ -42,7 +42,7 @@ export const projectName = z.string().trim().min(1).max(120);
 
 export const engineId = z.string().regex(/^[a-z0-9][a-z0-9-]{1,63}$/);
 
-const parameterValue = z.union([z.number().finite(), z.boolean(), z.string().max(256)]);
+const parameterValue = z.union([z.number().finite(), z.boolean(), z.string().max(2000)]);
 
 export const parameterValues = z.record(z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]{0,63}$/), parameterValue);
 
@@ -218,8 +218,8 @@ export const engineManifest = z.object({
           type: z.literal("string"),
           label: localizedText,
           tasks: z.array(engineTask).optional(),
-          maxLength: z.number().int().min(1).max(256),
-          default: z.string().max(256),
+          maxLength: z.number().int().min(1).max(2000),
+          default: z.string().max(2000),
         }).refine((parameter) => parameter.default.length <= parameter.maxLength, "default exceeds maxLength"),
         z.object({
           id: parameterId,

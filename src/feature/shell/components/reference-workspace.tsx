@@ -30,7 +30,7 @@ function ReferenceFooter() {
     <div className={styles.inspectorFooter}>
       <ProgressButton size="lg" disabled={!ready} progress={job?.progress} onClick={() => generateImages()}>
         <Icon icon={ImageIcon} size={16} />
-        {job ? job.status === "queued" ? t("prompt.queued") : job.stage === "refining-prompt" ? t("prompt.refining", { percent: Math.round(job.progress * 100) }) : t("prompt.generating", { percent: Math.round(job.progress * 100) }) : t("prompt.generate")}
+        {job ? job.status === "queued" ? t("prompt.queued") : job.stage === "refining-prompt" ? t("prompt.refining", { percent: Math.round(job.progress * 100) }) : job.stage === "removing-background" ? t("prompt.removingBackground", { percent: Math.round(job.progress * 100) }) : t("prompt.generating", { percent: Math.round(job.progress * 100) }) : t("prompt.generate")}
       </ProgressButton>
       {hint && <span className={styles.hint} style={{ textAlign: "center", color: error ? "var(--color-destructive)" : undefined }}>
         {hint}
