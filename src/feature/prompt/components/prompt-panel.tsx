@@ -67,6 +67,7 @@ export function PromptControl() {
         />
       </div>
       <EngineControl task="text-to-image" />
+      {engine?.network && <span className={styles.hint}>{t("prompt.networkHint")}</span>}
       {candidates && candidates.files.length > 0 && (
         <div className={styles.field}>
           <span className={styles.subtitle}>{t("prompt.candidates")}</span>

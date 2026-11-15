@@ -17,6 +17,8 @@ test("offers the CLI providers and requires explicit consent before generating",
   expect(providers.map((provider) => provider.id)).toEqual(["codex", "claude", "copilot"]);
   const engines = await page.evaluate(() => window.forma!.engines.list());
   expect(engines.find((engine) => engine.id === "forma-text-motion")).toMatchObject({ network: true, tasks: ["text-to-motion"] });
+  expect(engines.find((engine) => engine.id === "forma-cli-image")).toMatchObject({ network: true, tasks: ["text-to-image"] });
+  expect(engines.filter((engine) => engine.network).map((engine) => engine.id).sort()).toEqual(["forma-cli-image", "forma-text-motion"]);
 
   await page.getByRole("button", { name: "Create animation", exact: true }).first().click();
   await page.getByRole("tab", { name: "Capture", exact: true }).click();

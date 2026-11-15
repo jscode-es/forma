@@ -461,7 +461,9 @@
       "motion-rig-required": "Text to motion needs a model with a skeleton",
       "motion-provider-missing": "The selected CLI is not installed",
       "motion-provider-failed": "The CLI failed; check that you are signed in",
-      "motion-plan-invalid": "The CLI returned an invalid motion plan; try again or rephrase"
+      "motion-plan-invalid": "The CLI returned an invalid motion plan; try again or rephrase",
+      "cli-image-missing": "Codex did not return a generated image",
+      "cli-image-invalid": "Codex returned an invalid image"
     }
   },
   "models": {
@@ -524,7 +526,9 @@
     "motion-rig-required": "Text to motion needs a model with a skeleton",
     "motion-provider-missing": "The selected CLI is not installed",
     "motion-provider-failed": "The CLI failed; check that you are signed in",
-    "motion-plan-invalid": "The CLI returned an invalid motion plan; try again or rephrase"
+    "motion-plan-invalid": "The CLI returned an invalid motion plan; try again or rephrase",
+    "cli-image-missing": "Codex did not return a generated image",
+    "cli-image-invalid": "Codex returned an invalid image"
   },
   "versions": {
     "title": "Versions",
@@ -652,7 +656,8 @@
     "fromPromptSeed": "Generated from a prompt · seed {{seed}}",
     "writeHint": "Write a prompt to describe the object.",
     "readyHint": "Ctrl+Enter in the prompt also generates.",
-    "continue": "Continue in Create 3D"
+    "continue": "Continue in Create 3D",
+    "networkHint": "Uses the network and your external account, and may consume your quota. Only the prompt is sent; consent resets after each generation."
   },
   "views": {
     "front": "Front",

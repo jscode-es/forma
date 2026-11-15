@@ -148,6 +148,7 @@ export async function generateImages() {
   if (!window.forma || !engine || !prompt) return;
   try {
     const job = await enqueue("text-to-image", engine, { ...project.imageEngine.parameters }, { kind: "candidates", prompt, engineId: engine.id }, [], prompt);
+    if (engine.network) useProjectStore.getState().setImageEngineParameter("consent", false);
     useProjectStore.getState().addPrompt({
       id: crypto.randomUUID(),
       text: prompt,
