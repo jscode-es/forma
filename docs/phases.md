@@ -193,6 +193,6 @@ Target: a first-time user goes from an idea to a validated engine package withou
 - [ ] Guided recipe: text or image → reference → 3D → texture → ambient occlusion → package, queued as one pipeline with review and retry at every step
 - [ ] Large models: automatic viewer LOD and memory guard above a triangle budget, with a suggestion to optimize before texturing or rigging
 - [ ] Prompt helper: improve a reference prompt with Codex, Claude or Copilot CLI under the same consent and validation rules
-- [ ] i18n checks in CI: English/Spanish key parity, valid UTF-8 without broken accents, no hard-coded UI strings
-- [ ] Accessibility and security review of the panels and engines added in phases 9–17 (axe on every section, Electron review of network engines)
+- [x] i18n checks in CI: English/Spanish key parity, valid UTF-8 without broken accents, no hard-coded UI strings (`npm run i18n:check`)
+- [x] Accessibility and security review of the panels and engines added in phases 9–17 (axe on every section, Electron review of network engines)
 - [ ] Release 1.0 from `main` with auto-update metadata (signed installers once certificates exist)

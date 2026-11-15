@@ -3,24 +3,50 @@ import fs from "node:fs";
 import path from "node:path";
 import { axeViolations, chooseEngine, FIXTURES, launch, quit, ROOT, stubOpenDialog, tempDataDir } from "./helpers";
 
-test("has no serious accessibility violations in the main views", async () => {
+test("has no serious accessibility violations in any section, tab or dialog", async () => {
+  test.setTimeout(300_000);
   const { app, page } = await launch(tempDataDir());
-  try {
-    const views: [string, () => Promise<unknown>][] = [
-      ["studio", async () => undefined],
-      ["text references", () => page.getByRole("tab", { name: "From text", exact: true }).click()],
-      ["multi-view references", () => page.getByRole("tab", { name: "Multi-view", exact: true }).click()],
-      ["single-view references", () => page.getByRole("tab", { name: "Single view", exact: true }).click()],
-      ["model tab", () => page.getByRole("tab", { name: "Model", exact: true }).click()],
-      ["materials tab", () => page.getByRole("tab", { name: "Finish", exact: true }).click()],
-      ["create animation", () => page.getByRole("button", { name: "Create animation", exact: true }).click()],
-      ["export", () => page.getByRole("button", { name: "Export", exact: true }).click()],
-      ["models dialog", () => page.getByRole("button", { name: "Models", exact: true }).click()],
-    ];
-    for (const [name, open] of views) {
-      await open();
-      expect((await axeViolations(page)).map((v) => `${name}: ${v}`)).toEqual([]);
+  const expandAll = async () => {
+    const panel = page.locator("#inspector-panel");
+    for (let round = 0; round < 3; round++) {
+      const closed = panel.locator('h3 > button[aria-expanded="false"]');
+      const count = await closed.count();
+      if (!count) break;
+      for (let index = count - 1; index >= 0; index--) await closed.nth(index).click();
     }
+    await expect(panel.locator('h3 > button[aria-expanded="false"]')).toHaveCount(0);
+    expect(await panel.locator('h3 > button[aria-expanded="true"]').count()).toBeGreaterThan(0);
+  };
+  const sections: [string, string[]][] = [
+    ["Create 3D", ["Create", "Model", "Finish", "Edit"]],
+    ["Create animation", ["Capture", "Skeleton", "Clips", "Character"]],
+    ["Export", ["Files", "Interchange"]],
+  ];
+  try {
+    const failures: string[] = [];
+    const check = async (name: string) => failures.push(...(await axeViolations(page)).map((v) => `${name}: ${v}`));
+    for (const tab of ["From text", "Multi-view", "Single view"]) {
+      await page.getByRole("tab", { name: tab, exact: true }).click();
+      await check(`references ${tab}`);
+    }
+    for (const tab of ["Job queue", "Process", "Timeline", "Versions"]) {
+      await page.getByRole("tab", { name: new RegExp(`^${tab}`) }).first().click();
+      await check(`dock ${tab}`);
+    }
+    for (const [section, tabs] of sections) {
+      await page.getByRole("button", { name: section, exact: true }).first().click();
+      for (const tab of tabs) {
+        await page.getByRole("tab", { name: tab, exact: true }).click();
+        await expandAll();
+        await check(`${section} > ${tab}`);
+      }
+    }
+    for (const dialog of ["Models", "Settings"]) {
+      await page.getByRole("button", { name: dialog, exact: true }).click();
+      await check(`${dialog} dialog`);
+      await page.keyboard.press("Escape");
+    }
+    expect(failures).toEqual([]);
   } finally {
     await quit(app);
   }

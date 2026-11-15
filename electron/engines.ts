@@ -50,7 +50,7 @@ function readEngine(dir: string, builtin: boolean): InstalledEngine | null {
       inputs: manifest.inputs,
       builtin,
       demo: manifest.demo,
-      network: manifest.network,
+      network: manifest.network && builtin,
       available: true,
       problem: null,
     },
