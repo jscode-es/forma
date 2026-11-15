@@ -30,6 +30,12 @@ test("surface resolution is a four-option select defaulting to 512 and saves the
   try {
     await chooseEngine(page, "Surface test");
     const select = page.getByRole("combobox", { name: "Surface resolution", exact: true });
+    const label = await page.getByText("Surface resolution", { exact: true }).boundingBox();
+    const seed = await page.getByRole("spinbutton", { name: "Seed", exact: true }).boundingBox();
+    const control = await select.locator("xpath=ancestor::div[contains(@style,'7rem')]").boundingBox();
+    expect(Math.abs(label!.y + label!.height / 2 - (control!.y + control!.height / 2))).toBeLessThan(6);
+    expect(Math.abs(control!.width - seed!.width)).toBeLessThan(2);
+    await page.locator("#inspector-panel").screenshot({ path: "test-results/surface-resolution-row.png" });
     await select.focus();
     await page.keyboard.press("ArrowDown");
     await expect(page.getByRole("option")).toHaveText(["128", "256", "380", "512"]);

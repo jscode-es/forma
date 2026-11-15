@@ -99,7 +99,7 @@
     "frame": "Encuadrar modelo",
     "camera": "Vistas de cámara",
     "grid": "Cuadrícula",
-    "hint": "Arrastra para orbitar · Rueda para acercar · Botón derecho para desplazar",
+    "hint": "Arrastra o usa el botón central para orbitar · Rueda para acercar · Botón derecho o Mayús + central para desplazar",
     "presets": {
       "perspective": "Perspectiva",
       "front": "Frontal",
