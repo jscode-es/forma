@@ -1,15 +1,16 @@
 "use client";
 
 import { useMemo } from "react";
-import { Button, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, Icon, Textarea } from "@kivora/nextjs";
+import { Button, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, Icon, Label, Switch, Textarea } from "@kivora/nextjs";
 import { Check, Expand, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { HelpHint } from "@/components/help-hint";
-import { ACTIVE, EngineControl, generateImages, pickCandidate, useJobsStore, type Candidates } from "@/feature/jobs";
+import { ACTIVE, EngineControl, generateImages, pickCandidate, pickCandidateSet, useJobsStore, type Candidates } from "@/feature/jobs";
 import { useBlobUrl } from "@/hooks/use-blob-url";
 import type { PromptEntry } from "@/lib/forma";
 import { useProjectStore } from "@/stores/project-store";
 import { useSettingsStore } from "@/stores/settings-store";
+import { useWorkspaceStore } from "@/stores/workspace-store";
 import styles from "../prompt.module.css";
 
 function Candidate({ candidates, file, index }: { candidates: Candidates; file: Candidates["files"][number]; index: number }) {
@@ -54,16 +55,46 @@ function Candidate({ candidates, file, index }: { candidates: Candidates; file: 
   );
 }
 
+function ViewThumb({ candidates, file }: { candidates: Candidates; file: Candidates["files"][number] }) {
+  const { t } = useTranslation();
+  const url = useBlobUrl(`${candidates.jobId}:${file.path}`, () => window.forma?.jobs.readFile(candidates.jobId, file.path));
+  const view = t(`viewport.presets.${file.view ?? "front"}`);
+  return <figure className={styles.viewThumb}>
+    {url ? <img src={url} alt={view} /> : <span className={styles.placeholder} />}
+    <figcaption>{view}</figcaption>
+  </figure>;
+}
+
+function ViewSet({ candidates, set }: { candidates: Candidates; set: number }) {
+  const { t } = useTranslation();
+  const files = candidates.files.filter((file) => file.set === set);
+  const picked = candidates.picked === `set:${set}`;
+  const seed = files[0]?.seed;
+  return <div className={`${styles.viewSet} ${picked ? styles.picked : ""}`} role="group" aria-label={t("prompt.viewSet", { seed })}>
+    <div className={styles.viewSetImages}>{files.map((file) => <ViewThumb key={file.path} candidates={candidates} file={file} />)}</div>
+    <Button size="sm" variant={picked ? "default" : "outline"} aria-pressed={picked} onClick={() => {
+      void pickCandidateSet(set).then(() => useWorkspaceStore.getState().setReferenceTab("multi"));
+    }}>
+      {picked && <Icon icon={Check} size={14} />}
+      {t(picked ? "prompt.viewsPicked" : "prompt.useViews", { seed })}
+    </Button>
+  </div>;
+}
+
 export function PromptControl() {
   const { t } = useTranslation();
   const prompt = useProjectStore((s) => s.prompt);
   const setPrompt = useProjectStore((s) => s.setPrompt);
   const sessionId = useProjectStore((s) => s.sessionId);
-  const engineId = useProjectStore((s) => s.imageEngine.id);
-  const engine = useJobsStore((s) => s.engines.find((e) => e.id === engineId && e.tasks.includes("text-to-image")));
-  const job = useJobsStore((s) => s.jobs.find((j) => ACTIVE.has(j.status) && j.task === "text-to-image"));
+  const multiview = useWorkspaceStore((s) => s.promptMultiview);
+  const setMultiview = useWorkspaceStore((s) => s.setPromptMultiview);
+  const task = multiview ? "text-to-multiview" : "text-to-image";
+  const engineId = useProjectStore((s) => (multiview ? s.multiviewEngine.id : s.imageEngine.id));
+  const engine = useJobsStore((s) => s.engines.find((e) => e.id === engineId && e.tasks.includes(task)));
+  const job = useJobsStore((s) => s.jobs.find((j) => ACTIVE.has(j.status) && (j.task === "text-to-image" || j.task === "text-to-multiview")));
   const candidates = useJobsStore((s) => (s.candidates?.sessionId === sessionId ? s.candidates : null));
   const ready = Boolean(engine?.available) && prompt.trim().length > 0 && !job;
+  const sets = candidates ? [...new Set(candidates.files.flatMap((file) => (file.set === null ? [] : [file.set])))] : [];
 
   return (
     <div className={styles.stack}>
@@ -81,13 +112,24 @@ export function PromptControl() {
           onKeyDown={(e) => {
             if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && ready) {
               e.preventDefault();
-              void generateImages();
+              void generateImages(multiview);
             }
           }}
         />
       </div>
-      <EngineControl task="text-to-image" />
-      {candidates && candidates.files.length > 0 && (
+      <div className={styles.switchRow}>
+        <Label htmlFor="prompt-multiview">{t("prompt.multiview")}</Label>
+        <Switch id="prompt-multiview" checked={multiview} onCheckedChange={setMultiview} />
+      </div>
+      {multiview && <span className={styles.hint}>{t("prompt.multiviewHint")}</span>}
+      <EngineControl task={task} />
+      {candidates && sets.length > 0 && (
+        <div className={styles.field}>
+          <span className={styles.subtitle}>{t("prompt.viewSets")}</span>
+          {sets.map((set) => <ViewSet key={set} candidates={candidates} set={set} />)}
+        </div>
+      )}
+      {candidates && sets.length === 0 && candidates.files.length > 0 && (
         <div className={styles.field}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <span className={styles.subtitle}>{t("prompt.candidates")}</span>

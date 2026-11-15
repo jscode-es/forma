@@ -21,6 +21,7 @@ export type ProjectSettings = {
   engine: EngineSelection;
   imageEngine: EngineSelection;
   textureEngine: EngineSelection;
+  multiviewEngine: EngineSelection;
   textureReferenceId: string | null;
   autoTexture: boolean;
   gameReady: boolean;
@@ -136,6 +137,7 @@ export type EngineTask =
   | "image-to-3d"
   | "text-to-3d"
   | "text-to-image"
+  | "text-to-multiview"
   | "remove-background"
   | "optimize"
   | "texture"

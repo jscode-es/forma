@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import type { EngineParameter, EngineTask, ParameterValue } from "@/lib/forma";
 import { useProjectStore } from "@/stores/project-store";
 import { useSettingsStore } from "@/stores/settings-store";
-import { localized, useJobsStore } from "../jobs-store";
+import { localized, useJobsStore, usesStyle } from "../jobs-store";
 import styles from "../jobs.module.css";
 
 type ParameterProps = {
@@ -88,7 +88,7 @@ function ParameterControl({ parameter, value, idPrefix, setParameter }: Paramete
   );
 }
 
-export type EngineControlTask = Extract<EngineTask, "image-to-3d" | "text-to-image" | "texture">;
+export type EngineControlTask = Extract<EngineTask, "image-to-3d" | "text-to-image" | "text-to-multiview" | "texture">;
 
 function StyleSettings() {
   const { t } = useTranslation();
@@ -112,16 +112,18 @@ export function EngineControl({ task = "image-to-3d" }: { task?: EngineControlTa
   const { t, i18n } = useTranslation();
   const allEngines = useJobsStore((s) => s.engines);
   const engines = useMemo(() => allEngines.filter((e) => e.tasks.includes(task)), [allEngines, task]);
-  const forImages = task === "text-to-image";
+  const forViews = task === "text-to-multiview";
+  const forImages = task === "text-to-image" || forViews;
   const forTextures = task === "texture";
-  const selection = useProjectStore((s) => (forTextures ? s.textureEngine : forImages ? s.imageEngine : s.engine));
+  const selection = useProjectStore((s) => (forTextures ? s.textureEngine : forViews ? s.multiviewEngine : forImages ? s.imageEngine : s.engine));
   const setModelEngine = useProjectStore((s) => s.setEngine);
   const setImageEngine = useProjectStore((s) => s.setImageEngine);
+  const setMultiviewEngine = useProjectStore((s) => s.setMultiviewEngine);
   const setTextureEngine = useProjectStore((s) => s.setTextureEngine);
-  const setParameter = useProjectStore((s) => (forTextures ? s.setTextureEngineParameter : forImages ? s.setImageEngineParameter : s.setEngineParameter));
-  const setEngine = (id: string | null) => (forTextures ? setTextureEngine({ id, parameters: {} }) : forImages ? setImageEngine({ id, parameters: {} }) : setModelEngine(id));
+  const setParameter = useProjectStore((s) => (forTextures ? s.setTextureEngineParameter : forViews ? s.setMultiviewEngineParameter : forImages ? s.setImageEngineParameter : s.setEngineParameter));
+  const setEngine = (id: string | null) => (forTextures ? setTextureEngine({ id, parameters: {} }) : forViews ? setMultiviewEngine({ id, parameters: {} }) : forImages ? setImageEngine({ id, parameters: {} }) : setModelEngine(id));
   const engine = engines.find((e) => e.id === selection.id) ?? null;
-  const hasStyle = forImages && engine?.id === "sdxl-lightning" && engine.parameters.some((parameter) => parameter.id === "stylePrompt" && parameter.type === "string");
+  const hasStyle = forImages && engine !== null && usesStyle(engine);
 
   if (engines.length === 0) {
     return (

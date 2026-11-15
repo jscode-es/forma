@@ -154,7 +154,7 @@ class JobRunner {
     if (!engine.info.available) throw new Error(`Engine unavailable: ${engine.info.problem}`);
     if (!engine.manifest.tasks.includes(request.task)) throw new Error("The engine does not support this task");
     const parameters = resolveParameters(engine.manifest, request.parameters);
-    const textTask = request.task === "text-to-image" || request.task === "text-to-3d" || request.task === "text-to-motion";
+    const textTask = request.task === "text-to-image" || request.task === "text-to-multiview" || request.task === "text-to-3d" || request.task === "text-to-motion";
     const prompt = textTask ? (request.prompt ?? null) : null;
     if (textTask && !prompt) throw new Error("prompt-required");
     const limits = engine.manifest.inputs.images;
@@ -520,7 +520,7 @@ class JobRunner {
       if (this.running?.cancelled) return this.finish(id, "cancelled", null);
       if (code === 0 && results && !error) {
         try {
-          if (row.kind === "text-to-image") {
+          if (row.kind === "text-to-image" || row.kind === "text-to-multiview") {
             for (const file of results.filter((file) => file.kind === "image")) validateGeneratedImage(this.resolveFile(id, file.path));
           }
         } catch (validationError) {

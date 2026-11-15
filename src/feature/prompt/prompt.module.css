@@ -175,3 +175,46 @@
   overflow: hidden;
   overflow-wrap: anywhere;
 }
+
+.switchRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.viewSet {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.viewSetImages {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.375rem;
+}
+
+.viewThumb {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.viewThumb img,
+.viewThumb .placeholder {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  background: repeating-conic-gradient(var(--color-muted) 0% 25%, transparent 0% 50%) 50% / 12px 12px;
+}
+
+.viewThumb figcaption {
+  font-size: 0.6875rem;
+  text-align: center;
+  color: var(--color-muted-foreground);
+}

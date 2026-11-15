@@ -9,6 +9,7 @@ export const DEFAULT_SETTINGS: ProjectSettings = {
   engine: { id: null, parameters: {} },
   imageEngine: { id: null, parameters: {} },
   textureEngine: { id: null, parameters: {} },
+  multiviewEngine: { id: null, parameters: {} },
   textureReferenceId: null,
   autoTexture: false,
   gameReady: false,
@@ -61,6 +62,7 @@ export const projectSettings = z.object({
   engine: z.object({ id: engineId.nullable(), parameters: parameterValues }),
   imageEngine: z.object({ id: engineId.nullable(), parameters: parameterValues }),
   textureEngine: z.object({ id: engineId.nullable(), parameters: parameterValues }).default({ id: null, parameters: {} }),
+  multiviewEngine: z.object({ id: engineId.nullable(), parameters: parameterValues }).default({ id: null, parameters: {} }),
   textureReferenceId: z.uuid().nullable().default(null),
   autoTexture: z.boolean().default(false),
   gameReady: z.boolean().default(false),
@@ -141,7 +143,7 @@ export const modelSource = z.discriminatedUnion("type", [
   z.object({ type: z.literal("asset"), projectId: z.uuid(), assetId: z.uuid() }),
 ]);
 
-export const engineTask = z.enum(["image-to-3d", "text-to-3d", "text-to-image", "remove-background", "optimize", "texture", "rig", "animation", "mesh-inspect", "retopology", "uv-unwrap", "normals", "ambient-occlusion", "video-to-motion", "export-package", "text-to-motion"]);
+export const engineTask = z.enum(["image-to-3d", "text-to-3d", "text-to-image", "text-to-multiview", "remove-background", "optimize", "texture", "rig", "animation", "mesh-inspect", "retopology", "uv-unwrap", "normals", "ambient-occlusion", "video-to-motion", "export-package", "text-to-motion"]);
 
 export const jobRequest = z.object({
   videos: z.array(z.object({ stagingId: z.uuid(), name: z.string().min(1).max(120) })).max(1).default([]),
