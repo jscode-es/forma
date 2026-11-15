@@ -44,17 +44,6 @@ class MeshEngineTests(unittest.TestCase):
         report = json.loads((output / "report.json").read_text())
         return output, report, files
 
-    def test_inspection_counts_only_imported_mesh_and_preserves_original(self):
-        bpy.ops.mesh.primitive_cube_add()
-        source = self.save()
-        original = Path(source).read_bytes()
-        bpy.ops.mesh.primitive_uv_sphere_add()
-        output, report, files = self.job("mesh-inspect", [source])
-        self.assertEqual(report["source"], {"vertices": 8, "edges": 18, "faces": 12, "triangles": 12, "degenerateFaces": 0, "boundaryEdges": 0, "nonManifoldEdges": 0, "components": 1})
-        self.assertEqual([f["kind"] for f in files], ["mesh-report"])
-        self.assertFalse((output / "model.glb").exists())
-        self.assertEqual(Path(source).read_bytes(), original)
-
     def test_open_disconnected_degenerate_and_non_manifold_counts(self):
         mesh = bpy.data.meshes.new("fixture")
         mesh.from_pydata([(0,0,0),(1,0,0),(0,1,0),(0,-1,0),(0,0,1),(3,0,0),(4,0,0),(5,0,0)], [], [(0,1,2),(1,0,3),(0,1,4),(5,6,7)])
@@ -180,13 +169,13 @@ class MeshEngineTests(unittest.TestCase):
         source = self.save()
         output = self.folder / "protocol"
         job = self.folder / "job.json"
-        job.write_text(json.dumps({"task": "mesh-inspect", "inputs": {"models": [source]}, "parameters": {}, "outputDir": str(output)}))
+        job.write_text(json.dumps({"task": "normals", "inputs": {"models": [source]}, "parameters": {}, "outputDir": str(output)}))
         command = [bpy.app.binary_path, "--background", "--factory-startup", "--python-exit-code", "1", "--python", str(ROOT / "main.py"), "--", "--job", str(job)]
         result = subprocess.run(command, capture_output=True, text=True, timeout=30)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         messages = [json.loads(line) for line in result.stdout.splitlines() if line.startswith('{"type":')]
         self.assertTrue(any(message["type"] == "progress" for message in messages))
-        self.assertEqual(next(message for message in messages if message["type"] == "result")["files"][0]["kind"], "mesh-report")
+        self.assertIn("mesh-report", [f["kind"] for f in next(message for message in messages if message["type"] == "result")["files"]])
         self.assertTrue((output / "report.json").exists())
         job.write_text(json.dumps({"task": "wrong"}))
         result = subprocess.run(command, capture_output=True, text=True, timeout=30)
@@ -206,7 +195,7 @@ class MeshEngineTests(unittest.TestCase):
         tail = data[20 + old:]
         source.write_bytes(struct.pack("<4sII", b"glTF", 2, 20 + len(encoded) + len(tail)) + struct.pack("<II", len(encoded), 0x4E4F534A) + encoded + tail)
         with self.assertRaisesRegex(ValueError, "external-resources-unsupported"):
-            self.job("mesh-inspect", [str(source)])
+            self.job("normals", [str(source)])
 
     def test_normal_bake_exports_real_embedded_normal_map(self):
         bpy.ops.mesh.primitive_uv_sphere_add(segments=16, ring_count=8)

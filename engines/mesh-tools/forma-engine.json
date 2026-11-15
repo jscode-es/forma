@@ -4,10 +4,11 @@
   "version": "1.0.0",
   "license": "MIT",
   "description": {
-    "en": "Reduces triangles to a budget, creates levels of detail and prepares validated export packages for Blender, Unity and Godot (meshoptimizer, glTF Transform, MikkTSpace and the Khronos glTF Validator).",
-    "es": "Reduce los triángulos a un presupuesto, crea niveles de detalle y prepara paquetes validados para Blender, Unity y Godot (meshoptimizer, glTF Transform, MikkTSpace y el validador glTF de Khronos)."
+    "en": "Inspects topology, reduces triangles to a budget, creates levels of detail and prepares validated export packages for Blender, Unity and Godot (meshoptimizer, glTF Transform, MikkTSpace and the Khronos glTF Validator).",
+    "es": "Inspecciona la topología, reduce los triángulos a un presupuesto, crea niveles de detalle y prepara paquetes validados para Blender, Unity y Godot (meshoptimizer, glTF Transform, MikkTSpace y el validador glTF de Khronos)."
   },
   "tasks": [
+    "mesh-inspect",
     "optimize",
     "export-package"
   ],

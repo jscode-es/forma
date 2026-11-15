@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useState } from "react";
 import { Button, Input, Label, Select } from "@kivora/nextjs";
+import { NumberField } from "@/components/number-field";
 import { useTranslation } from "react-i18next";
 import { displayedVariant, useProjectStore } from "@/stores/project-store";
 import { discardPaint, loadPaintMaterials, redoPaint, resumePainting, savePaintVariant, setPaintEnabled, setPaintOptions, startPainting, undoPaint, usePaintStore } from "../store";
@@ -74,19 +75,13 @@ export function PaintControl() {
       </div>
       <div className={styles.field}>
         <Label htmlFor={`${id}-radius`}>{t("paint.radius")}</Label>
-        <Input id={`${id}-radius`} type="number" className={styles.input} min={1} max={128} step={1} value={radius} disabled={controlsDisabled}
-          onChange={(event) => {
-            const value = event.target.valueAsNumber;
-            if (Number.isInteger(value) && value >= 1 && value <= 128) setPaintOptions({ radius: value });
-          }} />
+        <NumberField id={`${id}-radius`} integer className={styles.input} min={1} max={128} step={1} value={radius} disabled={controlsDisabled}
+          onValueChange={(value) => setPaintOptions({ radius: value })} />
       </div>
       <div className={styles.field}>
         <Label htmlFor={`${id}-opacity`}>{t("paint.opacity")}</Label>
-        <Input id={`${id}-opacity`} type="number" className={styles.input} min={0} max={1} step={0.05} value={opacity} disabled={controlsDisabled}
-          onChange={(event) => {
-            const value = event.target.valueAsNumber;
-            if (Number.isFinite(value) && value >= 0 && value <= 1) setPaintOptions({ opacity: value });
-          }} />
+        <NumberField id={`${id}-opacity`} className={styles.input} min={0} max={1} step={0.05} value={opacity} disabled={controlsDisabled}
+          onValueChange={(value) => setPaintOptions({ opacity: value })} />
       </div>
       <div className={styles.actions}>
         <Button variant="outline" disabled={controlsDisabled || !draft.engine.canUndo} onClick={undoPaint}>{t("paint.undo")}</Button>

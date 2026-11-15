@@ -339,7 +339,7 @@ def export_model(objects, output, bake=False):
 
 def run_job(job):
     task = job.get("task")
-    if task not in {"mesh-inspect", "uv-unwrap", "normals", "ambient-occlusion"}:
+    if task not in {"uv-unwrap", "normals", "ambient-occlusion"}:
         raise ValueError("unsupported-task")
     models = job.get("inputs", {}).get("models", [])
     if not 1 <= len(models) <= 2:
@@ -362,7 +362,7 @@ def run_job(job):
         raise ValueError("invalid-occlusion-samples")
     output = Path(job["outputDir"])
     output.mkdir(parents=True, exist_ok=True)
-    meshes, _ = load_model(models[0], task not in {"mesh-inspect", "ambient-occlusion"})
+    meshes, _ = load_model(models[0], task != "ambient-occlusion")
     source = inspect_meshes(meshes)
     report = {"version": 1, "task": task, "source": source, "warnings": [], "details": {}}
     files = []
@@ -394,7 +394,7 @@ def run_job(job):
         report["result"]["triangles"] = triangles
         files.append({"path": "model.glb", "label": task, "kind": "model"})
         files.append({"path": "occlusion.png", "label": "Ambient occlusion", "kind": "image"})
-    if task not in {"mesh-inspect", "ambient-occlusion"}:
+    if task != "ambient-occlusion":
         send({"type": "progress", "value": 0.85, "stage": "exporting"})
         triangles = export_model(meshes, output, bake)
         report["result"] = inspect_meshes(meshes)

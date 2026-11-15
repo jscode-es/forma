@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useId, useState, type ReactNode } from "react";
-import { Button, Input, Label, Select } from "@kivora/nextjs";
+import { Button, Label, Select } from "@kivora/nextjs";
+import { NumberField } from "@/components/number-field";
 import { useTranslation } from "react-i18next";
 import { ACTIVE, enqueueMeshTask, useJobsStore } from "@/feature/jobs";
 import { useModelsStore } from "@/feature/models";
@@ -9,7 +10,7 @@ import { activeVariant, useProjectStore } from "@/stores/project-store";
 import { useMeshToolsStore, type MeshTopology } from "../store";
 import styles from "../mesh-tools.module.css";
 
-const TASKS = new Set(["mesh-inspect", "retopology", "uv-unwrap", "normals", "ambient-occlusion"]);
+const TASKS = new Set(["retopology", "uv-unwrap", "normals", "ambient-occlusion"]);
 const TOPOLOGY: (keyof MeshTopology)[] = ["vertices", "edges", "faces", "triangles", "degenerateFaces", "boundaryEdges", "nonManifoldEdges", "components"];
 
 function useMeshContext() {
@@ -70,18 +71,26 @@ function ResolutionControl({ disabled }: { disabled: boolean }) {
 
 export function MeshInspectControl() {
   const { t, i18n } = useTranslation();
-  const { source, sessionId, busy, ready } = useMeshContext();
+  const source = useProjectStore(activeVariant);
+  const sessionId = useProjectStore((state) => state.sessionId);
+  const busy = useJobsStore((state) => state.jobs.some((job) => ACTIVE.has(job.status) && job.task === "mesh-inspect"));
+  const available = useJobsStore((state) => state.engines.some((engine) => engine.available && engine.tasks.includes("mesh-inspect")));
+  const error = useJobsStore((state) => state.enqueueError);
   const entry = useMeshToolsStore((state) => state.reports[source.id]);
   const report = entry?.sessionId === sessionId ? entry.report : null;
-  return <MeshFrame>
-    <Button disabled={!ready} onClick={() => void enqueueMeshTask("mesh-inspect", {})}>{t(busy ? "mesh.running" : "mesh.inspect")}</Button>
+  useEffect(() => { void useMeshToolsStore.persist.rehydrate(); }, []);
+  return <div className={styles.stack} aria-busy={busy}>
+    <span className={styles.hint}>{t("mesh.source", { name: source.label })}</span>
+    {source.model.type === "default-cube" && <span className={styles.hint}>{t("mesh.needsModel")}</span>}
+    <Button disabled={source.model.type === "default-cube" || !available || busy} onClick={() => void enqueueMeshTask("mesh-inspect", {})}>{t(busy ? "mesh.running" : "mesh.inspect")}</Button>
     {report && <>
       <dl className={styles.report} aria-label={t("mesh.report")}>
         {TOPOLOGY.map((key) => <div key={key}><dt>{t(`mesh.topology.${key}`)}</dt><dd>{new Intl.NumberFormat(i18n.language).format(report.source[key])}</dd></div>)}
       </dl>
       {report.warnings.map((warning) => <span key={warning} className={styles.hint}>{t(`mesh.warnings.${warning}`, { defaultValue: t("mesh.reportWarnings") })}</span>)}
     </>}
-  </MeshFrame>;
+    {error && <span className={styles.error} role="alert">{error === "mesh-report-invalid" ? t("mesh.invalidReport") : t(`errors.${error}`, { defaultValue: error })}</span>}
+  </div>;
 }
 
 export function RetopologyControl() {
@@ -99,11 +108,8 @@ export function RetopologyControl() {
     {source.model.type === "default-cube" && <span className={styles.hint}>{t("mesh.needsModel")}</span>}
     {!engine?.available && <Button size="sm" variant="outline" onClick={() => useModelsStore.getState().setOpen(true)}>{t("mesh.activateInstant")}</Button>}
     <Label htmlFor={inputId}>{t("mesh.faceBudget")}</Label>
-    <Input id={inputId} type="number" min={128} max={100000} step={1} value={faceBudget} disabled={busy}
-      onChange={(event) => {
-        const value = Number(event.target.value);
-        if (Number.isInteger(value) && value >= 128 && value <= 100000) useMeshToolsStore.getState().setDraft({ faceBudget: value });
-      }} />
+    <NumberField id={inputId} integer min={128} max={100000} step={1} value={faceBudget} disabled={busy}
+      onValueChange={(value) => useMeshToolsStore.getState().setDraft({ faceBudget: value })} />
     <Button disabled={!ready || faceBudget > 100000} onClick={() => void enqueueMeshTask("retopology", { faceBudget, resolution: useMeshToolsStore.getState().resolution })}>{t(busy ? "mesh.running" : "mesh.retopology")}</Button>
     {error && <span className={styles.error} role="alert">{t(`errors.${error}`, { defaultValue: error })}</span>}
   </div>;
@@ -174,11 +180,8 @@ export function OcclusionControl() {
   return <MeshFrame>
     <ResolutionControl disabled={busy} />
     <Label htmlFor={samplesId}>{t("mesh.occlusionSamples")}</Label>
-    <Input id={samplesId} type="number" min={8} max={512} step={8} value={samples} disabled={busy}
-      onChange={(event) => {
-        const value = Number(event.target.value);
-        if (Number.isInteger(value) && value >= 8 && value <= 512) useMeshToolsStore.getState().setDraft({ occlusionSamples: value });
-      }} />
+    <NumberField id={samplesId} integer min={8} max={512} step={8} value={samples} disabled={busy}
+      onValueChange={(value) => useMeshToolsStore.getState().setDraft({ occlusionSamples: value })} />
     <Button disabled={!ready} onClick={() => void enqueueMeshTask("ambient-occlusion", { resolution, samples })}>{t(busy ? "mesh.running" : "mesh.occlusion")}</Button>
   </MeshFrame>;
 }

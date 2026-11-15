@@ -62,6 +62,21 @@ test("inspects a real mesh without creating a model variant", async () => {
   expect(sha256(fixture)).toBe(originalHash);
 });
 
+test("number fields keep intermediate values while typing and clamp on blur", async () => {
+  const budget = page.getByLabel("Quad face budget", { exact: true });
+  await budget.click();
+  await budget.press("Control+a");
+  await budget.pressSequentially("500");
+  await expect(budget).toHaveValue("500");
+  await budget.press("Tab");
+  await expect(budget).toHaveValue("500");
+  await budget.click();
+  await budget.press("Control+a");
+  await budget.pressSequentially("5");
+  await budget.press("Tab");
+  await expect(budget).toHaveValue("128");
+});
+
 test("retopology produces a preview with a verified quad budget", async () => {
   test.skip(!instantReady, "Activate Instant Meshes locally to exercise its real binary");
   await page.getByLabel("Quad face budget", { exact: true }).fill("256");

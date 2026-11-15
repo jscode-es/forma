@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Icon, Input, Label } from "@kivora/nextjs";
+import { Button, Icon, Label } from "@kivora/nextjs";
+import { NumberField } from "@/components/number-field";
 import { Shrink } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ACTIVE, engineFor, optimizeModel, useJobsStore } from "@/feature/jobs";
@@ -37,18 +38,15 @@ export function OptimizeControl() {
       {FIELDS.map((field) => (
         <div key={field} className={styles.field}>
           <Label htmlFor={`optimize-${field}`}>{t(`optimize.${field}`)}</Label>
-          <Input
+          <NumberField
             id={`optimize-${field}`}
-            type="number"
+            integer
             min={field === "budget" ? 128 : 0}
             max={2000000}
             step={100}
             value={values[field]}
             style={{ width: "8rem" }}
-            onChange={(e) => {
-              const next = Math.round(Number(e.target.value));
-              if (Number.isFinite(next) && next >= 0 && next <= 2000000) setValues((v) => ({ ...v, [field]: next }));
-            }}
+            onValueChange={(next) => setValues((v) => ({ ...v, [field]: next }))}
           />
         </div>
       ))}
