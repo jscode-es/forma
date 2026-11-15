@@ -134,6 +134,16 @@ class JobRunner {
     if (this.running.child) killTree(this.running.child);
   }
 
+  info(id: string): JobInfo {
+    return toInfo(getRow(id));
+  }
+
+  resultFile(id: string, relative: string): string {
+    const job = toInfo(getRow(id));
+    if (job.status !== "succeeded" || !job.results.some((file) => file.path === relative)) throw new Error("File not found");
+    return this.resolveFile(id, relative);
+  }
+
   list(): JobInfo[] {
     return (getDb().prepare("SELECT * FROM jobs ORDER BY created_at DESC LIMIT 50").all() as Row[]).map(toInfo);
   }

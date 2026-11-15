@@ -15,6 +15,7 @@
     "dev:electron": "tsc -p electron && wait-on tcp:3000 && cross-env FORMA_DEV=1 electron .",
     "build": "next build && tsc -p electron",
     "start": "electron .",
+    "cli": "tsc -p electron && electron . --cli",
     "dist": "npm run build && electron-builder",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit && tsc -p electron --noEmit",
