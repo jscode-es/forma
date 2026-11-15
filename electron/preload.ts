@@ -93,6 +93,7 @@ const api: FormaApi = {
   system: {
     info: () => invoke("system:info"),
     hardware: (refresh) => invoke("system:hardware", refresh),
+    motionProviders: () => invoke("system:motion-providers"),
     blender: (refresh) => invoke("system:blender", refresh),
     chooseBlender: () => invoke("system:choose-blender"),
     openDataDir: () => invoke("system:open-data-dir"),

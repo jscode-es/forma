@@ -135,7 +135,7 @@ export const modelSource = z.discriminatedUnion("type", [
   z.object({ type: z.literal("asset"), projectId: z.uuid(), assetId: z.uuid() }),
 ]);
 
-export const engineTask = z.enum(["image-to-3d", "text-to-3d", "text-to-image", "remove-background", "optimize", "texture", "rig", "animation", "mesh-inspect", "retopology", "uv-unwrap", "normals", "ambient-occlusion", "video-to-motion", "export-package"]);
+export const engineTask = z.enum(["image-to-3d", "text-to-3d", "text-to-image", "remove-background", "optimize", "texture", "rig", "animation", "mesh-inspect", "retopology", "uv-unwrap", "normals", "ambient-occlusion", "video-to-motion", "export-package", "text-to-motion"]);
 
 export const jobRequest = z.object({
   videos: z.array(z.object({ stagingId: z.uuid(), name: z.string().min(1).max(120) })).max(1).default([]),
@@ -169,6 +169,7 @@ export const engineManifest = z.object({
     .object({ vramGb: z.number().min(0).default(0), cuda: z.boolean().default(false) })
     .default({ vramGb: 0, cuda: false }),
   demo: z.boolean().default(false),
+  network: z.boolean().default(false),
   inputs: z
     .object({
       images: z.object({ min: z.number().int().min(0).max(8), max: z.number().int().min(0).max(8) }).default({ min: 0, max: 0 }),

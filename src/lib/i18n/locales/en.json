@@ -234,7 +234,7 @@
       },
       "textMotion": {
         "title": "Motion from text",
-        "help": "Describes a movement and creates a draft clip with an optional provider."
+        "help": "Describes a movement and asks your Codex, Claude or Copilot CLI for a draft clip on the displayed rig. Only the description and the bone list are sent."
       },
       "weights": {
         "title": "Skin weights",
@@ -433,7 +433,8 @@
       "rendering-geometry": "Rendering geometry views",
       "encoding-reference": "Encoding the reference",
       "baking": "Baking the atlas",
-      "packaging": "Packaging and validating"
+      "packaging": "Packaging and validating",
+      "planning": "Planning the motion"
     },
     "error": {
       "interrupted": "Interrupted: the app was closed while it ran",
@@ -455,7 +456,12 @@
       "occlusion-bake-failed": "Blender could not bake the occlusion",
       "embedded-buffer-required": "The model must embed its buffers",
       "invalid-occlusion-samples": "Samples must be between 8 and 512",
-      "invalid-target": "Unknown export target"
+      "invalid-target": "Unknown export target",
+      "motion-consent-required": "Allow the generation with your external account first",
+      "motion-rig-required": "Text to motion needs a model with a skeleton",
+      "motion-provider-missing": "The selected CLI is not installed",
+      "motion-provider-failed": "The CLI failed; check that you are signed in",
+      "motion-plan-invalid": "The CLI returned an invalid motion plan; try again or rephrase"
     }
   },
   "models": {
@@ -513,7 +519,12 @@
     "occlusion-bake-failed": "Blender could not bake the occlusion",
     "embedded-buffer-required": "The model must embed its buffers",
     "invalid-occlusion-samples": "Samples must be between 8 and 512",
-    "invalid-target": "Unknown export target"
+    "invalid-target": "Unknown export target",
+    "motion-consent-required": "Allow the generation with your external account first",
+    "motion-rig-required": "Text to motion needs a model with a skeleton",
+    "motion-provider-missing": "The selected CLI is not installed",
+    "motion-provider-failed": "The CLI failed; check that you are signed in",
+    "motion-plan-invalid": "The CLI returned an invalid motion plan; try again or rephrase"
   },
   "versions": {
     "title": "Versions",
@@ -964,7 +975,23 @@
     "invalidClip": "The animation clip is invalid.",
     "unsupportedInterpolation": "Only linear and step interpolation are supported.",
     "invalidMapping": "Map all source bones to distinct target bones.",
-    "unsupportedPreset": "This preset requires a compatible humanoid skeleton."
+    "unsupportedPreset": "This preset requires a compatible humanoid skeleton.",
+    "textProvider": "External provider",
+    "textProviders": {
+      "codex": "Codex",
+      "claude": "Claude",
+      "copilot": "Copilot"
+    },
+    "textChecking": "Checking installed CLIs…",
+    "textReady": "Ready · {{version}}",
+    "textMissing": "This CLI is not installed or not on PATH. Install it and sign in, then reopen this panel.",
+    "textPrompt": "Motion description",
+    "textPlaceholder": "Waves hello with the right hand, friendly and relaxed",
+    "textSeconds": "Duration (s)",
+    "textConsent": "Allow this generation with my external account",
+    "textPrivacy": "Uses network and may consume your quota or credits. The CLI runs without tools and only returns a JSON plan of bone rotations, which Forma validates; the character and its files are not sent.",
+    "textGenerate": "Generate motion from text",
+    "textRunning": "Generating motion…"
   },
   "compare": {
     "open": "Compare versions",

@@ -16,6 +16,7 @@ export {
   enqueueMeshTask,
   enqueueRigTask,
   enqueueVideoMotion,
+  enqueueTextMotion,
   type MeshTask,
   textureModel,
   localized,

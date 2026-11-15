@@ -24,7 +24,6 @@ export const PLANNED_SECTIONS: Record<InspectorTab, PlannedSection[]> = {
   finish: [],
   edit: [],
   capture: [
-    { id: "textMotion", phase: 15 },
   ],
   rig: [],
   clips: [],

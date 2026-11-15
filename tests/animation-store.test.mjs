@@ -68,7 +68,7 @@ async function harness(canonical = false) {
     .replace('from "zustand"', `from "${import.meta.resolve("zustand")}"`)
     .replace('from "@/lib/i18n"', `from "${dataUrl('export default { t: value => value };')}"`)
     .replace('from "@/stores/project-store"', `from "${new URL("../src/stores/project-store.ts", import.meta.url).href}"`)
-    .replace('from "@/feature/jobs"', `from "${dataUrl("export async function enqueueVideoMotion() {}")}"`)
+    .replace('from "@/feature/jobs"', `from "${dataUrl("export async function enqueueVideoMotion() {} export async function enqueueTextMotion() {}")}"`)
     .replace('from "./operations"', `from "${new URL("../src/feature/animation/operations.ts", import.meta.url).href}"`);
   const animation = await import(dataUrl(`${compiled}\nexport const harnessVersion = ${++harnessId};`));
   await animation.loadAnimationSource();

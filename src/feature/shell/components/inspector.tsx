@@ -27,7 +27,7 @@ import { InterchangeControl } from "@/feature/interchange";
 import { MaterialControl } from "@/feature/materials";
 import { PaintControl, usePaintStore } from "@/feature/paint";
 import { RigControl, RigEditorControl, RigWeightsControl } from "@/feature/rigging";
-import { AnimationLibraryControl, AnimationEditorControl, AnimationRetargetControl, AnimationVideoControl, useAnimationStore } from "@/feature/animation";
+import { AnimationLibraryControl, AnimationEditorControl, AnimationRetargetControl, AnimationTextControl, AnimationVideoControl, useAnimationStore } from "@/feature/animation";
 import { MeshInspectControl, RetopologyControl, UvControl, NormalsControl, OcclusionControl } from "@/feature/mesh-tools";
 import { useModelsStore } from "@/feature/models";
 import { ReferenceProjection, ReferenceReview } from "@/feature/references";
@@ -210,6 +210,7 @@ const SECTIONS: SectionDef[] = [
   { tab: "clips", id: "timeline", content: <AnimationEditorControl /> },
   { tab: "retarget", id: "retarget", content: <AnimationRetargetControl /> },
   { tab: "capture", id: "video", content: <AnimationVideoControl /> },
+  { tab: "capture", id: "textMotion", content: <AnimationTextControl /> },
   { tab: "edit", id: "proportions", content: <ReferenceReview /> },
   { tab: "edit", id: "projection", content: <ReferenceProjection /> },
   {

@@ -88,6 +88,8 @@ export type ExportResult = { path: string; sha256: string; size: number };
 
 export type PackageResult = { path: string; files: number; size: number };
 
+export type MotionProvider = { id: "codex" | "claude" | "copilot"; available: boolean; version: string | null };
+
 export type UpdateState = {
   status: "idle" | "unsupported" | "checking" | "available" | "not-available" | "downloading" | "downloaded" | "error";
   version: string | null;
@@ -122,6 +124,7 @@ export type LocalizedText = { en: string; es?: string };
 export type EngineTask =
   | "video-to-motion"
   | "export-package"
+  | "text-to-motion"
   | "mesh-inspect"
   | "retopology"
   | "uv-unwrap"
@@ -155,6 +158,7 @@ export type EngineInfo = {
   inputs: { images: { min: number; max: number }; models: { min: number; max: number }; views: ReferenceView[]; videos?: { min: number; max: number } };
   builtin: boolean;
   demo: boolean;
+  network: boolean;
   available: boolean;
   problem: string | null;
 };
@@ -293,6 +297,7 @@ export type IpcChannels = {
   "system:blender": { args: [boolean]; result: BlenderInfo | null };
   "system:choose-blender": { args: []; result: BlenderInfo | null };
   "system:hardware": { args: [boolean]; result: HardwareInfo };
+  "system:motion-providers": { args: []; result: MotionProvider[] };
   "system:open-data-dir": { args: []; result: void };
   "app:set-dirty": { args: [boolean]; result: void };
   "app:confirm-close": { args: []; result: void };
@@ -390,6 +395,7 @@ export type FormaApi = {
     chooseBlender: () => Promise<BlenderInfo | null>;
     info: () => Promise<SystemInfo>;
     hardware: (refresh: boolean) => Promise<HardwareInfo>;
+    motionProviders: () => Promise<MotionProvider[]>;
     openDataDir: () => Promise<void>;
   };
   app: {

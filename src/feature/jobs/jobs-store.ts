@@ -289,6 +289,20 @@ export async function enqueueVideoMotion(video: VideoSource) {
   }
 }
 
+export async function enqueueTextMotion(provider: string, seconds: number, prompt: string) {
+  const project = useProjectStore.getState();
+  const source = displayedVariant(project);
+  const engine = useJobsStore.getState().engines.find((entry) => entry.tasks.includes("text-to-motion") && entry.available);
+  if (!window.forma || !engine || source.model.type === "default-cube") return;
+  project.retainVariant(source.id);
+  try {
+    await enqueue("text-to-motion", engine, { provider, seconds, consent: true }, { kind: "motion", parentId: source.id, sourceLabel: source.label }, [source.model], prompt);
+  } catch (error) {
+    if (useProjectStore.getState().sessionId === project.sessionId) useProjectStore.getState().releaseVariant(source.id);
+    useJobsStore.setState({ enqueueError: errorMessage(error) });
+  }
+}
+
 export async function applyFinishedJob(job: JobInfo) {
   const { pending } = useJobsStore.getState();
   const target = pending[job.id];

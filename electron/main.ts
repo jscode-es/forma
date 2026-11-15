@@ -8,6 +8,7 @@ import { animationClip } from "./animation-schema";
 import { listAnimations, readAnimation, saveAnimation, deleteAnimation, importAnimation, exportAnimation } from "./animations";
 import { importVideo } from "./videos";
 import { saveCapture } from "./captures";
+import { motionProviders } from "./providers";
 import { checkForUpdates, checkOnStartup, downloadUpdate, installUpdate, setUpdatesEnabled, updateState } from "./updater";
 import { chooseBlender, getBlender } from "./blender";
 import { listEngines } from "./engines";
@@ -152,6 +153,7 @@ function registerIpc() {
   handle("jobs:export-package", z.tuple([z.uuid(), z.string().min(1).max(120)]), (id, name) => jobs.exportPackage(id, name));
   handle("system:info", none, getSystemInfo);
   handle("system:hardware", z.tuple([z.boolean()]), getHardware);
+  handle("system:motion-providers", none, motionProviders);
   handle("system:blender", z.tuple([z.boolean()]), getBlender);
   handle("system:choose-blender", none, chooseBlender);
   handle("system:open-data-dir", none, openDataDir);
