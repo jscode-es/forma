@@ -48,6 +48,8 @@ type ProjectState = ProjectSettings & {
   setTextureEngine: (selection: EngineSelection) => void;
   setTextureEngineParameter: (key: string, value: ParameterValue) => void;
   setTextureReferenceId: (id: string | null) => void;
+  setMultiviewEngine: (selection: EngineSelection) => void;
+  setMultiviewEngineParameter: (key: string, value: ParameterValue) => void;
   setAutoTexture: (enabled: boolean) => void;
   setGameReady: (enabled: boolean) => void;
   setGameBudget: (budget: number) => void;
@@ -78,6 +80,7 @@ export const DEFAULT_SETTINGS: ProjectSettings = {
   engine: DEFAULT_ENGINE,
   imageEngine: DEFAULT_ENGINE,
   textureEngine: DEFAULT_ENGINE,
+  multiviewEngine: DEFAULT_ENGINE,
   textureReferenceId: null,
   autoTexture: false,
   gameReady: false,
@@ -168,6 +171,8 @@ export const useProjectStore = create<ProjectState>()((set) => ({
   setTextureEngine: (textureEngine) => set({ textureEngine, dirty: true }),
   setTextureEngineParameter: (key, value) => set((s) => ({ textureEngine: { ...s.textureEngine, parameters: { ...s.textureEngine.parameters, [key]: value } }, dirty: true })),
   setTextureReferenceId: (textureReferenceId) => set({ textureReferenceId, dirty: true }),
+  setMultiviewEngine: (multiviewEngine) => set({ multiviewEngine, dirty: true }),
+  setMultiviewEngineParameter: (key, value) => set((s) => ({ multiviewEngine: { ...s.multiviewEngine, parameters: { ...s.multiviewEngine.parameters, [key]: value } }, dirty: true })),
   setAutoTexture: (autoTexture) => set({ autoTexture, dirty: true }),
   setGameReady: (gameReady) => set({ gameReady, dirty: true }),
   setGameBudget: (gameBudget) => set({ gameBudget, dirty: true }),
@@ -287,8 +292,8 @@ export function sceneModelOf(variant: Variant): SceneModel {
 }
 
 export function currentSettings(): ProjectSettings {
-  const { quality, qualitySteps, physicalScale, heightMeters, engine, imageEngine, textureEngine, textureReferenceId, autoTexture, gameReady, gameBudget } = useProjectStore.getState();
-  return { quality, qualitySteps, physicalScale, heightMeters, engine, imageEngine, textureEngine, textureReferenceId, autoTexture, gameReady, gameBudget };
+  const { quality, qualitySteps, physicalScale, heightMeters, engine, imageEngine, textureEngine, multiviewEngine, textureReferenceId, autoTexture, gameReady, gameBudget } = useProjectStore.getState();
+  return { quality, qualitySteps, physicalScale, heightMeters, engine, imageEngine, textureEngine, multiviewEngine, textureReferenceId, autoTexture, gameReady, gameBudget };
 }
 
 export function currentScene(): ProjectScene {

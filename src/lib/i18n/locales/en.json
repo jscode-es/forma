@@ -697,7 +697,14 @@
     "styleHint": "Saved automatically for SDXL. Applies only to the requested object: finish, shapes, technique and colors. Does not add scenery, props or other objects. Leave empty to disable.",
     "styleClear": "Clear style",
     "removingBackground": "Removing background… {{percent}}%",
-    "transparentHint": "Candidates are PNGs with a real alpha channel. The checkerboard belongs to the viewer and is not saved in the image."
+    "transparentHint": "Candidates are PNGs with a real alpha channel. The checkerboard belongs to the viewer and is not saved in the image.",
+    "multiview": "Multi-view",
+    "multiviewHint": "Generates the front, right, back and left views of the same object for a multi-view 3D engine. The top view is not generated.",
+    "noMultiviewEngine": "Activate a multi-view engine such as MV-Adapter in Models.",
+    "viewSets": "View sets",
+    "viewSet": "Views with seed {{seed}}",
+    "useViews": "Use these views (seed {{seed}})",
+    "viewsPicked": "Views in use (seed {{seed}})"
   },
   "views": {
     "front": "Front",

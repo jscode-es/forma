@@ -26,6 +26,8 @@ export {
   refreshEngines,
   removeBackground,
   pickCandidate,
+  pickCandidateSet,
+  usesStyle,
   useJobsStore,
   type Candidates,
 } from "./jobs-store";

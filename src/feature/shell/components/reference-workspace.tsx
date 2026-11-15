@@ -15,20 +15,22 @@ import styles from "../shell.module.css";
 function ReferenceFooter() {
   const { t } = useTranslation();
   const prompt = useProjectStore((s) => s.prompt.trim());
-  const engineId = useProjectStore((s) => s.imageEngine.id);
-  const engine = useJobsStore((s) => s.engines.find((e) => e.id === engineId && e.tasks.includes("text-to-image")));
-  const job = useJobsStore((s) => s.jobs.find((j) => ACTIVE.has(j.status) && j.task === "text-to-image"));
+  const multiview = useWorkspaceStore((s) => s.promptMultiview);
+  const task = multiview ? "text-to-multiview" : "text-to-image";
+  const engineId = useProjectStore((s) => (multiview ? s.multiviewEngine.id : s.imageEngine.id));
+  const engine = useJobsStore((s) => s.engines.find((e) => e.id === engineId && e.tasks.includes(task)));
+  const job = useJobsStore((s) => s.jobs.find((j) => ACTIVE.has(j.status) && (j.task === "text-to-image" || j.task === "text-to-multiview")));
   const error = useJobsStore((s) => s.enqueueError);
   const ready = Boolean(engine?.available) && prompt.length > 0 && !job;
   const hint = error
     ? t(`errors.${error}`, { defaultValue: error })
     : !job && !engine?.available
-        ? t("prompt.noEngine")
+        ? t(multiview ? "prompt.noMultiviewEngine" : "prompt.noEngine")
         : null;
 
   return (
     <div className={styles.inspectorFooter}>
-      <ProgressButton size="lg" disabled={!ready} progress={job?.progress} onClick={() => generateImages()}>
+      <ProgressButton size="lg" disabled={!ready} progress={job?.progress} onClick={() => generateImages(multiview)}>
         <Icon icon={ImageIcon} size={16} />
         {job ? job.status === "queued" ? t("prompt.queued") : job.stage === "refining-prompt" ? t("prompt.refining", { percent: Math.round(job.progress * 100) }) : job.stage === "removing-background" ? t("prompt.removingBackground", { percent: Math.round(job.progress * 100) }) : t("prompt.generating", { percent: Math.round(job.progress * 100) }) : t("prompt.generate")}
       </ProgressButton>

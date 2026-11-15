@@ -3,7 +3,7 @@ import i18n from "@/lib/i18n";
 import { recordMeshReport, recordUvTemplate } from "@/feature/mesh-tools";
 import type { EngineInfo, EngineTask, HardwareInfo, ImageSource, JobInfo, LocalizedText, ReferenceView, SceneModel, VideoSource } from "@/lib/forma";
 import { acceptVideoMotion, refreshAnimationLibrary, useAnimationStore, readAnimationModel, validateAnimationClip } from "@/feature/animation";
-import { activeImage, activeVariant, displayedVariant, mainReference, useProjectStore } from "@/stores/project-store";
+import { activeImage, activeVariant, displayedVariant, mainReference, REFERENCE_VIEWS, useProjectStore } from "@/stores/project-store";
 import { useWorkspaceStore } from "@/stores/workspace-store";
 import { useSettingsStore } from "@/stores/settings-store";
 import { scaleGlbToHeight } from "./scale";
@@ -34,7 +34,7 @@ export type Candidates = {
   sessionId: string;
   prompt: string;
   engineId: string;
-  files: { path: string; label: string; seed: number | null }[];
+  files: { path: string; label: string; seed: number | null; set: number | null; view: ReferenceView | null }[];
   picked: string | null;
 };
 
@@ -86,8 +86,8 @@ export async function refreshEngines(refreshHardware = false) {
 export function selectDefaultEngines() {
   const { engines } = useJobsStore.getState();
   const project = useProjectStore.getState();
-  const defaults: Partial<Pick<typeof project, "engine" | "imageEngine" | "textureEngine">> = {};
-  for (const [key, task] of [["engine", "image-to-3d"], ["imageEngine", "text-to-image"], ["textureEngine", "texture"]] as const) {
+  const defaults: Partial<Pick<typeof project, "engine" | "imageEngine" | "textureEngine" | "multiviewEngine">> = {};
+  for (const [key, task] of [["engine", "image-to-3d"], ["imageEngine", "text-to-image"], ["textureEngine", "texture"], ["multiviewEngine", "text-to-multiview"]] as const) {
     const supported = engines.filter((engine) => engine.tasks.includes(task));
     if (supported.some((engine) => engine.id === project[key].id)) continue;
     const engine = supported.find((entry) => entry.available && !entry.demo)
@@ -158,17 +158,21 @@ export async function generateModel() {
   }
 }
 
-export async function generateImages() {
+export function usesStyle(engine: EngineInfo) {
+  return !engine.network && engine.parameters.some((parameter) => parameter.id === "stylePrompt" && parameter.type === "string");
+}
+
+export async function generateImages(multiview = false) {
   const project = useProjectStore.getState();
-  const engine = useJobsStore.getState().engines.find((e) => e.id === project.imageEngine.id);
+  const selection = multiview ? project.multiviewEngine : project.imageEngine;
+  const task = multiview ? "text-to-multiview" : "text-to-image";
+  const engine = useJobsStore.getState().engines.find((e) => e.id === selection.id && e.tasks.includes(task));
   const prompt = project.prompt.trim();
   if (!window.forma || !engine || !prompt) return;
-  const parameters = { ...project.imageEngine.parameters };
-  if (engine.id === "sdxl-lightning" && engine.parameters.some((parameter) => parameter.id === "stylePrompt" && parameter.type === "string")) {
-    parameters.stylePrompt = useSettingsStore.getState().sdxlStyle.trim();
-  }
+  const parameters = { ...selection.parameters };
+  if (usesStyle(engine)) parameters.stylePrompt = useSettingsStore.getState().sdxlStyle.trim();
   try {
-    const job = await enqueue("text-to-image", engine, parameters, { kind: "candidates", prompt, engineId: engine.id }, [], prompt);
+    const job = await enqueue(task, engine, parameters, { kind: "candidates", prompt, engineId: engine.id }, [], prompt);
     if (engine.network) useProjectStore.getState().setImageEngineParameter("consent", false);
     useProjectStore.getState().addPrompt({
       id: crypto.randomUUID(),
@@ -177,6 +181,30 @@ export async function generateImages() {
       params: job.parameters,
       createdAt: new Date().toISOString(),
     });
+  } catch (error) {
+    useJobsStore.setState({ enqueueError: errorMessage(error) });
+  }
+}
+
+export async function pickCandidateSet(set: number) {
+  const candidates = useJobsStore.getState().candidates;
+  const files = candidates?.files.filter((f) => f.set === set && f.view) ?? [];
+  if (!window.forma || !candidates || files.length === 0) return;
+  try {
+    const staged = await Promise.all(files.map(async (file) => ({ file, reference: await window.forma!.jobs.stageReference(candidates.jobId, file.path) })));
+    const project = useProjectStore.getState();
+    if (project.sessionId !== candidates.sessionId) return;
+    const views = new Set(files.map((f) => f.view));
+    project.setReferences([
+      ...project.references.filter((r) => !views.has(r.view)),
+      ...staged.map(({ file, reference }) => ({
+        ...reference,
+        view: file.view!,
+        name: `${candidates.prompt.slice(0, 100)} · ${file.view}`,
+        prompt: { text: candidates.prompt, seed: file.seed, engineId: candidates.engineId },
+      })),
+    ]);
+    useJobsStore.setState({ candidates: { ...candidates, picked: `set:${set}` }, enqueueError: null });
   } catch (error) {
     useJobsStore.setState({ enqueueError: errorMessage(error) });
   }
@@ -456,7 +484,13 @@ export async function applyFinishedJob(job: JobInfo) {
   if (target.kind === "candidates") {
     const files = job.results
       .filter((r) => r.kind === "image")
-      .map((r) => ({ path: r.path, label: r.label, seed: typeof r.meta?.seed === "number" ? r.meta.seed : null }));
+      .map((r) => ({
+        path: r.path,
+        label: r.label,
+        seed: typeof r.meta?.seed === "number" ? r.meta.seed : null,
+        set: job.task === "text-to-multiview" && typeof r.meta?.set === "number" ? r.meta.set : null,
+        view: job.task === "text-to-multiview" && REFERENCE_VIEWS.includes(r.meta?.view as ReferenceView) ? r.meta!.view as ReferenceView : null,
+      }));
     useJobsStore.setState({
       candidates: { jobId: job.id, sessionId: target.sessionId, prompt: target.prompt, engineId: target.engineId, files, picked: null },
     });

@@ -12,7 +12,7 @@ test("SDXL snapshots the shared style in job parameters and preserves the object
   useProjectStore.getState().newProject();
   useProjectStore.setState({ prompt: "Jarron chino", imageEngine: { id: "sdxl-lightning", parameters: { seed: 42 } } });
   useSettingsStore.getState().setSdxlStyle("low-poly, pastel colors");
-  useJobsStore.setState({ engines: [{ id: "sdxl-lightning", parameters: [{ id: "stylePrompt", type: "string" }], inputs: { images: { max: 0 } } }] });
+  useJobsStore.setState({ engines: [{ id: "sdxl-lightning", tasks: ["text-to-image"], parameters: [{ id: "stylePrompt", type: "string" }], inputs: { images: { max: 0 } } }] });
   let request;
   globalThis.window = { forma: { jobs: { enqueue: async (value) => {
     request = value;

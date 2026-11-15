@@ -27,6 +27,8 @@ export type ReferenceTab = "text" | "single" | "multi";
 type WorkspaceState = {
   referenceTab: ReferenceTab;
   setReferenceTab: (tab: ReferenceTab) => void;
+  promptMultiview: boolean;
+  setPromptMultiview: (enabled: boolean) => void;
   section: SectionId;
   tabs: Record<SectionId, InspectorTab>;
   dockTab: DockTab;
@@ -44,6 +46,8 @@ export const useWorkspaceStore = create<WorkspaceState>()(
     (set) => ({
       referenceTab: "single",
       setReferenceTab: (referenceTab) => set({ referenceTab }),
+      promptMultiview: false,
+      setPromptMultiview: (promptMultiview) => set({ promptMultiview }),
       section: "create3d",
       tabs: DEFAULT_TABS,
       dockTab: "session",
@@ -73,7 +77,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
           },
         } as unknown as WorkspaceState;
       },
-      partialize: ({ section, tabs, referenceTab, dockTab, viewMode, showGrid }) => ({ section, tabs, referenceTab, dockTab, viewMode, showGrid }),
+      partialize: ({ section, tabs, referenceTab, promptMultiview, dockTab, viewMode, showGrid }) => ({ section, tabs, referenceTab, promptMultiview, dockTab, viewMode, showGrid }),
     },
   ),
 );

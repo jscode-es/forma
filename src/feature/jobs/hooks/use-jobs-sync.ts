@@ -12,7 +12,7 @@ export function useJobsSync() {
       if (state.engines !== previous.engines) selectDefaultEngines();
     });
     const unsubscribeProject = useProjectStore.subscribe((state, previous) => {
-      if (state.sessionId !== previous.sessionId || state.engine !== previous.engine || state.imageEngine !== previous.imageEngine || state.textureEngine !== previous.textureEngine) selectDefaultEngines();
+      if (state.sessionId !== previous.sessionId || state.engine !== previous.engine || state.imageEngine !== previous.imageEngine || state.textureEngine !== previous.textureEngine || state.multiviewEngine !== previous.multiviewEngine) selectDefaultEngines();
     });
     selectDefaultEngines();
 
