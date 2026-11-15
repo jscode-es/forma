@@ -69,14 +69,15 @@ function ViewSet({ candidates, set }: { candidates: Candidates; set: number }) {
   const { t } = useTranslation();
   const files = candidates.files.filter((file) => file.set === set);
   const picked = candidates.picked === `set:${set}`;
-  const seed = files[0]?.seed;
-  return <div className={`${styles.viewSet} ${picked ? styles.picked : ""}`} role="group" aria-label={t("prompt.viewSet", { seed })}>
+  const seed = files[0]?.seed ?? null;
+  const name = seed === null ? t("prompt.viewSetIndex", { index: set + 1 }) : t("prompt.viewSet", { seed });
+  return <div className={`${styles.viewSet} ${picked ? styles.picked : ""}`} role="group" aria-label={name}>
     <div className={styles.viewSetImages}>{files.map((file) => <ViewThumb key={file.path} candidates={candidates} file={file} />)}</div>
     <Button size="sm" variant={picked ? "default" : "outline"} aria-pressed={picked} onClick={() => {
       void pickCandidateSet(set).then(() => useWorkspaceStore.getState().setReferenceTab("multi"));
     }}>
       {picked && <Icon icon={Check} size={14} />}
-      {t(picked ? "prompt.viewsPicked" : "prompt.useViews", { seed })}
+      {seed === null ? t(picked ? "prompt.viewsPickedIndex" : "prompt.useViewsIndex", { index: set + 1 }) : t(picked ? "prompt.viewsPicked" : "prompt.useViews", { seed })}
     </Button>
   </div>;
 }

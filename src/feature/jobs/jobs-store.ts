@@ -173,7 +173,7 @@ export async function generateImages(multiview = false) {
   if (usesStyle(engine)) parameters.stylePrompt = useSettingsStore.getState().sdxlStyle.trim();
   try {
     const job = await enqueue(task, engine, parameters, { kind: "candidates", prompt, engineId: engine.id }, [], prompt);
-    if (engine.network) useProjectStore.getState().setImageEngineParameter("consent", false);
+    if (engine.network) (multiview ? useProjectStore.getState().setMultiviewEngineParameter : useProjectStore.getState().setImageEngineParameter)("consent", false);
     useProjectStore.getState().addPrompt({
       id: crypto.randomUUID(),
       text: prompt,

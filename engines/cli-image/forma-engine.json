@@ -1,21 +1,22 @@
 {
   "id": "forma-cli-image",
   "name": "Codex images (external CLI)",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "license": "MIT",
   "description": {
-    "en": "Creates reference candidates with the image generation of your Codex CLI account. Only the prompt is sent; Forma keeps just the image Codex saves in its generated images folder.",
-    "es": "Crea candidatas de referencia con la generación de imágenes de tu cuenta de Codex CLI. Solo se envía el prompt; Forma conserva únicamente la imagen que Codex guarda en su carpeta de imágenes generadas."
+    "en": "Creates reference candidates, or matching front, back, side and top views of one object, with the image generation of your Codex CLI account. Only the prompt and, for extra views, the front image Codex generated are sent; Forma keeps just the images Codex saves in its generated images folder.",
+    "es": "Crea candidatas de referencia, o vistas frontal, trasera, laterales y superior coherentes de un objeto, con la generación de imágenes de tu cuenta de Codex CLI. Solo se envía el prompt y, para las vistas extra, la imagen frontal que generó Codex; Forma conserva únicamente las imágenes que Codex guarda en su carpeta de imágenes generadas."
   },
   "tasks": [
-    "text-to-image"
+    "text-to-image",
+    "text-to-multiview"
   ],
   "runtime": {
     "type": "node",
     "entry": "main.cjs"
   },
   "network": true,
-  "timeoutSeconds": 900,
+  "timeoutSeconds": 1800,
   "parameters": [
     {
       "id": "provider",
@@ -45,7 +46,10 @@
       "min": 1,
       "max": 4,
       "step": 1,
-      "default": 2
+      "default": 2,
+      "tasks": [
+        "text-to-image"
+      ]
     },
     {
       "id": "objectFraming",
@@ -54,7 +58,37 @@
         "en": "Isolated object on a plain background",
         "es": "Objeto aislado sobre fondo liso"
       },
-      "default": true
+      "default": true,
+      "tasks": [
+        "text-to-image"
+      ]
+    },
+    {
+      "id": "sets",
+      "type": "integer",
+      "label": {
+        "en": "View sets",
+        "es": "Juegos de vistas"
+      },
+      "min": 1,
+      "max": 2,
+      "step": 1,
+      "default": 1,
+      "tasks": [
+        "text-to-multiview"
+      ]
+    },
+    {
+      "id": "includeTop",
+      "type": "boolean",
+      "label": {
+        "en": "Include the top view",
+        "es": "Incluir la vista superior"
+      },
+      "default": false,
+      "tasks": [
+        "text-to-multiview"
+      ]
     },
     {
       "id": "consent",

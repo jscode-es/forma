@@ -699,12 +699,15 @@
     "removingBackground": "Quitando fondo… {{percent}}%",
     "transparentHint": "Las candidatas son PNG con un canal alfa real. La cuadrícula pertenece al visor y no se guarda en la imagen.",
     "multiview": "Multivista",
-    "multiviewHint": "Genera las vistas frontal, derecha, trasera e izquierda del mismo objeto para un motor 3D multivista. La vista superior no se genera.",
+    "multiviewHint": "Genera varias vistas del mismo objeto para un motor 3D multivista. Al elegir un juego se rellenan las casillas de esas vistas.",
     "noMultiviewEngine": "Activa un motor multivista como MV-Adapter en Modelos.",
     "viewSets": "Juegos de vistas",
     "viewSet": "Vistas con semilla {{seed}}",
     "useViews": "Usar estas vistas (semilla {{seed}})",
-    "viewsPicked": "Vistas en uso (semilla {{seed}})"
+    "viewsPicked": "Vistas en uso (semilla {{seed}})",
+    "viewSetIndex": "Juego de vistas {{index}}",
+    "useViewsIndex": "Usar el juego {{index}}",
+    "viewsPickedIndex": "Juego {{index}} en uso"
   },
   "views": {
     "front": "Frontal",
