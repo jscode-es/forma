@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState, type DragEvent } from "react";
-import { Button, ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem, ContextMenuCheckboxItem, ContextMenuSeparator, ContextMenuSub, ContextMenuSubContent, ContextMenuSubTrigger } from "@kivora/nextjs";
+import { Button, Icon, ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem, ContextMenuCheckboxItem, ContextMenuSeparator, ContextMenuSub, ContextMenuSubContent, ContextMenuSubTrigger } from "@kivora/nextjs";
+import { X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ACTIVE, backgroundEngine, errorMessage, removeBackground, useJobsStore } from "@/feature/jobs";
 import { useBlobUrl } from "@/hooks/use-blob-url";
@@ -124,6 +125,10 @@ export function ReferenceSlot({ view }: { view: ReferenceView }) {
         <ContextMenuItem onSelect={() => useProjectStore.getState().removeReference(reference.id)}>{t("references.removeView", { view: label })}</ContextMenuItem>
       </ContextMenuContent>}
     </ContextMenu>
+    {reference && <Button size="icon" variant="secondary" className={styles.slotRemove} aria-label={t("references.removeView", { view: label })} title={t("references.removeView", { view: label })}
+      onClick={() => useProjectStore.getState().removeReference(reference.id)}>
+      <Icon icon={X} size={14} />
+    </Button>}
     {error && <span className={styles.error} role="alert">{t(`errors.${error}`, { defaultValue: error })}</span>}
   </div>;
 }
