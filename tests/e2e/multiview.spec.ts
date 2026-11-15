@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
-import { launch, quit, tempDataDir, waitForJob } from "./helpers";
+import { chooseEngine, launch, quit, tempDataDir, waitForJob } from "./helpers";
 
 test("generates a set of views from text and fills the multi-view slots", async () => {
   const dataDir = tempDataDir();
@@ -33,7 +33,8 @@ console.log(JSON.stringify({type:"result",files}));
     await page.getByRole("tab", { name: "From text", exact: true }).click();
     await page.getByRole("textbox", { name: "Prompt", exact: true }).fill("cofre del tesoro");
     await page.getByRole("switch", { name: "Multi-view", exact: true }).click();
-    await expect(page.getByText(/front, right, back and left views/)).toBeVisible();
+    await expect(page.getByText(/several views of the same object/)).toBeVisible();
+    await chooseEngine(page, "Multi-view fixture", "Image engine");
     await expect(page.getByText("Multi-view fixture", { exact: true })).toBeVisible();
     await page.getByRole("button", { name: "Generate images", exact: true }).click();
     const job = await waitForJob(page, "text-to-multiview");

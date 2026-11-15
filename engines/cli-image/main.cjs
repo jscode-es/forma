@@ -6,6 +6,13 @@ const { join, sep } = require("node:path");
 const FRAMING = ", only the requested object, centered, full view, isolated, soft studio lighting, 3d render";
 const MAX_BYTES = 20 * 1024 * 1024;
 const TIMEOUT_MS = 240_000;
+const RULES = "Do not add unrequested scenery, props, bases or additional objects. Use a real transparent background and save an RGBA PNG; do not draw a checkerboard or a solid backdrop. Do not write files or run commands. Then reply only with the absolute path of the generated image file.";
+const SIDES = {
+  back: "from directly behind (camera rotated 180 degrees around the object)",
+  right: "from its right side as seen from the front (camera rotated 90 degrees to the viewer's right)",
+  left: "from its left side as seen from the front (camera rotated 90 degrees to the viewer's left)",
+  top: "from directly above (camera looking straight down)",
+};
 
 const send = (message) => process.stdout.write(`${JSON.stringify(message)}\n`);
 function fail(message) {
@@ -47,8 +54,8 @@ function generatedImage(answer) {
   return { file, kind };
 }
 
-function runCodex(prompt, folder, answerFile) {
-  const args = ["exec", "--skip-git-repo-check", "--ephemeral", "--sandbox", "read-only", "--output-last-message", answerFile, "-"];
+function runCodex(prompt, folder, answerFile, image = null) {
+  const args = ["exec", "--skip-git-repo-check", "--ephemeral", "--sandbox", "read-only", ...(image ? ["--image", image] : []), "--output-last-message", answerFile, "-"];
   return new Promise((resolve) => {
     const child = spawn("codex", args, { cwd: folder, shell: false, windowsHide: true, stdio: ["pipe", "ignore", "ignore"] });
     const timer = setTimeout(() => child.kill(), TIMEOUT_MS);
@@ -62,6 +69,39 @@ function runCodex(prompt, folder, answerFile) {
   });
 }
 
+async function generate(prompt, folder, name, outputDir, image = null) {
+  const answerFile = join(folder, `answer-${name}.txt`);
+  await runCodex(prompt, folder, answerFile, image);
+  const result = generatedImage(readFileSync(answerFile, "utf8"));
+  const path = `${name}.${result.kind}`;
+  copyFileSync(result.file, join(outputDir, path));
+  send({ type: "log", level: "info", message: `${path} from Codex` });
+  return path;
+}
+
+async function multiview(job, description, folder) {
+  const { sets, includeTop } = job.parameters;
+  const views = ["back", "right", "left", ...(includeTop ? ["top"] : [])];
+  const total = sets * (views.length + 1);
+  const files = [];
+  let done = 0;
+  for (let set = 0; set < sets; set++) {
+    const variation = sets > 1 ? ` This is design ${set + 1} of ${sets}: vary proportions and details while keeping the same subject.` : "";
+    send({ type: "progress", value: done / total, stage: "sampling" });
+    const front = await generate(`Generate exactly one image with your image generation tool: ${description}, seen straight from the front, orthographic view, only the requested object, centered, full view, isolated, soft studio lighting.${variation} Preserve the requested subject. ${RULES}`, folder, `set-${set}-front`, job.outputDir);
+    files.push({ path: front, label: `${description.slice(0, 60)} · ${set + 1} · front`, kind: "image", meta: { provider: "codex", set, view: "front" } });
+    done++;
+    for (const view of views) {
+      send({ type: "progress", value: done / total, stage: "sampling" });
+      const path = await generate(`The attached image shows an object from the front. Generate exactly one image with your image generation tool: the exact same object seen ${SIDES[view]}, orthographic view. Keep identical shape, proportions, materials, colors and style; only the viewpoint changes. Only the object, centered, full view, isolated. ${RULES}`, folder, `set-${set}-${view}`, job.outputDir, join(job.outputDir, front));
+      files.push({ path, label: `${description.slice(0, 60)} · ${set + 1} · ${view}`, kind: "image", meta: { provider: "codex", set, view } });
+      done++;
+    }
+  }
+  send({ type: "progress", value: 1, stage: "sampling" });
+  send({ type: "result", files });
+}
+
 async function main() {
   const job = JSON.parse(readFileSync(process.argv[process.argv.indexOf("--job") + 1], "utf8"));
   const { provider, count, consent, objectFraming } = job.parameters;
@@ -71,6 +111,7 @@ async function main() {
   if (!description) fail("prompt-required");
   const folder = join(job.outputDir, "provider");
   mkdirSync(folder, { recursive: true });
+  if (job.task === "text-to-multiview") return multiview(job, description, folder);
   const text = objectFraming ? `${description}${FRAMING}` : description;
   const files = [];
   for (let index = 0; index < count; index++) {

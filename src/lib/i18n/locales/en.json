@@ -699,12 +699,15 @@
     "removingBackground": "Removing background… {{percent}}%",
     "transparentHint": "Candidates are PNGs with a real alpha channel. The checkerboard belongs to the viewer and is not saved in the image.",
     "multiview": "Multi-view",
-    "multiviewHint": "Generates the front, right, back and left views of the same object for a multi-view 3D engine. The top view is not generated.",
+    "multiviewHint": "Generates several views of the same object for a multi-view 3D engine. Picking a set fills the matching view slots.",
     "noMultiviewEngine": "Activate a multi-view engine such as MV-Adapter in Models.",
     "viewSets": "View sets",
     "viewSet": "Views with seed {{seed}}",
     "useViews": "Use these views (seed {{seed}})",
-    "viewsPicked": "Views in use (seed {{seed}})"
+    "viewsPicked": "Views in use (seed {{seed}})",
+    "viewSetIndex": "View set {{index}}",
+    "useViewsIndex": "Use view set {{index}}",
+    "viewsPickedIndex": "View set {{index}} in use"
   },
   "views": {
     "front": "Front",
