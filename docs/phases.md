@@ -181,4 +181,4 @@ The independent SQLite library imports/exports validated portable clips. Local T
 - [x] glTF validation and tangents
 - [x] Local CLI for automation ([command line](cli.md))
 - [x] Auto-update (electron-updater from GitHub releases, opt-out, install on confirmation; macOS needs signing)
-- [ ] Bundled runtime for engines where licenses allow
+- [x] Bundled runtime for engines where licenses allow (shared PyTorch CUDA runtime downloaded once for every GPU plugin)

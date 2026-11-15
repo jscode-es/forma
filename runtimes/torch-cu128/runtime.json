@@ -1,0 +1,6 @@
+{
+  "name": "PyTorch 2.7.1 (CUDA 12.8)",
+  "python": "3.11",
+  "requirements": "requirements.txt",
+  "licenses": "PyTorch (BSD-3-Clause), diffusers, transformers, accelerate and huggingface-hub (Apache-2.0), and the permissive licenses of the other pinned packages"
+}

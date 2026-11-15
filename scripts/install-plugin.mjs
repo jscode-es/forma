@@ -1,4 +1,5 @@
 import { execFileSync, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
@@ -37,7 +38,8 @@ function defaultDataDir() {
   return join(process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config"), "forma");
 }
 
-const target = join(resolve(option("--data-dir") ?? defaultDataDir()), "engines", manifest.id);
+const dataDir = resolve(option("--data-dir") ?? defaultDataDir());
+const target = join(dataDir, "engines", manifest.id);
 mkdirSync(target, { recursive: true });
 for (const file of install.files) cpSync(join(source, file), join(target, file));
 console.log(`Plugin files copied to ${target}`);
@@ -65,11 +67,35 @@ if (python) {
   writeFileSync(join(target, "python.json"), JSON.stringify({ python }, null, 2));
   console.log(`Using existing Python: ${python}`);
 } else {
+  const createVenv = (folder, version) => {
+    if (process.platform === "win32") run("py", [`-${version}`, "-m", "venv", folder]);
+    else run(`python${version}`, ["-m", "venv", folder]);
+  };
+  const venvPython = (folder) => (process.platform === "win32" ? join(folder, "Scripts", "python.exe") : join(folder, "bin", "python"));
+  const sitePackages = (folder, version) => (process.platform === "win32" ? join(folder, "Lib", "site-packages") : join(folder, "lib", `python${version}`, "site-packages"));
   const venv = join(target, ".venv");
-  python = process.platform === "win32" ? join(venv, "Scripts", "python.exe") : join(venv, "bin", "python");
-  if (!existsSync(python)) {
-    if (process.platform === "win32") run("py", [`-${install.python}`, "-m", "venv", venv]);
-    else run(`python${install.python}`, ["-m", "venv", venv]);
+  python = venvPython(venv);
+  let base = null;
+  if (install.base) {
+    const runtimeDir = join(import.meta.dirname, "..", "runtimes", install.base);
+    const runtime = JSON.parse(readFileSync(join(runtimeDir, "runtime.json"), "utf8"));
+    const requirements = join(runtimeDir, runtime.requirements);
+    const digest = createHash("sha256").update(readFileSync(requirements)).digest("hex");
+    const baseVenv = join(dataDir, "runtimes", install.base, ".venv");
+    const marker = join(baseVenv, "..", ".forma-runtime.json");
+    const ready = existsSync(marker) && JSON.parse(readFileSync(marker, "utf8")).requirements === digest && existsSync(venvPython(baseVenv));
+    if (!ready) {
+      console.log(`Preparing the shared ${runtime.name} runtime (once for every plugin that uses it)`);
+      if (!existsSync(venvPython(baseVenv))) createVenv(baseVenv, runtime.python);
+      run(venvPython(baseVenv), ["-m", "pip", "install", "-r", requirements]);
+      writeFileSync(marker, JSON.stringify({ requirements: digest, installedAt: new Date().toISOString() }, null, 2));
+    }
+    base = sitePackages(baseVenv, runtime.python);
+  }
+  if (!existsSync(python)) createVenv(venv, install.python);
+  if (base) {
+    mkdirSync(sitePackages(venv, install.python), { recursive: true });
+    writeFileSync(join(sitePackages(venv, install.python), "forma-runtime.pth"), `${base}\n`);
   }
   run(python, ["-m", "pip", "install", "--upgrade", "pip"]);
   run(python, ["-m", "pip", "install", "-r", join(target, install.requirements)]);

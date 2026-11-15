@@ -56,6 +56,7 @@ function validate(dir) {
       for (const file of ["forma-engine.json", manifest.runtime.entry, spec.data.requirements, "README.md"]) {
         if (!spec.data.files.includes(file)) errors.push(`install.json files must include ${file}`);
       }
+      if (spec.data.base && !existsSync(join(root, "runtimes", spec.data.base, "runtime.json"))) errors.push(`install.json base runtime ${spec.data.base} does not exist`);
       if (!spec.data.licenseNotice) warnings.push("install.json has no licenseNotice");
       else if (!spec.data.licenseNotice.es) warnings.push("licenseNotice has no Spanish text");
       const requirements = join(dir, spec.data.requirements);

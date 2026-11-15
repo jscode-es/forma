@@ -10,12 +10,14 @@ files:
   - package.json
   - engines/**
   - plugins/**
+  - runtimes/**
 publish:
   provider: generic
   url: https://github.com/jscode-es/forma/releases/latest/download
 asarUnpack:
   - engines/**
   - plugins/**
+  - runtimes/**
 win:
   target: nsis
 nsis:

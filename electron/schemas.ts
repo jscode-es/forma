@@ -282,6 +282,7 @@ export const installSpec = z.object({
   build: z
     .array(z.string().regex(/^[\w./-]+$/).refine((dir) => !dir.split("/").includes(".."), "build dirs must stay inside the plugin"))
     .default([]),
+  base: z.string().regex(/^[a-z0-9][a-z0-9-]{1,63}$/).optional(),
   diskGb: z.number().positive().default(1),
   check: z.string().max(400).optional(),
 });
