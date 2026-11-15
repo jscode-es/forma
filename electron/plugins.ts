@@ -8,6 +8,7 @@ import type { PluginState } from "./contract";
 import { setSetting } from "./db";
 import { userEnginesRoot } from "./engines";
 import { engineManifest, installSpec } from "./schemas";
+import { linkRuntime, markRuntime, readRuntime, runtimeReady, type Runtime } from "./runtimes";
 import { downloadWeights } from "./weights";
 
 
@@ -15,6 +16,7 @@ type Plugin = { dir: string; spec: z.infer<typeof installSpec>; manifest: z.infe
 type Live = { stage: string; progress: number | null; child?: ChildProcess; cancelled: boolean; log: string[] };
 
 const MARKER = ".forma-installed.json";
+const runtimeInstalls = new Map<string, Promise<void>>();
 const live = new Map<string, Live>();
 const failures = new Map<string, string>();
 
@@ -206,10 +208,13 @@ async function installPlugin(id: string, existingPython: string | null) {
       fs.writeFileSync(path.join(dir, "python.json"), JSON.stringify({ python }, null, 2));
     } else {
       fs.rmSync(path.join(dir, "python.json"), { force: true });
+      const runtime = plugin.spec.base ? readRuntime(plugin.spec.base) : null;
+      if (runtime && !runtimeReady(runtime)) await ensureRuntime(plugin, current, runtime);
       step("python");
       const venv = path.join(dir, ".venv");
       python = process.platform === "win32" ? path.join(venv, "Scripts", "python.exe") : path.join(venv, "bin", "python");
       if (!fs.existsSync(python)) await run(plugin, current, await findPython311(plugin.spec.python), ["-m", "venv", venv]);
+      if (runtime) linkRuntime(runtime, venv, plugin.spec.python);
       step("dependencies");
       await run(plugin, current, python, ["-m", "pip", "install", "--disable-pip-version-check", "-r", path.join(dir, plugin.spec.requirements)]);
       for (const build of plugin.spec.build) {
@@ -244,6 +249,21 @@ async function installPlugin(id: string, existingPython: string | null) {
   if (installedVersion(plugin) === plugin.manifest.version) {
     for (const weights of plugin.manifest.weights) await downloadWeights(weights.id).catch(() => undefined);
   }
+}
+
+function ensureRuntime(plugin: Plugin, current: Live, runtime: Runtime) {
+  let pending = runtimeInstalls.get(runtime.id);
+  if (!pending) {
+    pending = (async () => {
+      current.stage = "runtime";
+      emit(plugin);
+      if (!fs.existsSync(runtime.python)) await run(plugin, current, await findPython311(runtime.spec.python), ["-m", "venv", runtime.venv]);
+      await run(plugin, current, runtime.python, ["-m", "pip", "install", "--disable-pip-version-check", "-r", runtime.requirements]);
+      markRuntime(runtime);
+    })().finally(() => runtimeInstalls.delete(runtime.id));
+    runtimeInstalls.set(runtime.id, pending);
+  }
+  return pending;
 }
 
 export function cancelInstall(id: string) {

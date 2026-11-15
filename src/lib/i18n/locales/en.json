@@ -605,7 +605,8 @@
       "pip:installing-collected-packages": "Installing dependencies",
       "pip:successfully-installed": "Dependencies installed",
       "verifying": "Verifying the installation",
-      "building": "Compiling native extensions (needs the CUDA toolkit and a C++ compiler)"
+      "building": "Compiling native extensions (needs the CUDA toolkit and a C++ compiler)",
+      "runtime": "Preparing the shared PyTorch runtime (once for every engine that uses it)"
     },
     "error": {
       "git-missing": "Git is not installed. Install it from git-scm.com and try again.",

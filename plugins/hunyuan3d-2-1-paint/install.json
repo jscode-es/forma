@@ -33,5 +33,6 @@
     "es": "El código y los pesos de Hunyuan3D-Paint 2.1 y Delight están licenciados por Tencent bajo las Tencent Hunyuan 3D 2.1 y 2.0 Community License, que no se aplican en la Unión Europea, el Reino Unido ni Corea del Sur. DINOv2 es Apache 2.0. Compilar el rasterizador requiere el CUDA toolkit y un compilador de C++. Eres responsable de tener derecho a usarlo."
   },
   "check": "import torch, custom_rasterizer, xatlas, hy3dgen.texgen; print('cuda', torch.cuda.is_available())",
+  "base": "torch-cu128",
   "diskGb": 20
 }

@@ -36,9 +36,11 @@ To try it in the app, run `npm run plugin:install -- my-engine --accept-license`
 
 2. **Describe the engine** in `forma-engine.json`: id, name, version, license, English and Spanish descriptions, task, runtime, timeout, VRAM and CUDA needs, inputs and parameters. Parameters appear in the inspector automatically; give every label an `es` translation. Use `tasks` on a parameter when the engine has several tasks.
 
-3. **Pin the code.** Add the upstream repository to `install.json` → `vendor` with a full 40-character commit. If it has native extensions, list their folders in `build`; they are compiled with `pip install --no-build-isolation` after the requirements. Pin every requirement to an exact version (`==`).
+3. **Share the runtime.** GPU engines built on PyTorch should add `"base": "torch-cu128"` to `install.json` and keep the same pins as [`runtimes/torch-cu128/requirements.txt`](../runtimes/torch-cu128/requirements.txt), so users download PyTorch once for every engine.
 
-4. **Pin the weights.** Generate the `files` block of each weights entry instead of writing hashes by hand:
+4. **Pin the code.** Add the upstream repository to `install.json` → `vendor` with a full 40-character commit. If it has native extensions, list their folders in `build`; they are compiled with `pip install --no-build-isolation` after the requirements. Pin every requirement to an exact version (`==`).
+
+5. **Pin the weights.** Generate the `files` block of each weights entry instead of writing hashes by hand:
 
    ```bash
    npm run plugin:weights -- huggingface org/model <40-character commit> path/model.safetensors path/config.json
@@ -46,7 +48,7 @@ To try it in the app, run `npm run plugin:install -- my-engine --accept-license`
 
    Copy `source` and `files` into a `weights` entry and fill its `license` (id, name, https URL and a short English and Spanish summary, including territorial or usage limits). Mark weights the engine can run without as `optional`.
 
-5. **Write the entry script.** Read `job.json`, use `weights[<id>]` for model folders and `inputs` for files, write results only inside `outputDir`, and report through stdout:
+6. **Write the entry script.** Read `job.json`, use `weights[<id>]` for model folders and `inputs` for files, write results only inside `outputDir`, and report through stdout:
 
    - `progress` with a value from 0 to 1 and a short stage name,
    - `log` for anything worth keeping (send library chatter to stderr),
@@ -56,9 +58,9 @@ To try it in the app, run `npm run plugin:install -- my-engine --accept-license`
 
    Load models with local paths only (`local_files_only=True`): jobs run offline. Free the GPU by exiting; Forma starts a new process per job.
 
-6. **Write the README** from the template: what it does, requirements, activation, parameters, licenses and a **reference run** (hardware, inputs, settings, time and result).
+7. **Write the README** from the template: what it does, requirements, activation, parameters, licenses and a **reference run** (hardware, inputs, settings, time and result).
 
-7. **Check it.**
+8. **Check it.**
 
    ```bash
    npm run plugin:check -- plugins/my-engine --run --python <env python> --weights my-weights=<folder> --image <reference.png>

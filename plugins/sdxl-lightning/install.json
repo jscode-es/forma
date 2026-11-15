@@ -12,5 +12,6 @@
     "es": "Los pesos de Stable Diffusion XL 1.0 (Stability AI) y SDXL-Lightning (ByteDance) están licenciados bajo la CreativeML Open RAIL++-M License, que permite el uso comercial pero prohíbe los usos de su Anexo A. Eres responsable de cumplirla."
   },
   "check": "import torch, diffusers; print('cuda', torch.cuda.is_available())",
+  "base": "torch-cu128",
   "diskGb": 12
 }

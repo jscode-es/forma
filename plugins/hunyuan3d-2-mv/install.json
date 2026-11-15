@@ -19,5 +19,6 @@
     "es": "El código y los pesos de Hunyuan3D 2.0 están licenciados por Tencent bajo la Tencent Hunyuan 3D 2.0 Community License (https://github.com/Tencent-Hunyuan/Hunyuan3D-2/blob/main/LICENSE). La licencia no se aplica en la Unión Europea, el Reino Unido ni Corea del Sur. Eres responsable de tener derecho a usarlo."
   },
   "check": "import torch, hy3dgen.shapegen; print('cuda', torch.cuda.is_available())",
+  "base": "torch-cu128",
   "diskGb": 9
 }
