@@ -12,6 +12,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useJobsSync } from "@/feature/jobs";
 import { ModelManagerDialog, useWeightsSync } from "@/feature/models";
+import { OnboardingDialog } from "@/feature/onboarding";
 import { ProjectDialogs, useProjectSession } from "@/feature/projects";
 import { Viewport } from "@/feature/viewport";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -82,6 +83,7 @@ export function AppShell() {
       <ShellDialogs open={dialog} onClose={() => setDialog(null)} />
       <ProjectDialogs />
       <ModelManagerDialog />
+      <OnboardingDialog />
     </div>
   );
 }

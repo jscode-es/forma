@@ -15,6 +15,7 @@ import {
 import { Download, ExternalLink, FolderOpen, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { refreshEngines, useJobsStore } from "@/feature/jobs";
+import { useOnboardingStore } from "@/feature/onboarding";
 import { LibraryDialogContent } from "@/feature/projects";
 import { LanguageToggle, ThemeToggle } from "@/feature/settings";
 import type { SystemInfo, UpdateState } from "@/lib/forma";
@@ -79,6 +80,13 @@ function SettingsContent() {
           >
             <Icon icon={FolderOpen} size={15} />
             {t("settings.openDataDir")}
+          </Button>
+        </div>
+        <div style={{ display: "grid", gap: "0.5rem" }}>
+          <Label>{t("onboarding.title")}</Label>
+          <span className={styles.hint}>{t("onboarding.reopenHint")}</span>
+          <Button variant="outline" size="sm" style={{ justifySelf: "start" }} onClick={() => useOnboardingStore.getState().setOpen(true)}>
+            {t("onboarding.reopen")}
           </Button>
         </div>
         <UpdatesSection />

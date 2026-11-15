@@ -23,6 +23,9 @@ Cada proyecto nuevo empieza con un cubo de 1 m. Se recuerdan los proyectos, los 
 
 ## Activar un motor
 
+La primera vez que abres Forma, el **asistente de configuración** revisa la GPU, la VRAM, CUDA, el disco libre, Python 3.11, Blender y las CLI externas, marca cada motor como recomendado, opcional o no compatible (con el motivo), estima el disco necesario e instala los elegidos uno tras otro cuando aceptas sus licencias. Puedes cerrarlo mientras instala y volver a abrirlo desde **Ajustes**.
+
+
 Forma incluye los motores que admite, pero los activas tú, porque sus licencias son entre tú y sus autores.
 
 1. Abre **Modelos** (menú izquierdo) → **Motores**.

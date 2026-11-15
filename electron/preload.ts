@@ -63,6 +63,7 @@ const api: FormaApi = {
     cancel: (id) => invoke("plugins:cancel", id),
     uninstall: (id) => invoke("plugins:uninstall", id),
     choosePython: () => invoke("plugins:choose-python"),
+    python: () => invoke("plugins:python"),
     onUpdate: (callback) => subscribe("plugins:update", callback),
   },
   weights: {

@@ -23,6 +23,9 @@ Every new project starts with a 1 m cube. Projects, settings and the panel layou
 
 ## Activate an engine
 
+The first time Forma opens, the **setup assistant** checks the GPU, VRAM, CUDA, free disk, Python 3.11, Blender and the external CLIs, marks every engine as recommended, optional or not compatible (with the reason), estimates the disk it needs and installs the chosen ones one after another after you accept their licenses. You can close it while it installs, and open it again from **Settings**.
+
+
 Forma includes the engines it supports, but you activate them yourself because their licenses are between you and their authors.
 
 1. Open **Models** (left menu) → **Engines**.
