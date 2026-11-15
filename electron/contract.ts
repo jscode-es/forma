@@ -22,6 +22,9 @@ export type ProjectSettings = {
   imageEngine: EngineSelection;
   textureEngine: EngineSelection;
   textureReferenceId: string | null;
+  autoTexture: boolean;
+  gameReady: boolean;
+  gameBudget: number;
 };
 
 export type SceneModel =

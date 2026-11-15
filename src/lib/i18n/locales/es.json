@@ -165,6 +165,10 @@
         "title": "Calidad",
         "help": "Pasos de muestreo de cada perfil. Con el engranaje puedes personalizarlos."
       },
+      "pipeline": {
+        "title": "Al generar",
+        "help": "Ejecuta pasos extra automáticamente cuando termina el modelo. Optimizar reduce primero los triángulos al presupuesto, para que la textura se pinte sobre la malla final. Cada paso añade una versión que puedes comparar o descartar."
+      },
       "scale": {
         "title": "Escala física",
         "help": "Escala el resultado de forma uniforme a una altura real en metros."
@@ -1134,5 +1138,11 @@
     "continueBackground": "Seguir en segundo plano",
     "reopen": "Abrir el asistente de configuración",
     "reopenHint": "Vuelve a revisar el equipo e instala los motores recomendados."
+  },
+  "pipeline": {
+    "texture": "Aplicar textura según las referencias",
+    "textureUnavailable": "Activa un motor de texturas y añade una referencia para habilitarlo.",
+    "game": "Optimizar para juegos",
+    "budget": "Presupuesto de triángulos"
   }
 }

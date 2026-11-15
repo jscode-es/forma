@@ -165,6 +165,10 @@
         "title": "Quality",
         "help": "Sampling steps of each profile. Use the gear to customize them."
       },
+      "pipeline": {
+        "title": "After generating",
+        "help": "Runs extra steps automatically when the model finishes. Optimizing reduces the triangles to the budget first, so the texture is painted on the final mesh. Each step adds a version you can compare or discard."
+      },
       "scale": {
         "title": "Physical scale",
         "help": "Scales the result uniformly to a real height in meters."
@@ -1134,5 +1138,11 @@
     "continueBackground": "Continue in the background",
     "reopen": "Open the setup assistant",
     "reopenHint": "Checks the computer again and installs the recommended engines."
+  },
+  "pipeline": {
+    "texture": "Apply texture from the references",
+    "textureUnavailable": "Activate a texture engine and add a reference to enable it.",
+    "game": "Optimize for games",
+    "budget": "Triangle budget"
   }
 }
