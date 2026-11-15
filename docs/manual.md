@@ -2,13 +2,27 @@
 
 [Español](manual.es.md)
 
-Forma turns images into 3D models on your own computer. Nothing is uploaded: generation, projects and files stay local.
+Forma turns text and reference images into 3D assets, with tools for mesh editing, materials, animation and export. Local engines keep inference on your computer; optional external CLI engines send the requested input to their service after explicit consent.
+
+## Find your workflow
+
+- [Explore the studio](#the-studio) and [activate an engine](#activate-an-engine).
+- Create a model [from an image](#create-a-model-from-an-image) or [from text](#create-a-model-from-text); organize [multiple views](#multiple-views-and-reference-review).
+- Review [versions](#versions), edit [materials and textures](#materials-and-textures), or use [mesh tools](#mesh-tools).
+- Create a [humanoid skeleton](#humanoid-skeleton) and work with [animation clips](#animation-and-clip-library).
+- [Export](#export), manage [projects](#projects) or change [settings](#settings-and-data).
+
+For hardware, platform and installation requirements, see the [README](../README.md#requirements).
 
 ## Install
 
 Download the installer for your system from the [releases page](https://github.com/jscode-es/forma/releases): `.exe` for Windows, `.dmg` for macOS (Apple Silicon), `.AppImage` or `.deb` for Linux. Installers are not signed yet, so Windows SmartScreen and macOS Gatekeeper ask for confirmation the first time (on macOS: right click → Open).
 
 ## The studio
+
+![Forma studio: workspace menu on the left, model viewport in the center, Configuration on the right and Versions below](images/studio.png)
+
+*Imported Toy Car sample, not an AI-generated model. The captures use the English interface; language can be changed in Settings.*
 
 | Area | What it does |
 | --- | --- |
@@ -22,6 +36,10 @@ Download the installer for your system from the [releases page](https://github.c
 Every new project starts with a 1 m cube. Projects, settings and the panel layout are remembered; the last project opens on start.
 
 ## Activate an engine
+
+![Engine manager showing the catalog, requirements and activation controls](images/engines.png)
+
+Open **Models → Engines** to choose a runtime. Engine installation and model-weight downloads are separate from installing Forma.
 
 The first time Forma opens, the **setup assistant** checks the GPU, VRAM, CUDA, free disk, Python 3.11, Blender and the external CLIs, marks every engine as recommended, optional or not compatible (with the reason), estimates the disk it needs and installs the chosen ones one after another after you accept their licenses. You can close it while it installs, and open it again from **Settings**.
 
@@ -55,13 +73,23 @@ On an RTX 5070 (12 GB), Hunyuan3D 2.0 needs about 2 minutes at 30 steps.
 2. In **References → From text → Prompt**, describe one object and choose the image engine. *Images* sets how many candidates you get and *Seed* makes them reproducible; candidate *n* uses seed + *n*.
 3. Click **Generate images** (or press Ctrl+Enter in the prompt). The candidates appear under the prompt.
 4. Click the candidate you like: it becomes the reference, with its prompt and seed.
-5. Click **Continue in Create 3D** and go on as in [Create a model from an image](#create-a-model-from-an-image), from step 3.
+5. Configure the generation engine and click **Generate model**, as in [Create a model from an image](#create-a-model-from-an-image), from step 3.
+
+With **SDXL-Lightning**, a local Qwen3 model first prepares a concise English description on CPU. The generation button shows **Improving prompt…** during this step, then generation progress. No llama.cpp or Ollama server is needed. The original prompt stays in history; the effective prompt appears in the job log. This helps interpretation but can still alter attributes.
+
+Hover a candidate and click **Enlarge candidate** to inspect it in a modal. Closing the modal does not select it; click the candidate card to use it as the reference.
+
+To keep a common look across SDXL generations, click the **gear beside the engine's ?** and enter a **Shared visual style**, for example `low-poly, pastel colors, isometric view, soft lighting`. It is saved automatically on this computer and combined with each object's prompt before local preparation. Leave it empty or use **Clear style** to disable it. Jobs and prompt history retain the style used; reusing an SDXL prompt restores that style too. This encourages a common aesthetic but does not lock the image model to an identical appearance.
 
 **Codex images (external CLI)** is a second image engine that uses the image generation of your own Codex CLI account (installed and signed in). Turn on **Allow this generation with my external account** for each generation: it uses the network and may consume your quota, and it switches off again after every run. Only the prompt is sent; Codex runs in a read-only sandbox and Forma only accepts the image Codex saves in its own generated images folder. Two candidates took about 50 s. Claude Code does not generate images and Copilot CLI is not supported yet.
 
 **Prompt history** keeps every prompt of the project with its engine settings and seed. **Reuse** puts the prompt and settings back so you can repeat or vary it.
 
 ## Multiple views and reference review
+
+![References area with From text, Single view and Multi-view tabs and named image slots](images/references.png)
+
+The slots identify the intended camera angle. They are empty here: add your own images before running a multi-view engine.
 
 1. Open **References > Multi-view**. The two-column grid reserves an image area for Front, Back, Left, Right and optional Top, each with a face icon. Click a card or drop an image onto it to add or replace that view. Right-click a loaded card to remove its background, choose the prepared image, reassign or remove it. Assigning an occupied view swaps the two images.
 2. Remove the background of each image. **Reference review** checks transparent silhouette bounds: a height occupancy difference above 15% or opposite-view aspect ratios differing by more than 25% produce approximate warnings. Opaque backgrounds cannot be reviewed reliably.
@@ -85,6 +113,10 @@ The **Versions** tab lists all versions with origin, triangles, parameters and S
 
 ## Materials and textures
 
+![Finish tab focused on material selection, surface factors and embedded texture maps](images/materials.png)
+
+The **?** next to each section opens its explanation. Use **Search tool…** to find a tool within the current workspace section.
+
 In **Create 3D > Finish > Materials**, select a material to inspect its factors and embedded albedo, metallic, roughness, normal and AO maps. Import replaces a map in a new preview version; models need the indicated UV channel. Map origin is shown when known. **Preview changes** edits color, metalness, roughness and opacity. **Isolate material** affects only the viewport; **Compare** switches to the active version. Apply the preview before exporting it.
 
 **Upscale 2×/4×** resamples embedded maps bilinearly with a 4096-pixel limit per side. This is resampling, not AI detail reconstruction. Albedo is interpolated in linear RGB and normal vectors are normalized. Transparent normal, metallic, roughness and AO images cannot be processed safely by this path; use opaque data maps.
@@ -93,11 +125,13 @@ In **Create 3D > Finish > Materials**, select a material to inspect its factors 
 
 ## Optimize and LOD
 
+![Model tab with mesh inspection, triangle budgets and LOD controls](images/model-tools.png)
+
 **Create 3D → Model → Optimize and LOD** reduces the active version to a triangle budget and can create up to three levels of detail. UVs, materials and textures are preserved and every file is verified. If a budget cannot be reached without damaging the mesh, nothing is published. Models with skeletons are not supported yet.
 
 ## Mesh tools
 
-These operations require an installed Blender 4 or newer; they were tested with Blender 5.2.1 LTS. If discovery fails, choose its executable with **Configure Blender**. No Python packages or model weights are needed.
+These operations require an installed Blender 4 or newer; they were tested with Blender 5.2.1 LTS. If discovery fails, open **Settings → Hardware and engines → Configure Blender** and choose its executable. Once detected, no further configuration is needed. Automatic retopology is available in the **Model** tab. No Python packages or model weights are needed.
 
 Under **Create 3D > Model > Inspect mesh**, inspect the active version's vertices, faces, triangles, degenerate faces, open borders, non-manifold edges and components. Open borders also count as non-manifold. Inspection only creates a report.
 
@@ -151,6 +185,8 @@ Video capture estimates motion in place: it does not recover calibrated root tra
 
 ## Export
 
+![Export Interchange panel with engine package target and preparation controls](images/export.png)
+
 **Export** (left menu) **→ Files → Export GLB** always writes the active version (a version in preview is not exported until you apply it). The file is read back and its SHA-256 checked. LODs are exported as separate files.
 
 **Export → Interchange → Engine packages** prepares a folder for **Blender**, **Unity** or **Godot** from the active version:
@@ -174,7 +210,9 @@ Generations, textures, engine packages and glTF validation also run from a termi
 
 ## Settings and data
 
-**Settings** has language (English, Spanish or system), theme (light, dark or system), the data folder and a hardware report (GPU, VRAM, driver, CUDA, free disk, Python, engines). The data folder holds the database, projects, jobs, engines and model weights.
+![Settings dialog with sidebar navigation and language and theme preferences](images/settings.png)
+
+**Settings** uses a sidebar: **General** (language and theme), **Data folder**, **Setup assistant**, **Updates** and **Hardware and engines**. Select a section to see its controls. The hardware report shows GPU, VRAM, driver, CUDA, free disk, Python and engines; this is also where you configure Blender when automatic detection fails. The data folder holds the database, projects, jobs, engines and model weights.
 
 **Updates**: the installed app checks GitHub releases when it starts (turn it off with **Check for updates when Forma starts**) or when you click **Check now**. It only reports a new version: **Download** and **Restart and install** run when you click them. On macOS, until builds are signed, **Download from GitHub** opens the release page instead.
 

@@ -48,6 +48,8 @@ The built-in `forma-blender-mesh` engine accepts one GLB, or target then detaile
 
 The built-in `forma-blender-rig` engine implements task `rig` with one GLB. `mode` is `auto` or `edit`; `clipPolicy` is explicitly `preserve` or `discard`. Auto uses 19 bounded XYZ body landmarks and Blender heat weights. Edit selects `boneIndex` in the source `skins[0].joints` order and offsets its rest position by fractions of model height. Results are `model.glb` and a version-1 `rig-report.json` (`rig-report`) recording bone/weighted/unweighted counts, clip names, policy and warnings. Existing incompatible rigs require explicit discard to replace; editing preserves original mesh/weight/clip payloads and updates joint transforms and inverse bind matrices. Original weights are validated before Blender can repair them. Editing currently requires identity skinned-mesh/nonjoint ancestor world transforms and a matching rest/bind pose. See [rig engine evidence](superpowers/evidence/phase14-rig.md).
 
+Text parameters use `type: "string"`, a `default` string and `maxLength` from 1 to 256. Main validates the value's type and length before enqueueing; defaults must fit the same limit. For example, SDXL's `stylePrompt` declares a 256-character string with an empty default. The shared style editor supplies it for each job, so retry and prompt history retain the exact style used.
+
 ## Weights
 
 Engines declare the files they need in `weights`. Forma downloads them on request into `<data folder>/models/<id>/<revision>/`, never during a job.
