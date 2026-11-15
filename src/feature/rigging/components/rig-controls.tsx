@@ -1,7 +1,8 @@
 "use client";
 
 import { useId, useState } from "react";
-import { Button, Input, Label, Select, Switch } from "@kivora/nextjs";
+import { Button, Label, Select, Switch } from "@kivora/nextjs";
+import { NumberField } from "@/components/number-field";
 import { useTranslation } from "react-i18next";
 import { ACTIVE, useJobsStore } from "@/feature/jobs";
 import { useViewerStore } from "@/feature/viewport/viewer-store";
@@ -47,11 +48,8 @@ function VectorFields({ label, values, min, max, step, disabled, onChange }: {
       const upper = typeof max === "number" ? max : max[axis];
       return <div key={axis} className={styles.stack}>
         <Label htmlFor={`${id}-${axis}`}>{t(`rigging.axes.${axis}`)}</Label>
-        <Input id={`${id}-${axis}`} type="number" min={lower} max={upper} step={step} value={values[axis]}
-          onChange={(event) => {
-            const value = event.target.valueAsNumber;
-            if (Number.isFinite(value) && value >= lower && value <= upper) onChange(axis, value);
-          }} />
+        <NumberField id={`${id}-${axis}`} min={lower} max={upper} step={step} value={values[axis]}
+          onValueChange={(value) => onChange(axis, value)} />
       </div>;
     })}</div>
   </fieldset>;

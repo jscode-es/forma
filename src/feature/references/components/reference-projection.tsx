@@ -1,6 +1,7 @@
 "use client";
 
-import { Button, Input, Label, Select } from "@kivora/nextjs";
+import { Button, Label, Select } from "@kivora/nextjs";
+import { NumberField } from "@/components/number-field";
 import { useTranslation } from "react-i18next";
 import { useViewerStore } from "@/feature/viewport";
 import { useBlobUrl } from "@/hooks/use-blob-url";
@@ -22,14 +23,9 @@ export function ReferenceProjection() {
     {selected && <>
       {(["opacity", "scale", "x", "y"] as const).map((key) => <div className={styles.row} key={key}>
         <Label htmlFor={`projection-${key}`}>{t(`references.${key}`)}</Label>
-        <Input id={`projection-${key}`} type="number" style={{ width: "6rem" }} value={selected[key]}
+        <NumberField id={`projection-${key}`} style={{ width: "6rem" }} value={selected[key]}
           min={key === "opacity" ? 0 : key === "scale" ? 0.1 : -100} max={key === "opacity" ? 1 : key === "scale" ? 5 : 100} step={key === "x" || key === "y" ? 1 : 0.1}
-          onChange={(event) => {
-            const value = Number(event.target.value);
-            const min = key === "opacity" ? 0 : key === "scale" ? 0.1 : -100;
-            const max = key === "opacity" ? 1 : key === "scale" ? 5 : 100;
-            if (Number.isFinite(value) && value >= min && value <= max) useViewerStore.setState({ projection: { ...selected, [key]: value } });
-          }} />
+          onValueChange={(value) => useViewerStore.setState({ projection: { ...selected, [key]: value } })} />
       </div>)}
       <Button size="sm" variant="outline" onClick={() => useViewerStore.setState({ projection: { ...selected, scale: 1, x: 0, y: 0, opacity: 0.5 } })}>{t("references.resetAlignment")}</Button>
       <Button size="sm" variant="outline" onClick={() => useViewerStore.setState({ projection: null })}>{t("references.stopProjection")}</Button>

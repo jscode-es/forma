@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button, Input, Label, Select } from "@kivora/nextjs";
+import { NumberField } from "@/components/number-field";
 import { useTranslation } from "react-i18next";
 import { useViewerStore } from "@/feature/viewport";
 import { displayedVariant, useProjectStore } from "@/stores/project-store";
@@ -116,11 +117,8 @@ export function MaterialControl() {
       </div>
       {FACTORS.map((factor) => <div key={factor} className={styles.field}>
         <Label htmlFor={`material-${factor}`}>{t(`material.${factor}`)}</Label>
-        <Input id={`material-${factor}`} type="number" min={0} max={1} step={0.05} className={styles.input} value={draft[factor]} disabled={busy || !selected.editable}
-          onChange={(event) => {
-            const value = Number(event.target.value);
-            if (Number.isFinite(value) && value >= 0 && value <= 1) useMaterialsStore.getState().update(source.id, selected.index, { [factor]: value });
-          }} />
+        <NumberField id={`material-${factor}`} min={0} max={1} step={0.05} className={styles.input} value={draft[factor]} disabled={busy || !selected.editable}
+          onValueChange={(value) => useMaterialsStore.getState().update(source.id, selected.index, { [factor]: value })} />
       </div>)}
       <div className={styles.actions}>
         <Button disabled={busy || !selected.editable} onClick={() => void preview()}>{t(busy ? "material.working" : "material.preview")}</Button>

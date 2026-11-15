@@ -15,6 +15,7 @@ const { ALL_EXTENSIONS } = require("@gltf-transform/extensions");
 const { prune, simplify, weld } = require("@gltf-transform/functions");
 const { MeshoptDecoder, MeshoptSimplifier } = require("meshoptimizer");
 const { runPackage } = require("./package.cjs");
+const { runInspect } = require("./inspect.cjs");
 
 const send = (message) => process.stdout.write(`${JSON.stringify(message)}\n`);
 
@@ -67,6 +68,7 @@ async function main() {
   await Promise.all([MeshoptSimplifier.ready, MeshoptDecoder.ready]);
   const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({ "meshopt.decoder": MeshoptDecoder });
   if (job.task === "export-package") return runPackage(job, io, send, fail);
+  if (job.task === "mesh-inspect") return runInspect(job, io, send);
   const { budget, lod1, lod2, lod3 } = job.parameters;
 
   const source = await io.read(input);

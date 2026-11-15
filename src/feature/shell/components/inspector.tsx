@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import type { ParseKeys } from "i18next";
 import { HelpHint } from "@/components/help-hint";
 import { ProgressButton } from "@/components/progress-button";
+import { NumberField } from "@/components/number-field";
 import {
   Accordion,
   AccordionContent,
@@ -105,18 +106,15 @@ function QualityStepsButton() {
           {QUALITIES.map((q) => (
             <div key={q} className={styles.row}>
               <Label htmlFor={`quality-steps-${q}`}>{t(`quality.${q}`)}</Label>
-              <Input
+              <NumberField
                 id={`quality-steps-${q}`}
-                type="number"
+                integer
                 min={1}
                 max={200}
                 step={1}
                 value={qualitySteps[q]}
                 style={{ width: "5.5rem" }}
-                onChange={(e) => {
-                  const value = Math.round(Number(e.target.value));
-                  if (Number.isFinite(value) && value >= 1 && value <= 200) setQualitySteps({ ...qualitySteps, [q]: value });
-                }}
+                onValueChange={(value) => setQualitySteps({ ...qualitySteps, [q]: value })}
               />
             </div>
           ))}
@@ -145,17 +143,13 @@ function ScaleControl() {
       {enabled && (
         <div className={styles.row}>
           <Label htmlFor="scale-height">{t("scale.height")}</Label>
-          <Input
+          <NumberField
             id="scale-height"
-            type="number"
             min={0.01}
             max={100}
             step={0.1}
             value={height}
-            onChange={(e) => {
-              const value = Number(e.target.value);
-              if (Number.isFinite(value) && value > 0 && value <= 100) setHeight(value);
-            }}
+            onValueChange={setHeight}
             style={{ width: "7rem" }}
           />
         </div>

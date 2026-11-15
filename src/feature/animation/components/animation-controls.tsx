@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useState } from "react";
 import { Button, Checkbox, Input, Label, Select, Slider, Switch, Textarea, ToggleGroup, ToggleGroupItem } from "@kivora/nextjs";
+import { NumberField } from "@/components/number-field";
 import { useTranslation } from "react-i18next";
 import type { AnimationClipData, AnimationTrack, MotionProvider } from "@/lib/forma";
 import { useJobsStore } from "@/feature/jobs";
@@ -98,8 +99,8 @@ export function AnimationEditorControl() {
       <Label htmlFor={`${id}-name`}>{t("animation.name")}</Label>
       <Input id={`${id}-name`} value={draft.name} maxLength={120} disabled={locked} onChange={(event) => setAnimationName(event.target.value)} />
       <div className={styles.pair}>
-        <div className={styles.stack}><Label htmlFor={`${id}-fps`}>{t("animation.fps")}</Label><Input id={`${id}-fps`} type="number" min={1} max={120} step={1} value={draft.fps} disabled={locked} onChange={(event) => { const value = event.target.valueAsNumber; if (Number.isFinite(value) && value >= 1 && value <= 120) setAnimationTiming(value, draft.durationFrames); }} /></div>
-        <div className={styles.stack}><Label htmlFor={`${id}-duration`}>{t("animation.duration")}</Label><Input id={`${id}-duration`} type="number" min={1} max={36000} step={1} value={draft.durationFrames} disabled={locked} onChange={(event) => { const value = event.target.valueAsNumber; if (Number.isInteger(value) && value >= 1 && value <= 36000) setAnimationTiming(draft.fps, value); }} /></div>
+        <div className={styles.stack}><Label htmlFor={`${id}-fps`}>{t("animation.fps")}</Label><NumberField id={`${id}-fps`} min={1} max={120} step={1} value={draft.fps} disabled={locked} onValueChange={(value) => setAnimationTiming(value, draft.durationFrames)} /></div>
+        <div className={styles.stack}><Label htmlFor={`${id}-duration`}>{t("animation.duration")}</Label><NumberField id={`${id}-duration`} integer min={1} max={36000} step={1} value={draft.durationFrames} disabled={locked} onValueChange={(value) => setAnimationTiming(draft.fps, value)} /></div>
       </div>
       <Choice label={t("animation.bone")} options={draft.bones.map((item) => ({ value: item.name, label: item.name }))} value={bone} disabled={locked} onChange={setSelectedBone} />
       <Choice label={t("animation.channel")} options={PATHS.map((value) => ({ value, label: t(`animation.paths.${value}`) }))} value={path} disabled={locked} onChange={(value) => setPath(value as AnimationTrack["path"])} />
@@ -200,7 +201,7 @@ export function AnimationTextControl() {
     <Textarea aria-label={t("animation.textPrompt")} value={prompt} maxLength={2000} minRows={3} autoResize placeholder={t("animation.textPlaceholder")} onChange={(event) => setPrompt(event.target.value)} />
     <div className={styles.toggle}>
       <Label htmlFor={`${id}-seconds`}>{t("animation.textSeconds")}</Label>
-      <Input id={`${id}-seconds`} type="number" min={1} max={10} step={1} value={seconds} style={{ width: "5rem" }} onChange={(event) => { const value = Number(event.target.value); if (Number.isInteger(value) && value >= 1 && value <= 10) setSeconds(value); }} />
+      <NumberField id={`${id}-seconds`} integer min={1} max={10} step={1} value={seconds} style={{ width: "5rem" }} onValueChange={setSeconds} />
     </div>
     <div className={styles.toggle}>
       <Checkbox id={`${id}-consent`} checked={consent} onCheckedChange={(value) => setConsent(value === true)} />

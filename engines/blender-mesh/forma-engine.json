@@ -4,11 +4,10 @@
   "version": "1.1.0",
   "license": "MIT",
   "description": {
-    "en": "Local Blender mesh inspection, UV atlases, tangent normal baking and ambient occlusion baking. UV regeneration rejects textured materials to preserve appearance.",
-    "es": "Inspección local, atlas UV, horneado de normales tangentes y de oclusión ambiental con Blender. La regeneración UV rechaza materiales texturados para conservar su apariencia."
+    "en": "Local Blender UV atlases, tangent normal baking and ambient occlusion baking. UV regeneration rejects textured materials to preserve appearance.",
+    "es": "Atlas UV, horneado de normales tangentes y de oclusión ambiental con Blender en local. La regeneración UV rechaza materiales texturados para conservar su apariencia."
   },
   "tasks": [
-    "mesh-inspect",
     "uv-unwrap",
     "normals",
     "ambient-occlusion"

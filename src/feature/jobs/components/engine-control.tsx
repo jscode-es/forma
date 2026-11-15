@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { Badge, Button, Icon, Input, Label, Popover, PopoverContent, PopoverTrigger, Select, Switch, Textarea, ToggleGroup, ToggleGroupItem } from "@kivora/nextjs";
+import { Badge, Button, Icon, Label, Popover, PopoverContent, PopoverTrigger, Select, Switch, Textarea, ToggleGroup, ToggleGroupItem } from "@kivora/nextjs";
+import { NumberField } from "@/components/number-field";
 import { CircleHelp, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { EngineParameter, EngineTask, ParameterValue } from "@/lib/forma";
@@ -73,19 +74,15 @@ function ParameterControl({ parameter, value, idPrefix, setParameter }: Paramete
   return (
     <div className={styles.paramRow}>
       <Label htmlFor={inputId}>{label}</Label>
-      <Input
+      <NumberField
         id={inputId}
-        type="number"
+        integer={parameter.type === "integer"}
         min={parameter.min}
         max={parameter.max}
         step={parameter.step ?? (parameter.type === "integer" ? 1 : 0.1)}
         value={(value as number) ?? parameter.default}
         style={{ width: "7rem" }}
-        onChange={(e) => {
-          const next = Number(e.target.value);
-          const valid = Number.isFinite(next) && next >= parameter.min && next <= parameter.max;
-          if (valid && (parameter.type === "number" || Number.isInteger(next))) setParameter(parameter.id, next);
-        }}
+        onValueChange={(next) => setParameter(parameter.id, next)}
       />
     </div>
   );
