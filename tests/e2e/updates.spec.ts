@@ -41,6 +41,7 @@ test.afterAll(async () => {
 test("finds a newer release and remembers when automatic checks are off", async () => {
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Settings" });
+  await dialog.getByRole("tab", { name: "Updates", exact: true }).click();
   await dialog.getByRole("button", { name: "Check now", exact: true }).click();
   await expect(dialog.getByText(/Version 99\.0\.0 is available/)).toBeVisible();
   expect(requests.some((url) => /latest(-mac|-linux)?\.yml$/.test(url))).toBe(true);

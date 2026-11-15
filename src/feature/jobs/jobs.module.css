@@ -25,6 +25,39 @@
   color: var(--color-muted-foreground);
 }
 
+.enginePicker {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.engineHelp {
+  display: inline-grid;
+  place-items: center;
+  padding: 0.5rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-muted-foreground);
+  cursor: pointer;
+}
+
+.engineActions {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.engineHelp:hover {
+  color: var(--color-foreground);
+}
+
+.engineHelp:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
 .list {
   list-style: none;
   margin: 0;
@@ -168,6 +201,8 @@
 }
 
 .paramStack {
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
   display: grid;
   gap: 0.5rem;
 }

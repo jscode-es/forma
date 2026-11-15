@@ -39,7 +39,7 @@ export function PaintControl() {
         <Label htmlFor={`${id}-material`}>{t("paint.material")}</Label>
         <Select inputId={`${id}-material`} options={options} value={options.find((option) => option.value === String(selected?.index))}
           isSearchable={false} isDisabled={busy} placeholder={t("paint.chooseMaterial")} noOptionsMessage={() => t("paint.empty")}
-          menuPortalTarget={typeof document === "undefined" ? null : document.body} menuPosition="fixed" styles={{ menuPortal: (base) => ({ ...base, zIndex: 60 }) }}
+          menuPortalTarget={typeof document === "undefined" ? null : document.body} menuPosition="fixed" menuPlacement="auto" styles={{ menuPortal: (base) => ({ ...base, zIndex: 60 }) }}
           onChange={(option) => { if (option) setSelection({ key: sourceKey, index: Number(option.value) }); }} />
         {!busy && !selected && <span className={styles.hint}>{t("paint.empty")}</span>}
         {selected && !selected.editable && <span className={styles.hint}>{t("paint.unsupportedMaterial")}</span>}
@@ -48,7 +48,7 @@ export function PaintControl() {
           <Label htmlFor={`${id}-resolution`}>{t("paint.resolution")}</Label>
           <Select inputId={`${id}-resolution`} options={resolutions} value={resolutions.find((option) => option.value === String(resolution))}
             isSearchable={false} isDisabled={busy}
-            menuPortalTarget={typeof document === "undefined" ? null : document.body} menuPosition="fixed" styles={{ menuPortal: (base) => ({ ...base, zIndex: 60 }) }}
+            menuPortalTarget={typeof document === "undefined" ? null : document.body} menuPosition="fixed" menuPlacement="auto" styles={{ menuPortal: (base) => ({ ...base, zIndex: 60 }) }}
             onChange={(option) => { if (option) setResolution(Number(option.value)); }} />
         </>}
       </>}
@@ -67,8 +67,6 @@ export function PaintControl() {
         {TOOLS.map((value) => <Button key={value} size="sm" variant={tool === value ? "default" : "outline"} aria-pressed={tool === value}
           disabled={controlsDisabled} onClick={() => setPaintOptions({ tool: value })}>{t(`paint.${value}`)}</Button>)}
       </div>
-      {tool === "clone" && <span className={styles.hint}>{t("paint.cloneHint")}</span>}
-      {tool === "eyedropper" && <span className={styles.hint}>{t("paint.eyedropperHint")}</span>}
       <div className={styles.field}>
         <Label htmlFor={`${id}-color`}>{t("paint.color")}</Label>
         <Input id={`${id}-color`} type="color" className={styles.input} value={color} disabled={controlsDisabled}
@@ -95,12 +93,11 @@ export function PaintControl() {
         <Button variant="outline" disabled={controlsDisabled || !draft.engine.canRedo} onClick={redoPaint}>{t("paint.redo")}</Button>
         <Button variant="outline" disabled={controlsDisabled} onClick={() => setPaintEnabled(!enabled)}>{t(enabled ? "paint.pause" : "paint.resume")}</Button>
       </div>
-      <span className={styles.hint}>{t(enabled && sameSource ? "paint.paintHint" : "paint.pausedHint")}</span>
+      {(!enabled || !sameSource) && <span className={styles.hint}>{t("paint.pausedHint")}</span>}
       <div className={styles.actions}>
         <Button disabled={controlsDisabled || !dirty} onClick={() => void savePaintVariant().catch(() => undefined)}>{t(busy ? "paint.working" : "paint.save")}</Button>
         <Button variant="outline" disabled={busy} onClick={discardPaint}>{t("paint.discard")}</Button>
       </div>
-      <span className={styles.hint}>{t("paint.saveHint")}</span>
     </>}
   </div>;
 }

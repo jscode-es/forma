@@ -142,6 +142,7 @@ export type EngineTask =
 type ParameterBase = { id: string; label: LocalizedText; tasks?: EngineTask[] };
 
 export type EngineParameter =
+  | (ParameterBase & { type: "string"; maxLength: number; default: string })
   | (ParameterBase & { type: "integer" | "number"; min: number; max: number; step?: number; default: number })
   | (ParameterBase & { type: "boolean"; default: boolean })
   | (ParameterBase & { type: "enum"; options: { value: string; label: LocalizedText }[]; default: string });

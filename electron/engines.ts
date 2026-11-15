@@ -35,6 +35,7 @@ function readEngine(dir: string, builtin: boolean): InstalledEngine | null {
     return null;
   }
   const manifest = parsed.data;
+  if (manifest.demo && process.env.FORMA_TEST_ENGINES !== "1") return null;
   return {
     manifest,
     dir,
@@ -100,6 +101,8 @@ export function resolveParameters(manifest: EngineManifest, values: Record<strin
     const value = values[parameter.id] ?? parameter.default;
     if (parameter.type === "boolean") {
       if (typeof value !== "boolean") throw new Error(`Parameter ${parameter.id} must be a boolean`);
+    } else if (parameter.type === "string") {
+      if (typeof value !== "string" || value.length > parameter.maxLength) throw new Error(`Parameter ${parameter.id} must be a string up to ${parameter.maxLength} characters`);
     } else if (parameter.type === "enum") {
       if (!parameter.options.some((o) => o.value === value)) throw new Error(`Parameter ${parameter.id} has an invalid option`);
     } else {

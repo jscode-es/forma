@@ -140,6 +140,7 @@
     "search": "Buscar herramienta...",
     "noResults": "Ninguna herramienta coincide con la búsqueda.",
     "generate": "Generar modelo",
+    "generating": "Generando modelo… {{percent}}%",
     "generateHint": "Elige un motor disponible.",
     "tabs": {
       "text": "Desde texto",
@@ -274,7 +275,7 @@
       }
     },
     "generateReady": "El trabajo se ejecuta en local y aparece en la cola.",
-    "generateQueued": "Ya hay un trabajo de este motor en la cola.",
+    "generateQueued": "Modelo en cola…",
     "createAnimation": "Crear animación"
   },
   "quality": {
@@ -299,6 +300,7 @@
     "hint": "Usa la versión activa y la referencia seleccionada. Necesita un motor de texturas instalado, como Hunyuan3D Paint 2.1 PBR (Modelos → Motores)."
   },
   "engine": {
+    "details": "Acerca de {{name}}",
     "none": "No hay motores instalados",
     "noneHint": "Los motores se instalan desde el gestor de modelos.",
     "choose": "Elige un motor",
@@ -344,6 +346,7 @@
     "issue": "Informar de un problema o proponer una idea"
   },
   "settings": {
+    "general": "General",
     "title": "Ajustes",
     "description": "Preferencias de este equipo.",
     "language": "Idioma",
@@ -355,6 +358,9 @@
     "dataDirHint": "Aquí se guardan los proyectos, los modelos y la base de datos.",
     "openDataDir": "Abrir carpeta",
     "hardware": {
+      "blender": "Blender",
+      "blenderHint": "Forma usa Blender en segundo plano para retopología, UV, horneado y rig. Una vez detectado, no necesitas configurarlo de nuevo.",
+      "changeBlender": "Cambiar ejecutable de Blender",
       "title": "Hardware y motores",
       "gpu": "GPU",
       "vram": "VRAM",
@@ -419,6 +425,7 @@
       "cancelled": "Cancelado"
     },
     "stage": {
+      "refining-prompt": "Mejorando el prompt en local",
       "preparing": "Preparando",
       "sampling": "Muestreando",
       "exporting": "Exportando",
@@ -437,6 +444,7 @@
       "planning": "Planificando el movimiento"
     },
     "error": {
+      "prompt-refinement-invalid": "El modelo local no ha podido preparar un prompt válido. Reformula la descripción y reintenta.",
       "interrupted": "Interrumpido: la aplicación se cerró mientras se ejecutaba",
       "timeout": "Se superó el tiempo límite",
       "no-result": "El motor terminó sin resultado",
@@ -635,14 +643,18 @@
     "empty": "No hay motores disponibles en esta versión."
   },
   "prompt": {
+    "expandImage": "Ampliar candidata {{index}}",
+    "previewTitle": "Candidata {{index}}",
     "label": "Prompt",
     "placeholder": "Una silla de madera roja con patas curvas",
     "engine": "Motor de imagen",
     "generate": "Generar imágenes",
     "generating": "Generando imágenes… {{percent}}%",
+    "refining": "Mejorando prompt… {{percent}}%",
+    "queued": "Imágenes en cola…",
     "candidates": "Candidatas",
     "pickHint": "Elige una imagen para usarla como referencia del 3D.",
-    "pickedHint": "Referencia lista. Continúa en Crear 3D para generar el modelo.",
+    "pickedHint": "Referencia lista. Pulsa Generar modelo para crear el modelo 3D.",
     "use": "Usar la imagen con semilla {{seed}}",
     "useImage": "Usar la imagen {{index}}",
     "picked": "Referencia",
@@ -654,10 +666,13 @@
     "images": "{{count}} imágenes",
     "fromPrompt": "Generada desde un prompt",
     "fromPromptSeed": "Generada desde un prompt · semilla {{seed}}",
-    "writeHint": "Escribe un prompt que describa el objeto.",
     "readyHint": "Ctrl+Enter en el prompt también genera.",
-    "continue": "Continuar en Crear 3D",
-    "networkHint": "Usa la red y tu cuenta externa, y puede consumir tu cuota. Solo se envía el prompt; el consentimiento se reinicia tras cada generación."
+    "networkHint": "Usa la red y tu cuenta externa, y puede consumir tu cuota. Solo se envía el prompt; el consentimiento se reinicia tras cada generación.",
+    "styleSettings": "Ajustes de estilo de SDXL",
+    "styleLabel": "Estilo visual compartido",
+    "stylePlaceholder": "Low-poly, colores pastel, vista isométrica, luz suave",
+    "styleHint": "Se guarda automáticamente en este equipo y se añade a cada prompt de SDXL. Describe la estética, no el objeto. Déjalo vacío para generar sin un estilo compartido.",
+    "styleClear": "Borrar estilo"
   },
   "views": {
     "front": "Frontal",
@@ -766,7 +781,7 @@
     "source": "Origen activo: {{name}}",
     "blenderReady": "Blender {{version}} disponible",
     "checkingBlender": "Comprobando Blender…",
-    "blenderMissing": "Las herramientas de malla requieren Blender.",
+    "blenderMissing": "Se necesita Blender. Configúralo en Ajustes → Hardware y motores.",
     "configureBlender": "Configurar Blender",
     "runtimeFailed": "No se pudo configurar Blender. Selecciona un ejecutable compatible.",
     "needsModel": "Importa o genera un modelo para usar las herramientas de malla.",
@@ -832,7 +847,7 @@
     "source": "Origen visible: {{name}}",
     "configureBlender": "Configurar Blender",
     "runtimeFailed": "No se pudo configurar Blender. Elige un ejecutable de Blender compatible.",
-    "blenderMissing": "Configura Blender para usar las herramientas de rig.",
+    "blenderMissing": "Para usar las herramientas de rig, configura Blender en Ajustes → Hardware y motores.",
     "needsModel": "Importa o genera un modelo para crear su rig.",
     "humanoidHint": "Para humanoides de pie en pose T o A, con +Y hacia arriba y +Z hacia delante.",
     "guide": "Punto del cuerpo",

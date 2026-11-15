@@ -1,7 +1,7 @@
 {
   "id": "hunyuan3d-2",
   "name": "Hunyuan3D 2.0",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "Tencent Hunyuan 3D 2.0 Community License",
   "description": {
     "en": "Image to 3D geometry with Tencent Hunyuan3D 2.0 (DiT 2.0, fp16) and background removal with BiRefNet.",
@@ -19,8 +19,9 @@
       "id": "octreeResolution",
       "type": "enum",
       "label": { "en": "Surface resolution", "es": "Resolución de superficie" },
-      "default": "380",
+      "default": "512",
       "options": [
+        { "value": "128", "label": { "en": "128", "es": "128" } },
         { "value": "256", "label": { "en": "256", "es": "256" } },
         { "value": "380", "label": { "en": "380", "es": "380" } },
         { "value": "512", "label": { "en": "512", "es": "512" } }

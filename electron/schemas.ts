@@ -215,6 +215,14 @@ export const engineManifest = z.object({
       z.discriminatedUnion("type", [
         z.object({
           id: parameterId,
+          type: z.literal("string"),
+          label: localizedText,
+          tasks: z.array(engineTask).optional(),
+          maxLength: z.number().int().min(1).max(256),
+          default: z.string().max(256),
+        }).refine((parameter) => parameter.default.length <= parameter.maxLength, "default exceeds maxLength"),
+        z.object({
+          id: parameterId,
           type: z.enum(["integer", "number"]),
           label: localizedText,
           tasks: z.array(engineTask).optional(),

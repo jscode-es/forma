@@ -11,8 +11,8 @@ export function tempDataDir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), "forma-e2e-"));
 }
 
-export async function launch(dataDir: string): Promise<{ app: ElectronApplication; page: Page }> {
-  const env = { ...process.env, FORMA_USER_DATA: dataDir } as Record<string, string>;
+export async function launch(dataDir: string, { demoEngines = true } = {}): Promise<{ app: ElectronApplication; page: Page }> {
+  const env = { ...process.env, FORMA_USER_DATA: dataDir, FORMA_TEST_ENGINES: demoEngines ? "1" : "0" } as Record<string, string>;
   delete env.ELECTRON_RUN_AS_NODE;
   delete env.FORMA_DEV;
   const executablePath = process.env.FORMA_E2E_EXECUTABLE;

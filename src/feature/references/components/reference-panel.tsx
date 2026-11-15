@@ -134,6 +134,5 @@ export function ReferencePanel() {
   return <div className={styles.list}>
     <ReferenceSlot view="front" />
     {reference?.prompt && <span className={styles.hint}>{reference.prompt.seed === null ? t("prompt.fromPrompt") : t("prompt.fromPromptSeed", { seed: reference.prompt.seed })}</span>}
-    <span className={styles.hint}>{t("references.dropHint")}</span>
   </div>;
 }

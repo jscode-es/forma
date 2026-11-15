@@ -1,0 +1,35 @@
+.button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-width: 0;
+  white-space: normal;
+}
+
+.button[data-progress]:disabled {
+  opacity: 1;
+  background: var(--color-secondary);
+  color: var(--color-foreground);
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklch, var(--color-primary) 35%, var(--color-secondary));
+  transform-origin: left;
+  transition: transform 200ms linear;
+  pointer-events: none;
+}
+
+.content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  gap: 0.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill { transition: none; }
+}

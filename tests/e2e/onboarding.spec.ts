@@ -27,6 +27,7 @@ test("opens on first run, explains every engine and is not shown again after ski
     await expect(dialog).toBeHidden();
 
     await page.getByRole("button", { name: "Settings", exact: true }).click();
+    await page.getByRole("tab", { name: "Setup assistant", exact: true }).click();
     await page.getByRole("button", { name: "Open the setup assistant", exact: true }).click();
     await expect(dialog).toBeVisible();
   } finally {

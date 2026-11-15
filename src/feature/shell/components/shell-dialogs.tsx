@@ -11,6 +11,10 @@ import {
   Icon,
   Label,
   Switch,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
 } from "@kivora/nextjs";
 import { Download, ExternalLink, FolderOpen, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -18,7 +22,7 @@ import { refreshEngines, useJobsStore } from "@/feature/jobs";
 import { useOnboardingStore } from "@/feature/onboarding";
 import { LibraryDialogContent } from "@/feature/projects";
 import { LanguageToggle, ThemeToggle } from "@/feature/settings";
-import type { SystemInfo, UpdateState } from "@/lib/forma";
+import type { BlenderInfo, SystemInfo, UpdateState } from "@/lib/forma";
 import styles from "../shell.module.css";
 import type { ShellDialog } from "./side-menu";
 
@@ -53,45 +57,62 @@ function SettingsContent() {
   }, []);
 
   return (
-    <DialogContent>
+    <DialogContent className={styles.settingsDialog}>
       <DialogHeader>
         <DialogTitle>{t("settings.title")}</DialogTitle>
         <DialogDescription>{t("settings.description")}</DialogDescription>
       </DialogHeader>
-      <div style={{ display: "grid", gap: "1.25rem" }}>
-        <div style={{ display: "grid", gap: "0.5rem" }}>
-          <Label>{t("settings.language")}</Label>
-          <LanguageToggle />
+      <Tabs defaultValue="general" orientation="vertical" className={styles.settingsLayout}>
+        <aside className={styles.settingsAside}>
+          <TabsList aria-label={t("settings.title")} className={styles.settingsNav}>
+            <TabsTrigger value="general">{t("settings.general")}</TabsTrigger>
+            <TabsTrigger value="data">{t("settings.dataDir")}</TabsTrigger>
+            <TabsTrigger value="setup">{t("onboarding.title")}</TabsTrigger>
+            <TabsTrigger value="updates">{t("settings.updates.title")}</TabsTrigger>
+            <TabsTrigger value="hardware">{t("settings.hardware.title")}</TabsTrigger>
+          </TabsList>
+        </aside>
+        <div className={styles.settingsPanels}>
+          <TabsContent value="general" className={styles.settingsSection}>
+            <div style={{ display: "grid", gap: "0.5rem" }}>
+              <Label>{t("settings.language")}</Label>
+              <LanguageToggle />
+            </div>
+            <div style={{ display: "grid", gap: "0.5rem" }}>
+              <Label>{t("settings.theme")}</Label>
+              <ThemeToggle />
+            </div>
+          </TabsContent>
+          <TabsContent value="data" className={styles.settingsSection}>
+            <div style={{ display: "grid", gap: "0.5rem" }}>
+              <Label>{t("settings.dataDir")}</Label>
+              <code className={styles.pathBox}>{info?.dataDir ?? "-"}</code>
+              <span className={styles.hint}>{t("settings.dataDirHint")}</span>
+              <Button
+                variant="outline"
+                size="sm"
+                style={{ justifySelf: "start" }}
+                disabled={!window.forma}
+                onClick={() => window.forma?.system.openDataDir()}
+              >
+                <Icon icon={FolderOpen} size={15} />
+                {t("settings.openDataDir")}
+              </Button>
+            </div>
+          </TabsContent>
+          <TabsContent value="setup" className={styles.settingsSection}>
+            <div style={{ display: "grid", gap: "0.5rem" }}>
+              <Label>{t("onboarding.title")}</Label>
+              <span className={styles.hint}>{t("onboarding.reopenHint")}</span>
+              <Button variant="outline" size="sm" style={{ justifySelf: "start" }} onClick={() => useOnboardingStore.getState().setOpen(true)}>
+                {t("onboarding.reopen")}
+              </Button>
+            </div>
+          </TabsContent>
+          <TabsContent value="updates" className={styles.settingsSection}><UpdatesSection /></TabsContent>
+          <TabsContent value="hardware" className={styles.settingsSection}><HardwareSection /></TabsContent>
         </div>
-        <div style={{ display: "grid", gap: "0.5rem" }}>
-          <Label>{t("settings.theme")}</Label>
-          <ThemeToggle />
-        </div>
-        <div style={{ display: "grid", gap: "0.5rem" }}>
-          <Label>{t("settings.dataDir")}</Label>
-          <code className={styles.pathBox}>{info?.dataDir ?? "-"}</code>
-          <span className={styles.hint}>{t("settings.dataDirHint")}</span>
-          <Button
-            variant="outline"
-            size="sm"
-            style={{ justifySelf: "start" }}
-            disabled={!window.forma}
-            onClick={() => window.forma?.system.openDataDir()}
-          >
-            <Icon icon={FolderOpen} size={15} />
-            {t("settings.openDataDir")}
-          </Button>
-        </div>
-        <div style={{ display: "grid", gap: "0.5rem" }}>
-          <Label>{t("onboarding.title")}</Label>
-          <span className={styles.hint}>{t("onboarding.reopenHint")}</span>
-          <Button variant="outline" size="sm" style={{ justifySelf: "start" }} onClick={() => useOnboardingStore.getState().setOpen(true)}>
-            {t("onboarding.reopen")}
-          </Button>
-        </div>
-        <UpdatesSection />
-        <HardwareSection />
-      </div>
+      </Tabs>
     </DialogContent>
   );
 }
@@ -155,6 +176,29 @@ function HardwareSection() {
   const hardware = useJobsStore((s) => s.hardware);
   const engines = useJobsStore((s) => s.engines);
   const [checking, setChecking] = useState(false);
+  const [blender, setBlender] = useState<BlenderInfo | null>(null);
+  const [blenderError, setBlenderError] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    window.forma?.system.blender(false).then((info) => { if (active) setBlender(info); }).catch(() => { if (active) setBlenderError(true); });
+    return () => { active = false; };
+  }, []);
+
+  async function configureBlender() {
+    if (!window.forma) return;
+    setChecking(true);
+    setBlenderError(false);
+    try {
+      const info = await window.forma.system.chooseBlender();
+      if (info) setBlender(info);
+      await refreshEngines();
+    } catch {
+      setBlenderError(true);
+    } finally {
+      setChecking(false);
+    }
+  }
   const number = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 });
   const missing = t("settings.hardware.notFound");
 
@@ -183,6 +227,15 @@ function HardwareSection() {
         </div>
       </dl>
       <span className={styles.hint}>{t("settings.hardware.enginesHint")}</span>
+      <Label>{t("settings.hardware.blender")}</Label>
+      <span className={styles.hint}>{t(blender ? "mesh.blenderReady" : "mesh.blenderMissing", { version: blender?.version })}</span>
+      {blender && <code className={styles.pathBox}>{blender.path}</code>}
+      <span className={styles.hint}>{t("settings.hardware.blenderHint")}</span>
+      <Button variant="outline" size="sm" style={{ justifySelf: "start" }} disabled={checking || !window.forma} onClick={() => void configureBlender()}>
+        <Icon icon={FolderOpen} size={15} />
+        {t(blender ? "settings.hardware.changeBlender" : "mesh.configureBlender")}
+      </Button>
+      {blenderError && <span className={styles.hint} role="alert">{t("mesh.runtimeFailed")}</span>}
       <Button
         variant="outline"
         size="sm"
@@ -190,7 +243,16 @@ function HardwareSection() {
         disabled={checking || !window.forma}
         onClick={async () => {
           setChecking(true);
-          await refreshEngines(true).finally(() => setChecking(false));
+          setBlenderError(false);
+          try {
+            const info = await window.forma!.system.blender(true);
+            setBlender(info);
+            await refreshEngines(true);
+          } catch {
+            setBlenderError(true);
+          } finally {
+            setChecking(false);
+          }
         }}
       >
         <Icon icon={RefreshCw} size={15} />

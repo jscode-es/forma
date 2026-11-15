@@ -11,6 +11,5 @@ export function ViewSlots() {
     <div className={styles.viewGrid} role="group" aria-label={t("references.gridLabel")}>
       {REFERENCE_VIEWS.map((view) => <ReferenceSlot key={view} view={view} />)}
     </div>
-    <span className={styles.hint}>{t("references.dropHint")}</span>
   </div>;
 }

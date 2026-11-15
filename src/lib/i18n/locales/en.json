@@ -140,6 +140,7 @@
     "search": "Search tool...",
     "noResults": "No tools match your search.",
     "generate": "Generate model",
+    "generating": "Generating model… {{percent}}%",
     "generateHint": "Choose an available engine.",
     "tabs": {
       "text": "From text",
@@ -274,7 +275,7 @@
       }
     },
     "generateReady": "The job runs locally and appears in the job queue.",
-    "generateQueued": "A job of this engine is already in the queue.",
+    "generateQueued": "Model queued…",
     "createAnimation": "Create animation"
   },
   "quality": {
@@ -299,6 +300,7 @@
     "hint": "Uses the active version and the selected reference. Needs an installed texture engine, such as Hunyuan3D Paint 2.1 PBR (Models → Engines)."
   },
   "engine": {
+    "details": "About {{name}}",
     "none": "No engines installed",
     "noneHint": "Engines are installed from the model manager.",
     "choose": "Choose an engine",
@@ -344,6 +346,7 @@
     "issue": "Report a problem or suggest an idea"
   },
   "settings": {
+    "general": "General",
     "title": "Settings",
     "description": "Preferences of this computer.",
     "language": "Language",
@@ -355,6 +358,9 @@
     "dataDirHint": "Projects, models and the database are stored here.",
     "openDataDir": "Open folder",
     "hardware": {
+      "blender": "Blender",
+      "blenderHint": "Forma uses Blender in the background for retopology, UVs, baking and rigging. Once detected, no further configuration is needed.",
+      "changeBlender": "Change Blender executable",
       "title": "Hardware and engines",
       "gpu": "GPU",
       "vram": "VRAM",
@@ -419,6 +425,7 @@
       "cancelled": "Cancelled"
     },
     "stage": {
+      "refining-prompt": "Improving prompt locally",
       "preparing": "Preparing",
       "sampling": "Sampling",
       "exporting": "Exporting",
@@ -437,6 +444,7 @@
       "planning": "Planning the motion"
     },
     "error": {
+      "prompt-refinement-invalid": "The local model could not prepare a valid prompt. Rephrase the description and retry.",
       "interrupted": "Interrupted: the app was closed while it ran",
       "timeout": "Time limit exceeded",
       "no-result": "The engine finished without a result",
@@ -635,14 +643,18 @@
     "empty": "No engines available in this version."
   },
   "prompt": {
+    "expandImage": "Enlarge candidate {{index}}",
+    "previewTitle": "Candidate {{index}}",
     "label": "Prompt",
     "placeholder": "A red wooden chair with curved legs",
     "engine": "Image engine",
     "generate": "Generate images",
     "generating": "Generating images… {{percent}}%",
+    "refining": "Improving prompt… {{percent}}%",
+    "queued": "Images queued…",
     "candidates": "Candidates",
     "pickHint": "Pick an image to use it as the reference for 3D.",
-    "pickedHint": "Reference ready. Continue in Create 3D to generate the model.",
+    "pickedHint": "Reference ready. Use Generate model to create the 3D model.",
     "use": "Use the image with seed {{seed}}",
     "useImage": "Use image {{index}}",
     "picked": "Reference",
@@ -654,10 +666,13 @@
     "images": "{{count}} images",
     "fromPrompt": "Generated from a prompt",
     "fromPromptSeed": "Generated from a prompt · seed {{seed}}",
-    "writeHint": "Write a prompt to describe the object.",
     "readyHint": "Ctrl+Enter in the prompt also generates.",
-    "continue": "Continue in Create 3D",
-    "networkHint": "Uses the network and your external account, and may consume your quota. Only the prompt is sent; consent resets after each generation."
+    "networkHint": "Uses the network and your external account, and may consume your quota. Only the prompt is sent; consent resets after each generation.",
+    "styleSettings": "SDXL style settings",
+    "styleLabel": "Shared visual style",
+    "stylePlaceholder": "Low-poly, pastel colors, isometric view, soft lighting",
+    "styleHint": "Saved automatically on this computer and added to every SDXL prompt. Describe the look, not the object. Leave empty to generate without a shared style.",
+    "styleClear": "Clear style"
   },
   "views": {
     "front": "Front",
@@ -766,7 +781,7 @@
     "source": "Active source: {{name}}",
     "blenderReady": "Blender {{version}} ready",
     "checkingBlender": "Checking Blender…",
-    "blenderMissing": "Blender is required for mesh tools.",
+    "blenderMissing": "Blender is required. Set it up in Settings → Hardware and engines.",
     "configureBlender": "Configure Blender",
     "runtimeFailed": "Blender could not be configured. Choose a supported Blender executable.",
     "needsModel": "Import or generate a model to use mesh tools.",
@@ -832,7 +847,7 @@
     "source": "Displayed source: {{name}}",
     "configureBlender": "Configure Blender",
     "runtimeFailed": "Blender could not be configured. Choose a supported Blender executable.",
-    "blenderMissing": "Configure Blender to use rig tools.",
+    "blenderMissing": "To use rig tools, set up Blender in Settings → Hardware and engines.",
     "needsModel": "Import or generate a model to rig it.",
     "humanoidHint": "For standing humanoids in a T or A pose, with +Y up and +Z facing forward.",
     "guide": "Body landmark",
