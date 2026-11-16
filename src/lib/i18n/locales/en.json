@@ -302,7 +302,7 @@
     "noViews": "Add at least one reference view to texture.",
     "run": "Texture into a new version",
     "running": "Texturing...",
-    "hint": "Uses the active version and the project reference views. Needs an installed texture engine, such as Hunyuan3D Paint 2.1 PBR (Models → Engines)."
+    "hint": "Uses the active version and the project reference views. Forma view projection is built in; AI engines such as Hunyuan3D Paint 2.1 PBR are installed from Models → Engines."
   },
   "engine": {
     "details": "About {{name}}",
@@ -465,6 +465,12 @@
       "prompt-required": "Write a prompt first",
       "views-mismatch": "Each reference needs one view",
       "view-unsupported": "The engine does not accept one of the views",
+      "projection-empty": "No reference view lands on the model. Check that the views show the whole object, centered and without extra elements",
+      "reference-empty": "A reference view has no visible object; use an image with a transparent or uniform background",
+      "uv-pack-failed": "The UV charts do not fit in the atlas; choose a larger resolution or optimize the model first",
+      "unsupported-primitive": "The model contains lines or points; only triangle meshes can be textured",
+      "instanced-mesh-unsupported": "The same mesh is reused by several objects; this is not supported yet",
+      "image-unsupported": "Unsupported image format; use PNG or JPEG",
       "occlusion-uv-required": "Ambient occlusion needs a mesh with UVs; unwrap them first",
       "occlusion-single-mesh-required": "Ambient occlusion supports a single mesh",
       "occlusion-bake-empty": "The occlusion bake produced no pixels",
