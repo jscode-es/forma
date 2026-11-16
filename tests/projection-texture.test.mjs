@@ -66,3 +66,32 @@ test("rejects transparent references without a visible object and accepts opaque
   assert.throws(() => prepareView("front", { width: 8, height: 8, data: new Uint8Array(8 * 8 * 4) }, mesh, triangles), /reference-empty/);
   assert.doesNotThrow(() => prepareView("front", { width: 8, height: 8, data: new Uint8Array(8 * 8 * 4).fill(255) }, mesh, triangles));
 });
+
+function shape(color, { size = 160, cx = 80, cy = 80, radius = 64, stand = false } = {}) {
+  const data = new Uint8Array(size * size * 4);
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const inside = (x - cx) ** 2 + (y - cy) ** 2 <= radius ** 2 || (stand && Math.abs(x - cx) < 4 && y > cy + radius - 2 && y < cy + radius * 1.4);
+      if (inside) data.set([...color, 255], (y * size + x) * 4);
+    }
+  }
+  return { width: size, height: size, data };
+}
+
+test("fits the mesh silhouette to references with extra elements", () => {
+  const { positions, triangles } = sphere();
+  const mesh = weld(positions);
+  const view = prepareView("front", shape([200, 100, 50], { cx: 70, cy: 75, radius: 50, stand: true }), mesh, triangles);
+  assert.ok(view.iou > view.initialIou + 0.03, `${view.initialIou} -> ${view.iou}`);
+  assert.ok(view.iou > 0.93, `${view.iou}`);
+});
+
+test("matches exposure between overlapping views", () => {
+  const { positions, triangles } = sphere();
+  const mesh = weld(positions);
+  const views = [prepareView("front", shape([200, 120, 60]), mesh, triangles), prepareView("left", shape([140, 84, 42]), mesh, triangles)];
+  const { cornerUv } = unwrap(mesh, triangles, 64, 2);
+  bake({ mesh, triangles, cornerUv, views, resolution: 64, sharpness: 4, progress: () => {} });
+  for (const gain of views[1].gain) assert.ok(Math.abs(gain - 1 / 0.7) < 0.08, `${views[1].gain}`);
+  assert.deepEqual(views[0].gain, [1, 1, 1]);
+});

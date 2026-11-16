@@ -63,10 +63,11 @@ function foreground(image) {
       mask[i] = distance > 48 ? 1 : 0;
     }
   }
-  let x0 = width, y0 = height, x1 = -1, y1 = -1;
+  let x0 = width, y0 = height, x1 = -1, y1 = -1, area = 0;
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       if (!mask[y * width + x]) continue;
+      area++;
       if (x < x0) x0 = x;
       if (x > x1) x1 = x;
       if (y < y0) y0 = y;
@@ -75,27 +76,44 @@ function foreground(image) {
   }
   if (x1 < x0 && transparent) throw new Error("reference-empty");
   // An opaque image without a distinguishable background is treated as a tight crop of the object.
-  if (x1 < x0) return { mask: mask.fill(1), bounds: [0, 0, width, height] };
-  return { mask: erode(mask, width, height, Math.max(1, Math.round(Math.min(width, height) / 256))), bounds: [x0, y0, x1 + 1, y1 + 1] };
+  if (x1 < x0) { mask.fill(1); x0 = 0; y0 = 0; x1 = width - 1; y1 = height - 1; area = width * height; }
+  return { mask, edge: distanceField(mask, width, height), bounds: [x0, y0, x1 + 1, y1 + 1], area };
 }
 
-function erode(mask, width, height, radius) {
-  const pass = (source, horizontal) => {
-    const out = new Uint8Array(source.length);
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        let keep = 1;
-        for (let d = -radius; d <= radius && keep; d++) {
-          const nx = horizontal ? x + d : x;
-          const ny = horizontal ? y : y + d;
-          if (nx < 0 || ny < 0 || nx >= width || ny >= height || !source[ny * width + nx]) keep = 0;
-        }
-        out[y * width + x] = keep;
+// Chamfer distance (in pixels) from each inside pixel to the nearest outside pixel.
+function distanceField(inside, width, height) {
+  const field = new Float32Array(width * height);
+  for (let i = 0; i < field.length; i++) field[i] = inside[i] ? 1e9 : 0;
+  const diagonal = Math.SQRT2;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = y * width + x;
+      let value = field[i];
+      if (!value) continue;
+      if (x > 0) value = Math.min(value, field[i - 1] + 1);
+      if (y > 0) {
+        value = Math.min(value, field[i - width] + 1);
+        if (x > 0) value = Math.min(value, field[i - width - 1] + diagonal);
+        if (x < width - 1) value = Math.min(value, field[i - width + 1] + diagonal);
       }
+      field[i] = value;
     }
-    return out;
-  };
-  return pass(pass(mask, true), false);
+  }
+  for (let y = height - 1; y >= 0; y--) {
+    for (let x = width - 1; x >= 0; x--) {
+      const i = y * width + x;
+      let value = field[i];
+      if (!value) continue;
+      if (x < width - 1) value = Math.min(value, field[i + 1] + 1);
+      if (y < height - 1) {
+        value = Math.min(value, field[i + width] + 1);
+        if (x < width - 1) value = Math.min(value, field[i + width + 1] + diagonal);
+        if (x > 0) value = Math.min(value, field[i + width - 1] + diagonal);
+      }
+      field[i] = value;
+    }
+  }
+  return field;
 }
 
 function weld(positions) {
@@ -249,20 +267,83 @@ function shelfPack(charts, order, scale, resolution, padding) {
   return placed;
 }
 
+const SILHOUETTE_GRID = 192;
+
+// Fits scale, aspect and offset so the mesh silhouette overlaps the reference mask as much as possible (IoU).
+function alignSilhouette(planar, mesh, triangles, silhouette, image, initial) {
+  const { a0, a1, b0, b1 } = initial;
+  const span = Math.max(a1 - a0, b1 - b0, 1e-9) * 1.1;
+  const cell = span / SILHOUETTE_GRID;
+  const gw = Math.ceil(((a1 - a0) * 1.1) / cell) + 2, gh = Math.ceil(((b1 - b0) * 1.1) / cell) + 2;
+  const ac = (a0 + a1) / 2, bc = (b0 + b1) / 2;
+  const left = ac - (gw * cell) / 2, top = bc + (gh * cell) / 2;
+  const points = new Float32Array(mesh.count * 3);
+  for (let v = 0; v < mesh.count; v++) points.set([(planar[v * 2] - left) / cell, (top - planar[v * 2 + 1]) / cell, 0], v * 3);
+  const covered = new Uint8Array(gw * gh);
+  for (let f = 0; f < triangles.length; f += 3) {
+    rasterize(points, mesh.ids[triangles[f]], mesh.ids[triangles[f + 1]], mesh.ids[triangles[f + 2]], gw, gh, (index) => { covered[index] = 1; });
+  }
+  const cells = [];
+  for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) if (covered[y * gw + x]) cells.push(left + (x + 0.5) * cell - ac, top - (y + 0.5) * cell - bc);
+  const { width, height } = image;
+  const iou = ([scale, aspect, tx, ty]) => {
+    const sx = scale * aspect, sy = scale / aspect;
+    let inside = 0;
+    for (let i = 0; i < cells.length; i += 2) {
+      const x = Math.floor(initial.cx + sx * cells[i] + tx), y = Math.floor(initial.cy - sy * cells[i + 1] + ty);
+      if (x >= 0 && y >= 0 && x < width && y < height && silhouette.mask[y * width + x]) inside++;
+    }
+    const cellArea = cell * sx * cell * sy;
+    const intersection = inside * cellArea;
+    return intersection / ((cells.length / 2) * cellArea + silhouette.area - intersection);
+  };
+  const size = Math.max(silhouette.bounds[2] - silhouette.bounds[0], silhouette.bounds[3] - silhouette.bounds[1]);
+  let params = [Math.sqrt(initial.kx * initial.ky), Math.sqrt(initial.kx / initial.ky), 0, 0];
+  let best = iou(params);
+  const start = best;
+  const steps = [params[0] * 0.06, 0.04, size * 0.04, size * 0.04];
+  const minimum = [params[0] * 0.002, 0.002, 0.25, 0.25];
+  const limits = [[params[0] * 0.7, params[0] * 1.4], [0.85, 1.18], [-size * 0.25, size * 0.25], [-size * 0.25, size * 0.25]];
+  for (let round = 0; round < 80 && steps.some((step, i) => step > minimum[i]); round++) {
+    let improved = false;
+    for (let i = 0; i < 4; i++) {
+      for (const sign of [1, -1]) {
+        const candidate = params.slice();
+        candidate[i] = Math.min(limits[i][1], Math.max(limits[i][0], candidate[i] + sign * steps[i]));
+        const score = iou(candidate);
+        if (score > best + 1e-5) { best = score; params = candidate; improved = true; }
+      }
+    }
+    if (!improved) for (let i = 0; i < 4; i++) steps[i] /= 2;
+  }
+  return { params, ac, bc, iou: best, initialIou: start };
+}
+
 function prepareView(name, image, mesh, triangles) {
   const preset = VIEWS[name];
   if (!preset) throw new Error("view-unsupported");
   const d = preset.dir, xAxis = normalize(cross(preset.up, d)), yAxis = cross(d, xAxis);
-  const { mask, bounds } = foreground(image);
+  const silhouette = foreground(image);
+  const { bounds } = silhouette;
+  const planar = new Float32Array(mesh.count * 2);
   let a0 = Infinity, a1 = -Infinity, b0 = Infinity, b1 = -Infinity;
   for (let v = 0; v < mesh.count; v++) {
     const p = mesh.positions.subarray(v * 3, v * 3 + 3);
     const a = dot(p, xAxis), b = dot(p, yAxis);
+    planar[v * 2] = a; planar[v * 2 + 1] = b;
     a0 = Math.min(a0, a); a1 = Math.max(a1, a); b0 = Math.min(b0, b); b1 = Math.max(b1, b);
   }
-  const kx = (bounds[2] - bounds[0]) / Math.max(a1 - a0, 1e-9);
-  const ky = (bounds[3] - bounds[1]) / Math.max(b1 - b0, 1e-9);
-  const project = (p) => [bounds[0] + (dot(p, xAxis) - a0) * kx, bounds[1] + (b1 - dot(p, yAxis)) * ky, dot(p, d)];
+  const initial = {
+    a0, a1, b0, b1,
+    kx: (bounds[2] - bounds[0]) / Math.max(a1 - a0, 1e-9),
+    ky: (bounds[3] - bounds[1]) / Math.max(b1 - b0, 1e-9),
+    cx: (bounds[0] + bounds[2]) / 2,
+    cy: (bounds[1] + bounds[3]) / 2,
+  };
+  const fit = alignSilhouette(planar, mesh, triangles, silhouette, image, initial);
+  const [scale, aspect, tx, ty] = fit.params;
+  const sx = scale * aspect, sy = scale / aspect;
+  const project = (p) => [initial.cx + sx * (dot(p, xAxis) - fit.ac) + tx, initial.cy - sy * (dot(p, yAxis) - fit.bc) + ty, dot(p, d)];
   const factor = Math.min(1, DEPTH_GRID / Math.max(image.width, image.height));
   const gw = Math.max(1, Math.ceil(image.width * factor)), gh = Math.max(1, Math.ceil(image.height * factor));
   const depth = new Float32Array(gw * gh).fill(-Infinity);
@@ -276,7 +357,31 @@ function prepareView(name, image, mesh, triangles) {
       if (z > depth[index]) depth[index] = z;
     });
   }
-  return { dir: d, image, mask, project, factor, gw, gh, depth, epsilon: mesh.extent * 0.01 };
+  const jump = mesh.extent * 0.03;
+  const smooth = new Uint8Array(gw * gh);
+  for (let y = 0; y < gh; y++) {
+    for (let x = 0; x < gw; x++) {
+      const i = y * gw + x, z = depth[i];
+      if (z === -Infinity) continue;
+      let ok = 1;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = x + dx, ny = y + dy;
+        const other = nx < 0 || ny < 0 || nx >= gw || ny >= gh ? -Infinity : depth[ny * gw + nx];
+        if (Math.abs(other - z) > jump) { ok = 0; break; }
+      }
+      smooth[i] = ok;
+    }
+  }
+  return {
+    name, dir: d, image, project, factor, gw, gh, depth,
+    edge: silhouette.edge,
+    edgeRamp: Math.max(2, Math.min(image.width, image.height) * 0.015),
+    depthEdge: distanceField(smooth, gw, gh),
+    epsilon: mesh.extent * 0.01,
+    gain: [1, 1, 1],
+    iou: fit.iou,
+    initialIou: fit.initialIou,
+  };
 }
 
 function rasterize(points, a, b, c, width, height, visit) {
@@ -299,6 +404,8 @@ function rasterize(points, a, b, c, width, height, visit) {
   }
 }
 
+const smoothstep = (value) => (value >= 1 ? 1 : value <= 0 ? 0 : value * value * (3 - 2 * value));
+
 function sample(view, p, n, sharpness, out) {
   const facing = dot(n, view.dir);
   if (facing <= 0.05) return 0;
@@ -308,15 +415,69 @@ function sample(view, p, n, sharpness, out) {
   const gx = Math.min(view.gw - 1, Math.floor(x * view.factor)), gy = Math.min(view.gh - 1, Math.floor(y * view.factor));
   if (z < view.depth[gy * view.gw + gx] - view.epsilon) return 0;
   const ix = Math.floor(x), iy = Math.floor(y);
-  if (!view.mask[iy * width + ix]) return 0;
+  const border = smoothstep((view.edge[iy * width + ix] - 1) / view.edgeRamp) * smoothstep(view.depthEdge[gy * view.gw + gx] / 3);
+  if (border <= 0) return 0;
   const fx = x - ix, fy = y - iy;
-  const weight = facing ** sharpness;
+  const weight = facing ** sharpness * border;
   for (let channel = 0; channel < 3; channel++) {
     const at = (dx, dy) => data[((iy + dy) * width + ix + dx) * 4 + channel];
     const value = (at(0, 0) * (1 - fx) + at(1, 0) * fx) * (1 - fy) + (at(0, 1) * (1 - fx) + at(1, 1) * fx) * fy;
-    out[channel] += value * weight;
+    out[channel] += value * view.gain[channel] * weight;
   }
   return weight;
+}
+
+// Matches exposure and white balance between views from the surface areas they both see.
+function harmonize(mesh, normals, views) {
+  if (views.length < 2) return;
+  const pairs = new Map();
+  const stride = Math.max(1, Math.floor(mesh.count / 60000));
+  const colors = views.map(() => [0, 0, 0]);
+  const seen = new Array(views.length);
+  for (let v = 0; v < mesh.count; v += stride) {
+    const p = mesh.positions.subarray(v * 3, v * 3 + 3), n = normals.subarray(v * 3, v * 3 + 3);
+    views.forEach((view, i) => {
+      colors[i].fill(0);
+      const weight = sample(view, p, n, 1, colors[i]);
+      seen[i] = weight > 0.3;
+      if (seen[i]) for (let c = 0; c < 3; c++) colors[i][c] /= weight * view.gain[c];
+    });
+    for (let i = 0; i < views.length; i++) {
+      for (let j = i + 1; j < views.length; j++) {
+        if (!seen[i] || !seen[j]) continue;
+        const key = i * views.length + j;
+        const pair = pairs.get(key) ?? { i, j, count: 0, a: [0, 0, 0], b: [0, 0, 0] };
+        pair.count++;
+        for (let c = 0; c < 3; c++) { pair.a[c] += colors[i][c]; pair.b[c] += colors[j][c]; }
+        pairs.set(key, pair);
+      }
+    }
+  }
+  const reliable = [...pairs.values()].filter((pair) => pair.count >= 20);
+  if (!reliable.length) return;
+  const reference = Math.max(0, views.findIndex((view) => view.name === "front"));
+  const luminance = (rgb, gain = [1, 1, 1]) => 0.2126 * rgb[0] * gain[0] + 0.7152 * rgb[1] * gain[1] + 0.0722 * rgb[2] * gain[2];
+  const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
+  // Exposure may differ a lot between sources; hue shifts are limited so real color differences survive.
+  for (let iteration = 0; iteration < 30; iteration++) {
+    views.forEach((view, i) => {
+      if (i === reference) return;
+      let target = 0, own = 0;
+      const channelTarget = [0, 0, 0], channelOwn = [0, 0, 0];
+      for (const pair of reliable) {
+        if (pair.i !== i && pair.j !== i) continue;
+        const [mine, other, otherView] = pair.i === i ? [pair.a, pair.b, views[pair.j]] : [pair.b, pair.a, views[pair.i]];
+        target += luminance(other, otherView.gain);
+        own += luminance(mine);
+        for (let c = 0; c < 3; c++) { channelTarget[c] += other[c] * otherView.gain[c]; channelOwn[c] += mine[c]; }
+      }
+      if (own <= 0) return;
+      const exposure = clamp(target / own, 0.6, 1.6);
+      const balance = [0, 1, 2].map((c) => (channelOwn[c] > 0 ? channelTarget[c] / (channelOwn[c] * exposure) : 1));
+      const mean = luminance(balance) || 1;
+      view.gain = balance.map((value) => exposure * clamp(value / mean, 0.92, 1.08));
+    });
+  }
 }
 
 function vertexColors(mesh, normals, graph, views, sharpness) {
@@ -364,6 +525,7 @@ function vertexColors(mesh, normals, graph, views, sharpness) {
 
 function bake({ mesh, triangles, cornerUv, views, resolution, sharpness, progress }) {
   const normals = smoothNormals(mesh, triangles);
+  harmonize(mesh, normals, views);
   const graph = adjacency(mesh, triangles);
   const fill = vertexColors(mesh, normals, graph, views, sharpness);
   const size = resolution * resolution;
