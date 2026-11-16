@@ -18,6 +18,8 @@ type ParameterProps = {
   setParameter: (key: string, value: ParameterValue) => void;
 };
 
+const INLINE_SELECTS = ["octreeResolution", "atlasResolution"];
+
 function ParameterControl({ parameter, value, idPrefix, setParameter }: ParameterProps) {
   const { i18n } = useTranslation();
   const label = localized(parameter.label, i18n.language);
@@ -41,7 +43,7 @@ function ParameterControl({ parameter, value, idPrefix, setParameter }: Paramete
   }
 
   if (parameter.type === "enum") {
-    if (parameter.id === "octreeResolution") {
+    if (INLINE_SELECTS.includes(parameter.id)) {
       const options = parameter.options.map((option) => ({ value: option.value, label: localized(option.label, i18n.language) }));
       return <div className={styles.paramRow}>
         <Label htmlFor={inputId}>{label}</Label>
