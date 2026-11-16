@@ -1,7 +1,7 @@
 import { expect, test, type ElectronApplication, type Page } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
-import { chooseEngine, launch, quit, stubOpenDialog, tempDataDir, waitForJob } from "./helpers";
+import { chooseEngine, launch, openProject, quit, stubOpenDialog, tempDataDir, waitForJob } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
 const dataDir = tempDataDir();
@@ -138,6 +138,7 @@ test("passes view assignments to the engine and preserves them on save", async (
   await expect(page.getByLabel("Unsaved changes")).toHaveCount(0);
   await quit(app);
   ({ app, page } = await launch(dataDir));
+  await openProject(page, "Multi-view project");
   const project = await page.evaluate(() => window.forma!.projects.last());
   expect(project!.scene.references.map((r) => r.view)).toEqual(["front", "back"]);
   expect(project!.scene.references.every((r) => r.prepared?.type === "asset" && r.usePrepared)).toBe(true);

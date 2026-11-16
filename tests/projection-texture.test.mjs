@@ -60,8 +60,9 @@ test("projects each view onto the faces that look at it", () => {
   assert.ok(back[2] > 200 && back[0] < 50, `back ${back}`);
 });
 
-test("rejects references without a visible object", () => {
+test("rejects transparent references without a visible object and accepts opaque crops", () => {
   const { positions, triangles } = sphere(4);
   const mesh = weld(positions);
   assert.throws(() => prepareView("front", { width: 8, height: 8, data: new Uint8Array(8 * 8 * 4) }, mesh, triangles), /reference-empty/);
+  assert.doesNotThrow(() => prepareView("front", { width: 8, height: 8, data: new Uint8Array(8 * 8 * 4).fill(255) }, mesh, triangles));
 });
