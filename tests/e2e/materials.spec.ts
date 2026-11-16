@@ -91,9 +91,6 @@ console.log(JSON.stringify({type:"result",files:[{path:"result.glb",kind:"model"
   await page.getByRole("combobox", { name: "Texture engine", exact: true }).focus();
   await page.keyboard.press("ArrowDown");
   await page.getByRole("option", { name: "Texture contract fixture", exact: true }).click();
-  await page.getByRole("combobox", { name: "Texture reference", exact: true }).focus();
-  await page.keyboard.press("ArrowDown");
-  await page.getByRole("option", { name: /Front/ }).click();
   await page.getByRole("button", { name: "Texture into a new version", exact: true }).click();
   await stubOpenDialog(app, path.join(FIXTURES, "Avocado.glb"));
   await page.getByRole("button", { name: "Import GLB", exact: true }).click();
@@ -107,7 +104,6 @@ console.log(JSON.stringify({type:"result",files:[{path:"result.glb",kind:"model"
   await expect(page.getByLabel("Unsaved changes")).toHaveCount(0);
   const project = (await page.evaluate(() => window.forma!.projects.last()))!;
   expect(project.settings.textureEngine.id).toBe("texture-contract");
-  expect(project.settings.textureReferenceId).toBe(project.scene.references[0].id);
   expect(project.scene.variants.find((v) => v.origin === "texture")!.parentId).toBe(sourceId);
   expect(project.scene.activeVariantId).not.toBe(sourceId);
 });

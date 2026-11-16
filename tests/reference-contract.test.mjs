@@ -7,7 +7,6 @@ import { defaultScene, engineManifest, parseStoredScene, parseStoredSettings } f
 test("older projects get independent empty texture engine settings", () => {
   const settings = parseStoredSettings(JSON.stringify({ quality: "balanced" }));
   assert.deepEqual(settings.textureEngine, { id: null, parameters: {} });
-  assert.equal(settings.textureReferenceId, null);
 });
 
 test("preserves all existing references and the active model in older projects", () => {

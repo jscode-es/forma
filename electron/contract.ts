@@ -22,7 +22,6 @@ export type ProjectSettings = {
   imageEngine: EngineSelection;
   textureEngine: EngineSelection;
   multiviewEngine: EngineSelection;
-  textureReferenceId: string | null;
   autoTexture: boolean;
   gameReady: boolean;
   gameBudget: number;
