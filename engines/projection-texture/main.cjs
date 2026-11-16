@@ -172,6 +172,7 @@ async function main() {
 
   send({ type: "progress", value: 0.3, stage: "rendering-geometry" });
   const prepared = images.map((path, index) => prepareView(views[index], decodeImage(readFileSync(path)), mesh, triangles));
+  send({ type: "log", level: "info", message: `silhouette fit (IoU): ${prepared.map((view) => `${view.name} ${view.initialIou.toFixed(3)} -> ${view.iou.toFixed(3)}`).join(", ")}` });
   send({ type: "progress", value: 0.4, stage: "baking" });
   const { pixels, coverage } = bake({ mesh, triangles, cornerUv, views: prepared, resolution, sharpness, progress: (value) => send({ type: "progress", value: 0.4 + value * 0.5, stage: "baking" }) });
 
@@ -181,7 +182,7 @@ async function main() {
   applyTexture(doc, parts, png, regenerated);
   await doc.transform(prune({ keepAttributes: true, keepLeaves: false }));
   await io.write(join(job.outputDir, "model.glb"), doc);
-  send({ type: "log", level: "info", message: `views: ${views.join(", ")}; UVs ${regenerated ? `generated (${charts} charts)` : "kept"}; projected coverage ${(coverage * 100).toFixed(1)}%` });
+  send({ type: "log", level: "info", message: `views: ${views.join(", ")}; UVs ${regenerated ? `generated (${charts} charts)` : "kept"}; projected coverage ${(coverage * 100).toFixed(1)}%; exposure gains ${prepared.map((view) => `${view.name} ${view.gain.map((g) => g.toFixed(2)).join("/")}`).join(", ")}` });
   send({ type: "result", files: [
     { path: "model.glb", label: "Projected texture", kind: "model" },
     { path: "albedo.png", label: "Albedo", kind: "image" },
