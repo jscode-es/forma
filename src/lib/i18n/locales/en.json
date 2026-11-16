@@ -298,10 +298,11 @@
   "texture": {
     "pendingSource": "Used by a pending texture job",
     "engine": "Texture engine",
-    "reference": "Texture reference",
+    "views": "Reference views used: {{views}}.",
+    "noViews": "Add at least one reference view to texture.",
     "run": "Texture into a new version",
     "running": "Texturing...",
-    "hint": "Uses the active version and the selected reference. Needs an installed texture engine, such as Hunyuan3D Paint 2.1 PBR (Models → Engines)."
+    "hint": "Uses the active version and the project reference views. Needs an installed texture engine, such as Hunyuan3D Paint 2.1 PBR (Models → Engines)."
   },
   "engine": {
     "details": "About {{name}}",

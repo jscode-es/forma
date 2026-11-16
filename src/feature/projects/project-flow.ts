@@ -124,7 +124,7 @@ export function requestClose() {
 
 export async function restoreLastSettings() {
   const project = await window.forma?.projects.last();
-  if (project) useProjectStore.setState({ ...project.settings, textureReferenceId: null });
+  if (project) useProjectStore.setState(project.settings);
 }
 
 export function dismissError() {

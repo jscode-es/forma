@@ -16,7 +16,7 @@ type Target =
   | { kind: "model"; engineName: string; then?: Pipeline }
   | { kind: "optimize"; budget: number; parentId?: string; texture?: boolean }
   | { kind: "prepared"; referenceId: string }
-  | { kind: "texture"; engineName: string; parentId: string; referenceId: string }
+  | { kind: "texture"; engineName: string; parentId: string }
   | { kind: "rig"; parentId: string; sourceLabel: string }
   | { kind: "motion"; parentId: string; sourceLabel: string }
   | { kind: "mesh"; task: MeshTask; parentIds: string[]; sourceLabel: string }
@@ -126,10 +126,10 @@ async function enqueue(
     }).slice(0, engine.inputs.images.max);
     images = references.map(activeImage);
     views = references.map((r) => r.view);
-  } else if (task === "texture" && target.kind === "texture") {
-    const reference = project.references.find((r) => r.id === target.referenceId);
-    images = reference ? [activeImage(reference)] : [];
-    views = reference && engine.inputs.views.length > 0 ? [reference.view] : [];
+  } else if (task === "texture") {
+    const references = textureReferences(engine);
+    images = references.map(activeImage);
+    views = engine.inputs.views.length > 0 ? references.map((r) => r.view) : [];
   } else if (task !== "text-to-image" && engine.inputs.images.max > 0) {
     const reference = mainReference(project.references);
     images = reference ? [activeImage(reference)] : [];
@@ -256,13 +256,15 @@ export function textureEngine() {
   return selected ?? engineFor("texture");
 }
 
-function textureReference() {
-  const project = useProjectStore.getState();
-  return project.references.find((r) => r.id === project.textureReferenceId) ?? mainReference(project.references);
+export function textureReferences(engine: EngineInfo) {
+  const { references } = useProjectStore.getState();
+  const usable = engine.inputs.views.length > 0 ? references.filter((r) => engine.inputs.views.includes(r.view)) : references;
+  return usable.slice(0, engine.inputs.images.max);
 }
 
 export function canAutoTexture() {
-  return Boolean(textureEngine() && textureReference());
+  const engine = textureEngine();
+  return Boolean(engine && textureReferences(engine).length > 0);
 }
 
 async function chainOptimize(sourceId: string, budget: number, texture: boolean) {
@@ -308,15 +310,14 @@ export async function textureModel(sourceId?: string) {
   const source = sourceId ? project.variants.find((v) => v.id === sourceId) : activeVariant(project);
   const engine = sourceId ? textureEngine() : useJobsStore.getState().engines.find((e) => e.id === project.textureEngine.id && e.tasks.includes("texture"));
   if (!window.forma || !engine || !source || source.model.type === "default-cube") return;
-  const reference = sourceId ? textureReference() : project.references.find((r) => r.id === project.textureReferenceId);
-  if (!reference) {
+  if (textureReferences(engine).length === 0) {
     useJobsStore.setState({ enqueueError: "reference-required" });
     return;
   }
   const parameters = engine.id === project.textureEngine.id ? project.textureEngine.parameters : {};
   project.retainVariant(source.id);
   try {
-    await enqueue("texture", engine, parameters, { kind: "texture", engineName: engine.name, parentId: source.id, referenceId: reference.id }, [source.model]);
+    await enqueue("texture", engine, parameters, { kind: "texture", engineName: engine.name, parentId: source.id }, [source.model]);
   } catch (error) {
     if (useProjectStore.getState().sessionId === project.sessionId) useProjectStore.getState().releaseVariant(source.id);
     useJobsStore.setState({ enqueueError: errorMessage(error) });

@@ -298,10 +298,11 @@
   "texture": {
     "pendingSource": "Utilizada por un trabajo de texturizado pendiente",
     "engine": "Motor de texturas",
-    "reference": "Referencia de textura",
+    "views": "Vistas de referencia usadas: {{views}}.",
+    "noViews": "Añade al menos una vista de referencia para texturizar.",
     "run": "Texturizar en una nueva versión",
     "running": "Texturizando...",
-    "hint": "Usa la versión activa y la referencia seleccionada. Necesita un motor de texturas instalado, como Hunyuan3D Paint 2.1 PBR (Modelos → Motores)."
+    "hint": "Usa la versión activa y las vistas de referencia del proyecto. Necesita un motor de texturas instalado, como Hunyuan3D Paint 2.1 PBR (Modelos → Motores)."
   },
   "engine": {
     "details": "Acerca de {{name}}",
