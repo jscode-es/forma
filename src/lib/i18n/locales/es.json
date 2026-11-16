@@ -302,7 +302,7 @@
     "noViews": "Añade al menos una vista de referencia para texturizar.",
     "run": "Texturizar en una nueva versión",
     "running": "Texturizando...",
-    "hint": "Usa la versión activa y las vistas de referencia del proyecto. Necesita un motor de texturas instalado, como Hunyuan3D Paint 2.1 PBR (Modelos → Motores)."
+    "hint": "Usa la versión activa y las vistas de referencia del proyecto. La proyección de vistas de Forma viene incluida; los motores con IA, como Hunyuan3D Paint 2.1 PBR, se instalan desde Modelos → Motores."
   },
   "engine": {
     "details": "Acerca de {{name}}",
@@ -465,6 +465,12 @@
       "prompt-required": "Escribe un prompt primero",
       "views-mismatch": "Cada referencia necesita una vista",
       "view-unsupported": "El motor no acepta una de las vistas",
+      "projection-empty": "Ninguna vista de referencia cae sobre el modelo. Comprueba que las vistas muestran el objeto completo, centrado y sin elementos añadidos",
+      "reference-empty": "Una vista de referencia no tiene ningún objeto visible; usa una imagen con fondo transparente o uniforme",
+      "uv-pack-failed": "Las islas UV no caben en el atlas; elige una resolución mayor u optimiza antes el modelo",
+      "unsupported-primitive": "El modelo contiene líneas o puntos; solo se pueden texturizar mallas de triángulos",
+      "instanced-mesh-unsupported": "La misma malla la reutilizan varios objetos; todavía no está soportado",
+      "image-unsupported": "Formato de imagen no soportado; usa PNG o JPEG",
       "occlusion-uv-required": "La oclusión ambiental necesita una malla con UV; despliégalas primero",
       "occlusion-single-mesh-required": "La oclusión ambiental admite una sola malla",
       "occlusion-bake-empty": "El horneado de oclusión no produjo píxeles",
