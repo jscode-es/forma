@@ -141,6 +141,11 @@
     "noResults": "No tools match your search.",
     "generate": "Generate model",
     "generating": "Generating model… {{percent}}%",
+    "pipelineStage": {
+      "generate": "Generating model… {{percent}}% · {{step}}/{{total}}",
+      "optimize": "Optimizing for games… {{percent}}% · {{step}}/{{total}}",
+      "texture": "Applying texture… {{percent}}% · {{step}}/{{total}}"
+    },
     "generateHint": "Choose an available engine.",
     "tabs": {
       "text": "From text",

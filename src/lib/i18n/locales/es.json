@@ -141,6 +141,11 @@
     "noResults": "Ninguna herramienta coincide con la búsqueda.",
     "generate": "Generar modelo",
     "generating": "Generando modelo… {{percent}}%",
+    "pipelineStage": {
+      "generate": "Generando modelo… {{percent}}% · {{step}}/{{total}}",
+      "optimize": "Optimizando para juegos… {{percent}}% · {{step}}/{{total}}",
+      "texture": "Aplicando textura… {{percent}}% · {{step}}/{{total}}"
+    },
     "generateHint": "Elige un motor disponible.",
     "tabs": {
       "text": "Desde texto",
