@@ -208,15 +208,23 @@ function GenerateFooter() {
   const { t } = useTranslation();
   const engineId = useProjectStore((s) => s.engine.id);
   const engine = useJobsStore((s) => s.engines.find((e) => e.id === engineId));
-  const job = useJobsStore((s) => s.jobs.find((j) => ACTIVE.has(j.status) && j.engineId === engineId && j.task === "image-to-3d"));
+  const pipeline = useJobsStore((s) => s.pipeline);
+  const job = useJobsStore((s) => s.pipeline ? s.jobs.find((j) => j.id === s.pipeline!.jobId) : s.jobs.find((j) => ACTIVE.has(j.status) && j.engineId === engineId && j.task === "image-to-3d"));
   const error = useJobsStore((s) => s.enqueueError);
   const ready = Boolean(engine?.available);
+  const stepProgress = job && ACTIVE.has(job.status) ? job.progress : job ? 1 : 0;
+  const progress = pipeline ? (pipeline.step + stepProgress) / pipeline.stages.length : job?.progress;
+  const stage = pipeline?.stages[pipeline.step] ?? "generate";
+  const label = !pipeline && !job ? t("inspector.generate")
+    : job?.status === "queued" && stage === "generate" ? t("inspector.generateQueued")
+    : (pipeline?.stages.length ?? 1) === 1 ? t("inspector.generating", { percent: Math.round((progress ?? 0) * 100) })
+    : t(`inspector.pipelineStage.${stage}`, { percent: Math.round((progress ?? 0) * 100), step: (pipeline?.step ?? 0) + 1, total: pipeline?.stages.length ?? 1 });
 
   return (
     <div className={styles.inspectorFooter}>
-      <ProgressButton size="lg" disabled={!ready} progress={job?.progress} onClick={() => generateModel()}>
+      <ProgressButton size="lg" disabled={!ready || Boolean(pipeline)} progress={progress} onClick={() => generateModel()}>
         <Icon icon={Sparkles} size={16} />
-        {job ? job.status === "queued" ? t("inspector.generateQueued") : t("inspector.generating", { percent: Math.round(job.progress * 100) }) : t("inspector.generate")}
+        {label}
       </ProgressButton>
       {(error || !ready) && <span className={styles.hint} style={{ textAlign: "center", color: error ? "var(--color-destructive)" : undefined }}>
         {error ? t(`errors.${error}`, { defaultValue: error }) : t("inspector.generateHint")}

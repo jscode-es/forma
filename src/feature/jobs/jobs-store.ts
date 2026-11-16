@@ -24,6 +24,8 @@ type Target =
   | { kind: "package"; variantId: string; target: PackageTarget; name: string };
 type Pending = Target & { sessionId: string };
 type Pipeline = { budget: number | null; texture: boolean };
+export type PipelineStage = "generate" | "optimize" | "texture";
+export type PipelineProgress = { stages: PipelineStage[]; step: number; jobId: string | null };
 
 export type PackageTarget = "blender" | "unity" | "godot";
 
@@ -47,6 +49,7 @@ type JobsState = {
   enqueueError: string | null;
   candidates: Candidates | null;
   lastPackage: PackageJob | null;
+  pipeline: PipelineProgress | null;
   select: (id: string | null) => void;
 };
 
@@ -59,6 +62,7 @@ export const useJobsStore = create<JobsState>()((set) => ({
   enqueueError: null,
   candidates: null,
   lastPackage: null,
+  pipeline: null,
   select: (selectedId) => set({ selectedId }),
 }));
 
@@ -147,14 +151,17 @@ async function enqueue(
 export async function generateModel() {
   const project = useProjectStore.getState();
   const engine = useJobsStore.getState().engines.find((e) => e.id === project.engine.id);
-  if (!window.forma || !engine) return;
+  if (!window.forma || !engine || useJobsStore.getState().pipeline) return;
   const parameters = { ...project.engine.parameters };
   if (engine.parameters.some((p) => p.id === "steps")) parameters.steps = project.qualitySteps[project.quality];
   const then: Pipeline = { budget: project.gameReady ? project.gameBudget : null, texture: project.autoTexture && canAutoTexture() };
+  const stages: PipelineStage[] = ["generate", ...(then.budget !== null ? ["optimize" as const] : []), ...(then.texture ? ["texture" as const] : [])];
+  useJobsStore.setState({ pipeline: { stages, step: 0, jobId: null } });
   try {
-    await enqueue("image-to-3d", engine, parameters, { kind: "model", engineName: engine.name, then });
+    const job = await enqueue("image-to-3d", engine, parameters, { kind: "model", engineName: engine.name, then });
+    useJobsStore.setState((s) => ({ pipeline: s.pipeline && { ...s.pipeline, jobId: job.id } }));
   } catch (error) {
-    useJobsStore.setState({ enqueueError: errorMessage(error) });
+    useJobsStore.setState({ enqueueError: errorMessage(error), pipeline: null });
   }
 }
 
@@ -274,7 +281,7 @@ async function chainOptimize(sourceId: string, budget: number, texture: boolean)
   if (!source || !engine) return;
   project.retainVariant(sourceId);
   try {
-    await enqueue("optimize", engine, { budget, lod1: 0, lod2: 0, lod3: 0 }, { kind: "optimize", budget, parentId: sourceId, texture }, [source.model]);
+    return await enqueue("optimize", engine, { budget, lod1: 0, lod2: 0, lod3: 0 }, { kind: "optimize", budget, parentId: sourceId, texture }, [source.model]);
   } catch (error) {
     useProjectStore.getState().releaseVariant(sourceId);
     useJobsStore.setState({ enqueueError: errorMessage(error) });
@@ -317,7 +324,7 @@ export async function textureModel(sourceId?: string) {
   const parameters = engine.id === project.textureEngine.id ? project.textureEngine.parameters : {};
   project.retainVariant(source.id);
   try {
-    await enqueue("texture", engine, parameters, { kind: "texture", engineName: engine.name, parentId: source.id }, [source.model]);
+    return await enqueue("texture", engine, parameters, { kind: "texture", engineName: engine.name, parentId: source.id }, [source.model]);
   } catch (error) {
     if (useProjectStore.getState().sessionId === project.sessionId) useProjectStore.getState().releaseVariant(source.id);
     useJobsStore.setState({ enqueueError: errorMessage(error) });
@@ -385,7 +392,21 @@ export async function enqueueTextMotion(provider: string, seconds: number, promp
   }
 }
 
+function advancePipeline(previousJobId: string, job: JobInfo | undefined, stage: PipelineStage) {
+  const { pipeline } = useJobsStore.getState();
+  if (!job || pipeline?.jobId !== previousJobId) return;
+  useJobsStore.setState({ pipeline: { ...pipeline, step: pipeline.stages.indexOf(stage), jobId: job.id } });
+}
+
 export async function applyFinishedJob(job: JobInfo) {
+  try {
+    await applyJob(job);
+  } finally {
+    if (!ACTIVE.has(job.status) && useJobsStore.getState().pipeline?.jobId === job.id) useJobsStore.setState({ pipeline: null });
+  }
+}
+
+async function applyJob(job: JobInfo) {
   const { pending } = useJobsStore.getState();
   const target = pending[job.id];
   if (!target || ACTIVE.has(job.status)) return;
@@ -519,7 +540,7 @@ export async function applyFinishedJob(job: JobInfo) {
       const parent = current.variants.find((v) => v.id === target.parentId) ?? activeVariant(project);
       current.addVariant({ label: `${parent.label} · ${target.budget}`, origin: "optimize", engineId: job.engineId, model, lods, params: job.parameters }, false, target.parentId);
       const optimized = addedVariant(model);
-      if (target.texture && optimized) await textureModel(optimized);
+      if (target.texture && optimized) advancePipeline(job.id, await textureModel(optimized), "texture");
     } finally {
       if (target.parentId && useProjectStore.getState().sessionId === target.sessionId) useProjectStore.getState().releaseVariant(target.parentId);
     }
@@ -538,8 +559,8 @@ export async function applyFinishedJob(job: JobInfo) {
   );
   const generated = addedVariant(model);
   if (!generated || !target.then) return;
-  if (target.then.budget !== null) await chainOptimize(generated, target.then.budget, target.then.texture);
-  else if (target.then.texture) await textureModel(generated);
+  if (target.then.budget !== null) advancePipeline(job.id, await chainOptimize(generated, target.then.budget, target.then.texture), "optimize");
+  else if (target.then.texture) advancePipeline(job.id, await textureModel(generated), "texture");
 }
 
 function addedVariant(model: SceneModel) {
