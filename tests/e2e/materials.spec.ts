@@ -1,7 +1,7 @@
 import { test, expect, type ElectronApplication, type Page } from "@playwright/test";
 import path from "node:path";
 import fs from "node:fs";
-import { launch, quit, tempDataDir, stubOpenDialog, stubSaveDialog, FIXTURES, waitForJob } from "./helpers";
+import { FIXTURES, launch, openProject, quit, stubOpenDialog, stubSaveDialog, tempDataDir, waitForJob } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
 const dataDir = tempDataDir();
@@ -79,6 +79,8 @@ copyFileSync(job.inputs.models[0],join(job.outputDir,"result.glb"));
 console.log(JSON.stringify({type:"result",files:[{path:"result.glb",kind:"model",label:"Protocol result"}]}));
 `);
   await page.reload();
+  await expect(page.getByLabel("Model statistics")).toBeVisible();
+  await openProject(page, "Material project");
   const sourceId = (await page.evaluate(() => window.forma!.projects.last()))!.scene.activeVariantId;
   const png = await app.evaluate(({ nativeImage }) => Array.from(nativeImage.createFromBitmap(Buffer.alloc(64 * 64 * 4, 255), { width: 64, height: 64 }).toPNG()));
   const reference = path.join(dataDir, "reference.png");

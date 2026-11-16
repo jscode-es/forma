@@ -306,6 +306,9 @@
     "views": "Reference views used: {{views}}.",
     "noViews": "Add at least one reference view to texture.",
     "run": "Texture into a new version",
+    "source": "Textures {{name}}.",
+    "retrySource": "Textures {{name}} again with a new seed; the current texture stays as another version.",
+    "retry": "Regenerate texture",
     "running": "Texturing...",
     "hint": "Uses the active version and the project reference views. Forma view projection is built in; AI engines such as Hunyuan3D Paint 2.1 PBR are installed from Models → Engines."
   },

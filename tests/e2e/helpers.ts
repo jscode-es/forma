@@ -84,3 +84,10 @@ export function sha256(file: string) {
   return createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 }
 
+
+export async function openProject(page: Page, name: string) {
+  await page.getByRole("button", { name: "Library", exact: true }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.locator("div").filter({ hasText: name }).filter({ has: page.getByRole("button", { name: "Open", exact: true }) }).last().getByRole("button", { name: "Open", exact: true }).click();
+  await expect(page.getByRole("navigation", { name: "Project" })).toContainText(name);
+}

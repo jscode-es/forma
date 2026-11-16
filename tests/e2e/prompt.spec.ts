@@ -1,5 +1,5 @@
 import { expect, test, type ElectronApplication, type Page } from "@playwright/test";
-import { axeViolations, chooseEngine, launch, quit, tempDataDir, waitForJob } from "./helpers";
+import { axeViolations, chooseEngine, launch, openProject, quit, tempDataDir, waitForJob } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
 
@@ -92,6 +92,7 @@ test("saves the prompt history and seed with the project", async () => {
   await quit(app);
 
   ({ app, page } = await launch(dataDir));
+  await openProject(page, "Prompt project");
   const project = await page.evaluate(() => window.forma!.projects.last());
   expect(project!.scene.prompts).toHaveLength(1);
   expect(project!.scene.prompts[0]).toMatchObject({ text: "a red wooden chair", engineId: "forma-demo", params: { seed: 42, count: 4 } });

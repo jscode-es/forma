@@ -73,7 +73,9 @@ function foreground(image) {
       if (y > y1) y1 = y;
     }
   }
-  if (x1 < x0) throw new Error("reference-empty");
+  if (x1 < x0 && transparent) throw new Error("reference-empty");
+  // An opaque image without a distinguishable background is treated as a tight crop of the object.
+  if (x1 < x0) return { mask: mask.fill(1), bounds: [0, 0, width, height] };
   return { mask: erode(mask, width, height, Math.max(1, Math.round(Math.min(width, height) / 256))), bounds: [x0, y0, x1 + 1, y1 + 1] };
 }
 

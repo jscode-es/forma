@@ -312,10 +312,10 @@ export async function packageModel(target: PackageTarget, includeLods: boolean, 
   }
 }
 
-export async function textureModel(sourceId?: string) {
+export async function textureModel(sourceId?: string, selectedEngine = !sourceId) {
   const project = useProjectStore.getState();
   const source = sourceId ? project.variants.find((v) => v.id === sourceId) : activeVariant(project);
-  const engine = sourceId ? textureEngine() : useJobsStore.getState().engines.find((e) => e.id === project.textureEngine.id && e.tasks.includes("texture"));
+  const engine = selectedEngine ? useJobsStore.getState().engines.find((e) => e.id === project.textureEngine.id && e.tasks.includes("texture")) : textureEngine();
   if (!window.forma || !engine || !source || source.model.type === "default-cube") return;
   if (textureReferences(engine).length === 0) {
     useJobsStore.setState({ enqueueError: "reference-required" });

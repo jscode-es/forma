@@ -306,6 +306,9 @@
     "views": "Vistas de referencia usadas: {{views}}.",
     "noViews": "Añade al menos una vista de referencia para texturizar.",
     "run": "Texturizar en una nueva versión",
+    "source": "Texturiza {{name}}.",
+    "retrySource": "Vuelve a texturizar {{name}} con otra semilla; la textura actual se conserva como otra versión.",
+    "retry": "Regenerar textura",
     "running": "Texturizando...",
     "hint": "Usa la versión activa y las vistas de referencia del proyecto. La proyección de vistas de Forma viene incluida; los motores con IA, como Hunyuan3D Paint 2.1 PBR, se instalan desde Modelos → Motores."
   },

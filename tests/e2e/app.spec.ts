@@ -85,9 +85,9 @@ test("asks before discarding unsaved changes when closing", async () => {
   await app.waitForEvent("close");
 });
 
-test("restores the last project after a restart", async () => {
+test("starts with the default cube and the last project's settings after a restart", async () => {
   ({ app, page } = await launch(dataDir));
-  await expect(page.getByRole("navigation", { name: "Project" })).toContainText("E2E project");
-  await expect(page.getByText("Active: Avocado · 300")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Project" })).not.toContainText("E2E project");
+  await expect(page.getByText("Active: Cube")).toBeVisible();
   await expect(page.getByRole("radio", { name: "High", exact: true })).toHaveAttribute("data-state", "on");
 });
